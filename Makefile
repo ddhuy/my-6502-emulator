@@ -1,38 +1,45 @@
-# Default build type
+CXX       := g++
+CXXFLAGS  := -std=c++17 -Wall -Wextra -I./src
+
+# -------------------------
+# Build mode
+# -------------------------
 BUILD ?= debug
 
-# -------------------------
-# Compiler and flags
-# -------------------------
-CXX       := g++
-CXXFLAGS  := -std=c++17 -Wall -Wextra -Werror=return-type -I./src
-
 ifeq ($(BUILD),debug)
-    CXXFLAGS += -g -O0 -DDEBUG
-    CXXFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer
+    CXXFLAGS += -g -O0 -DDEBUG \
+                -fsanitize=address,undefined \
+                -fno-omit-frame-pointer
 else ifeq ($(BUILD),release)
     CXXFLAGS += -O2 -DNDEBUG
 endif
 
-SRC_DIR   := src
-TEST_DIR  := tests
-BUILD_DIR := build
-OBJ_DIR   := $(BUILD_DIR)/obj
-BIN_DIR   := $(BUILD_DIR)/bin
+# -------------------------
+# Directories
+# -------------------------
+SRC_DIR    := src
+TEST_DIR   := tests
+BUILD_DIR  := build
+OBJ_DIR    := $(BUILD_DIR)/obj
+BIN_DIR    := $(BUILD_DIR)/bin
+TEST_BIN_DIR := $(BIN_DIR)/tests
 
 EMULATOR_BIN := $(BIN_DIR)/emulator
-TEST_BIN     := $(BIN_DIR)/emulator_tests
 
 # -------------------------
 # Source files
 # -------------------------
 ALL_SRC_FILES := $(shell find $(SRC_DIR) -name "*.cpp")
 LIB_SRC_FILES := $(filter-out $(SRC_DIR)/main.cpp,$(ALL_SRC_FILES))
-TEST_FILES    := $(shell find $(TEST_DIR) -name "*.cpp")
+TEST_SRC_FILES := $(shell find $(TEST_DIR) -name "*.cpp")
 
-LIB_OBJS  := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(LIB_SRC_FILES))
-MAIN_OBJ  := $(OBJ_DIR)/$(SRC_DIR)/main.o
-TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TEST_FILES))
+LIB_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(LIB_SRC_FILES))
+MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/main.o
+
+TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TEST_SRC_FILES))
+
+# Test executable names (strip path & extension)
+TEST_BINS := $(patsubst $(TEST_DIR)/%.cpp,$(TEST_BIN_DIR)/%,$(TEST_SRC_FILES))
 
 # -------------------------
 # Default target
@@ -40,19 +47,20 @@ TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TEST_FILES))
 all: $(EMULATOR_BIN)
 
 # -------------------------
-# Emulator binary
+# Emulator
 # -------------------------
 $(EMULATOR_BIN): $(LIB_OBJS) $(MAIN_OBJ)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # -------------------------
-# Test binary
+# Tests
 # -------------------------
-tests: $(TEST_BIN)
+tests: $(TEST_BINS)
 
-$(TEST_BIN): $(LIB_OBJS) $(TEST_OBJS)
-	@mkdir -p $(BIN_DIR)
+# Rule: one test source -> one test binary
+$(TEST_BIN_DIR)/%: $(OBJ_DIR)/$(TEST_DIR)/%.o $(LIB_OBJS)
+	@mkdir -p $(TEST_BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # -------------------------
@@ -63,9 +71,20 @@ $(OBJ_DIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # -------------------------
-# Housekeeping
+# Run all tests
+# -------------------------
+run-tests: tests
+	@set -e; \
+	for t in $(TEST_BINS); do \
+	    echo "Running $$t"; \
+	    $$t; \
+	done; \
+	echo "All tests passed."
+
+# -------------------------
+# Clean
 # -------------------------
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all tests clean
+.PHONY: all tests run-tests clean

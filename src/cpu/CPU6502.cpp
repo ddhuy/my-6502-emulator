@@ -23,7 +23,7 @@ void CPU6502::reset()
     X = 0;
     Y = 0;
     SP = 0xFD; // Stack Pointer starts at 0xFD
-    status = 0x00 | 0x20; // Set unused flag
+    status = StatusFlag::U; // Set unused flag
 
     // Set Program Counter to the address stored at the reset vector (0xFFFC)
     uint16_t lo = _bus->read(0xFFFC);
@@ -50,4 +50,21 @@ uint8_t CPU6502::fetchByte()
     uint8_t data = _bus->read(PC++);
 
     return data;
+}
+
+void CPU6502::setFlag(StatusFlag flag, bool value) {
+    if (value) {
+        status |= flag;
+    } else {
+        status &= ~flag;
+    }
+}
+
+bool CPU6502::getFlag(StatusFlag flag) const {
+    return (status & flag) != 0;
+}
+
+void CPU6502::updateZN(uint8_t value) {
+    setFlag(StatusFlag::Z, value == 0);
+    setFlag(StatusFlag::N, (value & 0x80) != 0);
 }
