@@ -41,6 +41,9 @@ class CPU6502
         // Data fetch helper
         uint8_t fetch();
 
+        // Instructions
+        uint8_t LDA(); // Load Accumulator
+
         // CPU Registers
         uint8_t A = 0;      // Accumulator
         uint8_t X = 0;      // X Register
@@ -52,8 +55,12 @@ class CPU6502
     private:
         Bus* _bus = nullptr;
 
-        uint16_t addr_abs = 0;   // absolute address
-        uint8_t  fetched  = 0;   // data fetched from addr_abs
+        uint16_t _addr_abs = 0;   // absolute address
+        uint8_t  _fetched  = 0;   // data fetched from addr_abs
+
+        // Internal helper variables
+        uint8_t _opcode = 0;
+        uint8_t _cycles = 0;
 
         // Helper methods for flag manipulation, addressing modes, etc.
 };

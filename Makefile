@@ -1,5 +1,5 @@
 CXX       := g++
-CXXFLAGS  := -std=c++17 -Wall -Wextra -I./src
+CXXFLAGS  := -std=c++11 -Wall -Wextra -I./src
 
 # -------------------------
 # Build mode
