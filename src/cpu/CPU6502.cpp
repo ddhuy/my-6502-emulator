@@ -39,7 +39,7 @@ void CPU6502::step()
     // Fetch the next opcode
     _opcode = _bus->read(PC++);
 
-    Instruction& instruction = instructionTable[_opcode];
+    const Instruction& instruction = instructionTable[_opcode];
     DBG_ASSERT(instruction.operate != nullptr);
     DBG_ASSERT(instruction.addrmode != nullptr);
     
