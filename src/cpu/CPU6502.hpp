@@ -33,6 +33,14 @@ class CPU6502
         bool getFlag(StatusFlag flag) const;
         void updateZN(uint8_t value);
 
+        // Addressing modes
+        uint8_t IMM();   // Immediate
+        uint8_t ZP();    // Zero Page
+        uint8_t ABS();   // Absolute
+
+        // Data fetch helper
+        uint8_t fetch();
+
         // CPU Registers
         uint8_t A = 0;      // Accumulator
         uint8_t X = 0;      // X Register
@@ -43,6 +51,9 @@ class CPU6502
 
     private:
         Bus* _bus = nullptr;
+
+        uint16_t addr_abs = 0;   // absolute address
+        uint8_t  fetched  = 0;   // data fetched from addr_abs
 
         // Helper methods for flag manipulation, addressing modes, etc.
 };

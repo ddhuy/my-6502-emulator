@@ -48,7 +48,6 @@ uint8_t CPU6502::fetchByte()
 
     // Fetch a byte from the current PC location
     uint8_t data = _bus->read(PC++);
-
     return data;
 }
 
@@ -67,4 +66,31 @@ bool CPU6502::getFlag(StatusFlag flag) const {
 void CPU6502::updateZN(uint8_t value) {
     setFlag(StatusFlag::Z, value == 0);
     setFlag(StatusFlag::N, (value & 0x80) != 0);
+}
+
+uint8_t CPU6502::fetch() {
+    DBG_ASSERT(_bus != nullptr);
+
+    fetched = _bus->read(addr_abs);
+    return fetched;
+}
+
+uint8_t CPU6502::IMM() {
+    addr_abs = PC++;
+    return 0;
+}
+
+uint8_t CPU6502::ZP() {
+    DBG_ASSERT(_bus != nullptr);
+
+    addr_abs = _bus->read(PC++);
+    addr_abs &= 0x00FF; // Zero page address
+    return 0;
+}
+
+uint8_t CPU6502::ABS() {
+    uint16_t lo = _bus->read(PC++);
+    uint16_t hi = _bus->read(PC++);
+    addr_abs = (hi << 8) | lo;
+    return 0;
 }
