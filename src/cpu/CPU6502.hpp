@@ -33,16 +33,20 @@ class CPU6502
         bool getFlag(StatusFlag flag) const;
         void updateZN(uint8_t value);
 
+        // Data fetch helper
+        uint8_t fetch();
+
         // Addressing modes
         uint8_t IMM();   // Immediate
         uint8_t ZP();    // Zero Page
         uint8_t ABS();   // Absolute
-
-        // Data fetch helper
-        uint8_t fetch();
+        uint8_t IMP();   // Implied
 
         // Instructions
         uint8_t LDA(); // Load Accumulator
+        uint8_t STA(); // Store Accumulator
+        uint8_t TAX(); // Transfer Accumulator to X
+        uint8_t INX(); // Increment X Register
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator

@@ -110,10 +110,38 @@ uint8_t CPU6502::ABS()
     return 0;
 }
 
+uint8_t CPU6502::IMP()
+{
+    _fetched = A; // Implied mode often uses the accumulator
+    return 0;
+}
+
 uint8_t CPU6502::LDA()
 {
     fetch();
     A = _fetched;
     updateZN(A);
+    return 0;
+}
+
+uint8_t CPU6502::STA()
+{
+    DBG_ASSERT(_bus != nullptr);
+
+    _bus->write(_addr_abs, A);
+    return 0;
+}
+
+uint8_t CPU6502::TAX()
+{
+    X = A;
+    updateZN(X);
+    return 0;
+}
+
+uint8_t CPU6502::INX()
+{
+    X++;
+    updateZN(X);
     return 0;
 }
