@@ -224,7 +224,7 @@ const Instruction instructionTable[256] = {
     /* 0xCE */ {"???", nullptr, nullptr, 0},
     /* 0xCF */ {"???", nullptr, nullptr, 0},
 
-    /* 0xD0 */ {"???", nullptr, nullptr, 0},
+    /* 0xD0 */ {"BNE", &CPU6502::BNE, &CPU6502::REL, 2},
     /* 0xD1 */ {"???", nullptr, nullptr, 0},
     /* 0xD2 */ {"???", nullptr, nullptr, 0},
     /* 0xD3 */ {"???", nullptr, nullptr, 0},
@@ -258,7 +258,7 @@ const Instruction instructionTable[256] = {
     /* 0xEE */ {"???", nullptr, nullptr, 0},
     /* 0xEF */ {"???", nullptr, nullptr, 0},
 
-    /* 0xF0 */ {"???", nullptr, nullptr, 0},
+    /* 0xF0 */ {"BEQ", &CPU6502::BEQ, &CPU6502::REL, 2},
     /* 0xF1 */ {"???", nullptr, nullptr, 0},
     /* 0xF2 */ {"???", nullptr, nullptr, 0},
     /* 0xF3 */ {"???", nullptr, nullptr, 0},

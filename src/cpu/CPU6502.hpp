@@ -41,12 +41,15 @@ class CPU6502
         uint8_t ZP();    // Zero Page
         uint8_t ABS();   // Absolute
         uint8_t IMP();   // Implied
+        uint8_t REL();   // Relative
 
         // Instructions
         uint8_t LDA(); // Load Accumulator
         uint8_t STA(); // Store Accumulator
         uint8_t TAX(); // Transfer Accumulator to X
         uint8_t INX(); // Increment X Register
+        uint8_t BEQ(); // Branch if Equal
+        uint8_t BNE(); // Branch if Not Equal
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator
@@ -60,6 +63,7 @@ class CPU6502
         Bus* _bus = nullptr;
 
         uint16_t _addr_abs = 0;   // absolute address
+        uint16_t _addr_rel = 0;   // relative address for branches
         uint8_t  _fetched  = 0;   // data fetched from addr_abs
 
         // Internal helper variables
@@ -67,4 +71,6 @@ class CPU6502
         uint8_t _cycles = 0;
 
         // Helper methods for flag manipulation, addressing modes, etc.
+        uint8_t branch(bool condition);
+
 };

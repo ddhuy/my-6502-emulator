@@ -116,6 +116,16 @@ uint8_t CPU6502::IMP()
     return 0;
 }
 
+uint8_t CPU6502::REL()
+{
+    _addr_rel = _bus->read(PC++);
+
+    if (_addr_rel & 0x80)
+        _addr_rel |= 0xFF00; // Sign-extend 8-bit offset to 16-bit
+
+    return 0;
+}
+
 uint8_t CPU6502::LDA()
 {
     fetch();
@@ -144,4 +154,32 @@ uint8_t CPU6502::INX()
     X++;
     updateZN(X);
     return 0;
+}
+
+uint8_t CPU6502::branch(bool condition)
+{
+    if (!condition)
+        return 0;
+
+    uint16_t old_pc = PC;
+    PC += _addr_rel;
+
+    uint8_t extra_cycles = 1;
+
+    // Page boundary crossed?
+    if ((old_pc & 0xFF00) != (PC & 0xFF00)) {
+        extra_cycles++;
+    }
+
+    return extra_cycles;
+}
+
+uint8_t CPU6502::BEQ()
+{
+    return branch(getFlag(Z));
+}
+
+uint8_t CPU6502::BNE()
+{
+    return branch(!getFlag(Z));
 }
