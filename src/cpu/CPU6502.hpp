@@ -50,6 +50,8 @@ class CPU6502
         uint8_t INX(); // Increment X Register
         uint8_t BEQ(); // Branch if Equal
         uint8_t BNE(); // Branch if Not Equal
+        uint8_t JSR(); // Jump to Subroutine
+        uint8_t RTS(); // Return from Subroutine
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator
@@ -72,5 +74,8 @@ class CPU6502
 
         // Helper methods for flag manipulation, addressing modes, etc.
         uint8_t branch(bool condition);
-
+        
+        // Stack operations
+        void push(uint8_t value);
+        uint8_t pull();
 };

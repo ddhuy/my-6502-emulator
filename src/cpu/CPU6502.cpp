@@ -183,3 +183,41 @@ uint8_t CPU6502::BNE()
 {
     return branch(!getFlag(Z));
 }
+
+void CPU6502::push(uint8_t value)
+{
+    _bus->write(0x0100 | SP, value);
+    SP--;
+}
+
+uint8_t CPU6502::pull()
+{
+    SP++;
+    return _bus->read(0x0100 | SP);
+}
+
+uint8_t CPU6502::JSR()
+{
+    uint16_t target = _addr_abs;
+    DBG_LOG("Jump to 0x%x", target);
+
+    uint16_t return_addr = PC - 1;
+    DBG_LOG("Return to 0x%x", return_addr);
+
+    push((return_addr >> 8) & 0xFF); // high
+    push(return_addr & 0xFF);        // low
+
+    PC = target;
+    return 0;
+}
+
+
+uint8_t CPU6502::RTS()
+{
+    uint16_t lo = pull();
+    uint16_t hi = pull();
+    PC = (hi << 8) | lo;
+    PC++; // Increment PC to point to the next instruction
+
+    return 0;
+}

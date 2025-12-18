@@ -37,7 +37,7 @@ const Instruction instructionTable[256] = {
     /* 0x1E */ {"???", nullptr, nullptr, 0},
     /* 0x1F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x20 */ {"???", nullptr, nullptr, 0},
+    /* 0x20 */ {"JSR", &CPU6502::JSR, &CPU6502::ABS, 6},
     /* 0x21 */ {"???", nullptr, nullptr, 0},
     /* 0x22 */ {"???", nullptr, nullptr, 0},
     /* 0x23 */ {"???", nullptr, nullptr, 0},
@@ -105,7 +105,7 @@ const Instruction instructionTable[256] = {
     /* 0x5E */ {"???", nullptr, nullptr, 0},
     /* 0x5F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x60 */ {"???", nullptr, nullptr, 0},
+    /* 0x60 */ {"RTS", &CPU6502::RTS, &CPU6502::IMP, 6},
     /* 0x61 */ {"???", nullptr, nullptr, 0},
     /* 0x62 */ {"???", nullptr, nullptr, 0},
     /* 0x63 */ {"???", nullptr, nullptr, 0},
