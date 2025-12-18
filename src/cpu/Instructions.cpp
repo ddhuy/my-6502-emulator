@@ -20,7 +20,7 @@ const Instruction instructionTable[256] = {
     /* 0x0E */ {"???", nullptr, nullptr, 0},
     /* 0x0F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x10 */ {"???", nullptr, nullptr, 0},
+    /* 0x10 */ {"BPL", &CPU6502::BPL, &CPU6502::REL, 2},
     /* 0x11 */ {"???", nullptr, nullptr, 0},
     /* 0x12 */ {"???", nullptr, nullptr, 0},
     /* 0x13 */ {"???", nullptr, nullptr, 0},
@@ -54,7 +54,7 @@ const Instruction instructionTable[256] = {
     /* 0x2E */ {"???", nullptr, nullptr, 0},
     /* 0x2F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x30 */ {"???", nullptr, nullptr, 0},
+    /* 0x30 */ {"BMI", &CPU6502::BMI, &CPU6502::REL, 2},
     /* 0x31 */ {"???", nullptr, nullptr, 0},
     /* 0x32 */ {"???", nullptr, nullptr, 0},
     /* 0x33 */ {"???", nullptr, nullptr, 0},
@@ -88,7 +88,7 @@ const Instruction instructionTable[256] = {
     /* 0x4E */ {"???", nullptr, nullptr, 0},
     /* 0x4F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x50 */ {"???", nullptr, nullptr, 0},
+    /* 0x50 */ {"BVC", &CPU6502::BVC, &CPU6502::REL, 2},
     /* 0x51 */ {"???", nullptr, nullptr, 0},
     /* 0x52 */ {"???", nullptr, nullptr, 0},
     /* 0x53 */ {"???", nullptr, nullptr, 0},
@@ -122,7 +122,7 @@ const Instruction instructionTable[256] = {
     /* 0x6E */ {"???", nullptr, nullptr, 0},
     /* 0x6F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x70 */ {"???", nullptr, nullptr, 0},
+    /* 0x70 */ {"BVS", &CPU6502::BVS, &CPU6502::REL, 2},
     /* 0x71 */ {"???", nullptr, nullptr, 0},
     /* 0x72 */ {"???", nullptr, nullptr, 0},
     /* 0x73 */ {"???", nullptr, nullptr, 0},
@@ -156,7 +156,7 @@ const Instruction instructionTable[256] = {
     /* 0x8E */ {"???", nullptr, nullptr, 0},
     /* 0x8F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x90 */ {"???", nullptr, nullptr, 0},
+    /* 0x90 */ {"BCC", &CPU6502::BCC, &CPU6502::REL, 2},
     /* 0x91 */ {"???", nullptr, nullptr, 0},
     /* 0x92 */ {"???", nullptr, nullptr, 0},
     /* 0x93 */ {"???", nullptr, nullptr, 0},
@@ -190,7 +190,7 @@ const Instruction instructionTable[256] = {
     /* 0xAE */ {"???", nullptr, nullptr, 0},
     /* 0xAF */ {"???", nullptr, nullptr, 0},
 
-    /* 0xB0 */ {"???", nullptr, nullptr, 0},
+    /* 0xB0 */ {"BCS", &CPU6502::BCS, &CPU6502::REL, 2},
     /* 0xB1 */ {"???", nullptr, nullptr, 0},
     /* 0xB2 */ {"???", nullptr, nullptr, 0},
     /* 0xB3 */ {"???", nullptr, nullptr, 0},

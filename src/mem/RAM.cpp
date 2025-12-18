@@ -6,7 +6,6 @@
 RAM::RAM(std::size_t size)
     : _data(size, 0x0)
 {
-    DBG_LOG("Initialized RAM with size: %d bytes\n", static_cast<int>(size));
 }
 
 uint8_t RAM::read(uint16_t address) const

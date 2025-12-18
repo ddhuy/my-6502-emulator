@@ -184,6 +184,36 @@ uint8_t CPU6502::BNE()
     return branch(!getFlag(Z));
 }
 
+uint8_t CPU6502::BMI()
+{
+    return branch(getFlag(N));
+}
+
+uint8_t CPU6502::BPL()
+{
+    return branch(!getFlag(N));
+}
+
+uint8_t CPU6502::BCS()
+{
+    return branch(getFlag(C));
+}
+
+uint8_t CPU6502::BCC()
+{
+    return branch(!getFlag(C));
+}
+
+uint8_t CPU6502::BVS()
+{
+    return branch(getFlag(V));
+}
+
+uint8_t CPU6502::BVC()
+{
+    return branch(!getFlag(V));
+}
+
 void CPU6502::push(uint8_t value)
 {
     _bus->write(0x0100 | SP, value);
@@ -199,10 +229,8 @@ uint8_t CPU6502::pull()
 uint8_t CPU6502::JSR()
 {
     uint16_t target = _addr_abs;
-    DBG_LOG("Jump to 0x%x", target);
 
     uint16_t return_addr = PC - 1;
-    DBG_LOG("Return to 0x%x", return_addr);
 
     push((return_addr >> 8) & 0xFF); // high
     push(return_addr & 0xFF);        // low

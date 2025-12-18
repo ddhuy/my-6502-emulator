@@ -50,6 +50,12 @@ class CPU6502
         uint8_t INX(); // Increment X Register
         uint8_t BEQ(); // Branch if Equal
         uint8_t BNE(); // Branch if Not Equal
+        uint8_t BMI(); // Branch if Minus
+        uint8_t BPL(); // Branch if Positive
+        uint8_t BCS(); // Branch if Carry Set
+        uint8_t BCC(); // Branch if Carry Clear
+        uint8_t BVS(); // Branch if Overflow Set
+        uint8_t BVC(); // Branch if Overflow Clear
         uint8_t JSR(); // Jump to Subroutine
         uint8_t RTS(); // Return from Subroutine
 
