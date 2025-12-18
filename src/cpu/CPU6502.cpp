@@ -42,7 +42,7 @@ void CPU6502::step()
     const Instruction& instruction = instructionTable[_opcode];
     DBG_ASSERT(instruction.operate != nullptr);
     DBG_ASSERT(instruction.addrmode != nullptr);
-    
+
     // Call the addressing mode and operation functions
     uint8_t extraCycle1 = (this->*instruction.addrmode)();
     uint8_t extraCycle2 = (this->*instruction.operate)();
@@ -61,11 +61,10 @@ uint8_t CPU6502::fetchByte()
 
 void CPU6502::setFlag(StatusFlag flag, bool value)
 {
-    if (value) {
+    if (value)
         status |= flag;
-    } else {
+    else
         status &= ~flag;
-    }
 }
 
 bool CPU6502::getFlag(StatusFlag flag) const
