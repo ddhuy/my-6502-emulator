@@ -26,7 +26,8 @@ class CPU6502
         void connectBus(Bus* bus);
         void reset();
         void step();
-        uint8_t fetchByte();
+        void clock();
+        uint8_t cycles() const { return _cycles; }
 
         // Flags manipulation methods would go here
         void setFlag(StatusFlag flag, bool value);
@@ -35,11 +36,16 @@ class CPU6502
 
         // Data fetch helper
         uint8_t fetch();
+        uint8_t fetchByte();
 
         // Addressing modes
         uint8_t IMM();   // Immediate
         uint8_t ZP();    // Zero Page
+        uint8_t ZPX();   // Zero Page, X Indexed
+        uint8_t ZPY();   // Zero Page, Y Indexed
         uint8_t ABS();   // Absolute
+        uint8_t ABSX();  // Absolute, X Indexed
+        uint8_t ABSY();  // Absolute, Y Indexed
         uint8_t IMP();   // Implied
         uint8_t REL();   // Relative
 
@@ -65,7 +71,7 @@ class CPU6502
         uint8_t Y = 0;      // Y Register
         uint8_t SP = 0;     // Stack Pointer
         uint16_t PC = 0;    // Program Counter
-        uint8_t status = 0; // Status Register
+        uint8_t P = 0; // Status Register
 
     private:
         Bus* _bus = nullptr;
@@ -80,7 +86,7 @@ class CPU6502
 
         // Helper methods for flag manipulation, addressing modes, etc.
         uint8_t branch(bool condition);
-        
+
         // Stack operations
         void push(uint8_t value);
         uint8_t pull();

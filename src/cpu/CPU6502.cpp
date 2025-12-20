@@ -24,7 +24,7 @@ void CPU6502::reset()
     X = 0;
     Y = 0;
     SP = 0xFD; // Stack Pointer starts at 0xFD
-    status = StatusFlag::U; // Set unused flag
+    P = StatusFlag::U; // Set unused flag
 
     // Set Program Counter to the address stored at the reset vector (0xFFFC)
     uint16_t lo = _bus->read(0xFFFC);
@@ -32,22 +32,33 @@ void CPU6502::reset()
     PC = (hi << 8) | lo;
 }
 
+void CPU6502::clock()
+{
+    if (_cycles == 0)
+    {
+        // Fetch the next opcode
+        _opcode = _bus->read(PC++);
+        auto& instruction = instructionTable[_opcode];
+
+        _cycles = instruction.cycles;
+
+        // Call the addressing mode and operation functions
+        uint8_t extra_cycle1 = (this->*instruction.addrmode)();
+        uint8_t extra_cycle2 = (this->*instruction.operate)();
+
+        _cycles += (extra_cycle1 & extra_cycle2);
+    }
+
+    _cycles--;
+}
+
 void CPU6502::step()
 {
     DBG_ASSERT(_bus != nullptr);
 
-    // Fetch the next opcode
-    _opcode = _bus->read(PC++);
-
-    const Instruction& instruction = instructionTable[_opcode];
-    DBG_ASSERT(instruction.operate != nullptr);
-    DBG_ASSERT(instruction.addrmode != nullptr);
-
-    // Call the addressing mode and operation functions
-    uint8_t extraCycle1 = (this->*instruction.addrmode)();
-    uint8_t extraCycle2 = (this->*instruction.operate)();
-
-    _cycles = instruction.cycles + (extraCycle1 + extraCycle2);
+    do {
+        clock();
+    } while (_cycles > 0);
 }
 
 uint8_t CPU6502::fetchByte()
@@ -62,14 +73,14 @@ uint8_t CPU6502::fetchByte()
 void CPU6502::setFlag(StatusFlag flag, bool value)
 {
     if (value)
-        status |= flag;
+        P |= flag;
     else
-        status &= ~flag;
+        P &= ~flag;
 }
 
 bool CPU6502::getFlag(StatusFlag flag) const
 {
-    return (status & flag) != 0;
+    return (P & flag) != 0;
 }
 
 void CPU6502::updateZN(uint8_t value)
@@ -101,11 +112,53 @@ uint8_t CPU6502::ZP()
     return 0;
 }
 
+uint8_t CPU6502::ZPX()
+{
+    DBG_ASSERT(_bus != nullptr);
+
+    _addr_abs = (_bus->read(PC++) + X) & 0x00FF; // Zero page address with X offset
+    return 0;
+}
+
+uint8_t CPU6502::ZPY()
+{
+    DBG_ASSERT(_bus != nullptr);
+
+    _addr_abs = (_bus->read(PC++) + Y) & 0x00FF; // Zero page address with Y offset
+    return 0;
+}
+
 uint8_t CPU6502::ABS()
 {
     uint16_t lo = _bus->read(PC++);
     uint16_t hi = _bus->read(PC++);
     _addr_abs = (hi << 8) | lo;
+    return 0;
+}
+
+uint8_t CPU6502::ABSX()
+{
+    uint16_t lo = _bus->read(PC++);
+    uint16_t hi = _bus->read(PC++);
+    _addr_abs = ((hi << 8) | lo) + X;
+
+    // Check for page boundary crossing
+    if ((_addr_abs & 0xFF00) != (hi << 8))
+        return 1; // Add extra cycle
+
+    return 0;
+}
+
+uint8_t CPU6502::ABSY()
+{
+    uint16_t lo = _bus->read(PC++);
+    uint16_t hi = _bus->read(PC++);
+    _addr_abs = ((hi << 8) | lo) + Y;
+
+    // Check for page boundary crossing
+    if ((_addr_abs & 0xFF00) != (hi << 8))
+        return 1; // Add extra cycle
+
     return 0;
 }
 
@@ -160,17 +213,16 @@ uint8_t CPU6502::branch(bool condition)
     if (!condition)
         return 0;
 
+    _cycles++; // Branch taken, add a cycle
+
     uint16_t old_pc = PC;
     PC += _addr_rel;
 
-    uint8_t extra_cycles = 1;
-
     // Page boundary crossed?
-    if ((old_pc & 0xFF00) != (PC & 0xFF00)) {
-        extra_cycles++;
-    }
+    if ((old_pc & 0xFF00) != (PC & 0xFF00))
+        _cycles++; // Add another cycle
 
-    return extra_cycles;
+    return 0;
 }
 
 uint8_t CPU6502::BEQ()
@@ -237,7 +289,6 @@ uint8_t CPU6502::JSR()
     PC = target;
     return 0;
 }
-
 
 uint8_t CPU6502::RTS()
 {
