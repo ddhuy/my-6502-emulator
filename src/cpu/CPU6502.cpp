@@ -299,3 +299,57 @@ uint8_t CPU6502::RTS()
 
     return 0;
 }
+
+uint8_t CPU6502::ADC()
+{
+    int value = fetch();
+    uint16_t sum = (uint16_t)A + value + (getFlag(C) ? 1 : 0);
+    
+    setFlag(V, (~(A ^ value) & (A ^ sum)) & 0x80);
+
+    if (getFlag(D)) {
+        if (((A & 0x0F) + (value & 0x0F) + getFlag(C)) > 9)
+            sum += 0x06;
+        if (sum > 0x99)
+            sum += 0x60;
+    }
+
+    setFlag(C, sum > 0xFF);
+
+    A = sum & 0xFF;
+
+    setFlag(Z, A == 0x00);
+    setFlag(N, A & 0x80);
+
+    return 0;
+}
+
+uint8_t CPU6502::SBC()
+{
+    uint16_t M = fetch();
+    uint16_t value = M ^ 0x00FF;
+
+    uint16_t sum = (uint16_t)A + value + getFlag(C);
+
+    // Binary overflow (always binary)
+    setFlag(V, (~(A ^ value) & (A ^ sum)) & 0x80);
+
+    if (getFlag(D)) {
+        // Low nibble borrow?
+        if (((A & 0x0F) - (M & 0x0F) - (getFlag(C) ? 0 : 1)) < 0)
+            sum -= 0x06;
+
+        // High nibble borrow?
+        if (sum <= 0xFF)
+            sum -= 0x60;
+    }
+
+    setFlag(C, sum > 0xFF);
+
+    A = sum & 0xFF;
+
+    setFlag(Z, A == 0x00);
+    setFlag(N, A & 0x80);
+
+    return 0;
+}

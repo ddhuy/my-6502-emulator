@@ -64,6 +64,8 @@ class CPU6502
         uint8_t BVC(); // Branch if Overflow Clear
         uint8_t JSR(); // Jump to Subroutine
         uint8_t RTS(); // Return from Subroutine
+        uint8_t ADC(); // Add with Carry
+        uint8_t SBC(); // Subtract with Carry
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator
