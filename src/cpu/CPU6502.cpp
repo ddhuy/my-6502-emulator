@@ -103,7 +103,7 @@ uint8_t CPU6502::IMM()
     return 0;
 }
 
-uint8_t CPU6502::ZP()
+uint8_t CPU6502::ZP0()
 {
     DBG_ASSERT(_bus != nullptr);
 
@@ -136,7 +136,7 @@ uint8_t CPU6502::ABS()
     return 0;
 }
 
-uint8_t CPU6502::ABSX()
+uint8_t CPU6502::ABX()
 {
     uint16_t lo = _bus->read(PC++);
     uint16_t hi = _bus->read(PC++);
@@ -149,7 +149,7 @@ uint8_t CPU6502::ABSX()
     return 0;
 }
 
-uint8_t CPU6502::ABSY()
+uint8_t CPU6502::ABY()
 {
     uint16_t lo = _bus->read(PC++);
     uint16_t hi = _bus->read(PC++);
@@ -351,5 +351,35 @@ uint8_t CPU6502::SBC()
     setFlag(Z, A == 0x00);
     setFlag(N, A & 0x80);
 
+    return 0;
+}
+
+void CPU6502::compare(uint8_t reg, uint8_t value)
+{
+    uint16_t temp = (uint16_t)reg - (uint16_t)value;
+
+    setFlag(C, reg >= value);
+    setFlag(Z, (temp & 0x00FF) == 0);
+    setFlag(N, temp & 0x80);
+}
+
+uint8_t CPU6502::CMP()
+{
+    uint8_t value = fetch();
+    compare(A, value);
+    return 0;
+}
+
+uint8_t CPU6502::CPX()
+{
+    uint8_t value = fetch();
+    compare(X, value);
+    return 0;
+}
+
+uint8_t CPU6502::CPY()
+{
+    uint8_t value = fetch();
+    compare(Y, value);
     return 0;
 }

@@ -17,7 +17,7 @@ int main()
     ram.write(0x8000, 0x10);
     ram.write(0x0010, 0x99);
 
-    cpu.ZP();
+    cpu.ZP0();
     uint8_t value = cpu.fetch();
 
     assert(value == 0x99);

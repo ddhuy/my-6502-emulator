@@ -40,12 +40,12 @@ class CPU6502
 
         // Addressing modes
         uint8_t IMM();   // Immediate
-        uint8_t ZP();    // Zero Page
+        uint8_t ZP0();    // Zero Page
         uint8_t ZPX();   // Zero Page, X Indexed
         uint8_t ZPY();   // Zero Page, Y Indexed
         uint8_t ABS();   // Absolute
-        uint8_t ABSX();  // Absolute, X Indexed
-        uint8_t ABSY();  // Absolute, Y Indexed
+        uint8_t ABX();  // Absolute, X Indexed
+        uint8_t ABY();  // Absolute, Y Indexed
         uint8_t IMP();   // Implied
         uint8_t REL();   // Relative
 
@@ -66,6 +66,9 @@ class CPU6502
         uint8_t RTS(); // Return from Subroutine
         uint8_t ADC(); // Add with Carry
         uint8_t SBC(); // Subtract with Carry
+        uint8_t CMP(); // Compare
+        uint8_t CPX(); // Compare X Register
+        uint8_t CPY(); // Compare Y Register
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator
@@ -88,6 +91,7 @@ class CPU6502
 
         // Helper methods for flag manipulation, addressing modes, etc.
         uint8_t branch(bool condition);
+        void compare(uint8_t reg, uint8_t value);
 
         // Stack operations
         void push(uint8_t value);
