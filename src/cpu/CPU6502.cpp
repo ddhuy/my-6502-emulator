@@ -383,3 +383,14 @@ uint8_t CPU6502::CPY()
     compare(Y, value);
     return 0;
 }
+
+uint8_t CPU6502::BIT()
+{
+    uint8_t value = fetch();
+
+    setFlag(Z, (A & value) == 0);
+    setFlag(N, value & 0x80);
+    setFlag(V, value & 0x40);
+
+    return 0;
+}
