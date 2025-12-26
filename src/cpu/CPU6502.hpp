@@ -70,6 +70,7 @@ class CPU6502
         uint8_t CPX(); // Compare X Register
         uint8_t CPY(); // Compare Y Register
         uint8_t BIT(); // Bit Test
+        uint8_t NOP(); // No Operation
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator

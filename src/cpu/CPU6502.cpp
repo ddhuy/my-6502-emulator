@@ -394,3 +394,8 @@ uint8_t CPU6502::BIT()
 
     return 0;
 }
+
+uint8_t CPU6502::NOP()
+{
+    return 0;
+}
