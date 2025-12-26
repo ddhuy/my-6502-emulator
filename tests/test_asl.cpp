@@ -1,43 +1,39 @@
-#include <cassert>
-#include "cpu/CPU6502.hpp"
-#include "bus/Bus.hpp"
-#include "mem/RAM.hpp"
+#include "gtest_fixture.hpp"
 
 
-int main()
+TEST_F(CPU6502Test, ASL)
 {
-    RAM ram;
-    Bus bus;
-    CPU6502 cpu;
-
-    bus.attachMemory(&ram);
-    cpu.connectBus(&bus);
-
-    //
+    // ASL Accumulator
     cpu.A = 0x01;
-    cpu.PC = 0x8000;
-    
-    ram.write(0x8000, 0x0A); // ASL A
+    loadProgram(0x8000, {0x0A}); // ASL A
+    stepInstruction();
+    EXPECT_EQ(cpu.A, 0x02);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::C));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
 
-    cpu.step();
-
-    assert(cpu.A == 0x02);
-    assert(cpu.getFlag(CPU6502::C) == false);
-    assert(cpu.getFlag(CPU6502::Z) == false);
-    assert(cpu.getFlag(CPU6502::N) == false);
-
-    //
     cpu.A = 0x80;
-    cpu.PC = 0x8000;
+    loadProgram(0x8000, {0x0A}); // ASL A
+    stepInstruction();
+    EXPECT_EQ(cpu.A, 0x00);
+    EXPECT_TRUE(cpu.getFlag(CPU6502::C));
+    EXPECT_TRUE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
 
-    ram.write(0x8000, 0x0A); // ASL A
+    // ASL Zero Page
+    ram.write(0x10, 0x01);
+    loadProgram(0x8000, {0x06, 0x10}); // ASL $10
+    stepInstruction();
+    EXPECT_EQ(ram.read(0x10), 0x02);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::C));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
 
-    cpu.step();
-
-    assert(cpu.A == 0x00);
-    assert(cpu.getFlag(CPU6502::C) == true);
-    assert(cpu.getFlag(CPU6502::Z) == true);
-    assert(cpu.getFlag(CPU6502::N) == false);
-
-    return 0;
+    ram.write(0x10, 0x80);
+    loadProgram(0x8000, {0x06, 0x10}); // ASL $10
+    stepInstruction();
+    EXPECT_EQ(ram.read(0x10), 0x00);
+    EXPECT_TRUE(cpu.getFlag(CPU6502::C));
+    EXPECT_TRUE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
 }

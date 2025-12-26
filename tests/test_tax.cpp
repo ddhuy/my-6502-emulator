@@ -1,28 +1,27 @@
-#include <cassert>
-#include "cpu/CPU6502.hpp"
-#include "bus/Bus.hpp"
-#include "mem/RAM.hpp"
+#include "gtest_fixture.hpp"
 
 
-int main()
+TEST_F(CPU6502Test, TAX)
 {
-    RAM ram;
-    Bus bus;
-    CPU6502 cpu;
+    // Test TAX instruction
+    cpu.A = 0x00;
+    loadProgram(0x8000, {0xAA}); // TAX
+    stepInstruction();
+    EXPECT_EQ(cpu.X, 0x00);
+    EXPECT_TRUE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
 
-    bus.attachMemory(&ram);
-    cpu.connectBus(&bus);
+    cpu.A = 0x7F;
+    loadProgram(0x8000, {0xAA}); // TAX
+    stepInstruction();
+    EXPECT_EQ(cpu.X, 0x7F);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
 
-    cpu.PC = 0x8000;
-    cpu.A  = 0x80;
-
-    ram.write(0x8000, 0xAA); // TAX
-
-    cpu.step();
-
-    assert(cpu.X == 0x80);
-    assert(cpu.getFlag(CPU6502::N) == true);
-    assert(cpu.getFlag(CPU6502::Z) == false);
-
-    return 0;
+    cpu.A = 0x80;
+    loadProgram(0x8000, {0xAA}); // TAX
+    stepInstruction();
+    EXPECT_EQ(cpu.X, 0x80);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_TRUE(cpu.getFlag(CPU6502::N));
 }

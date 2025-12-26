@@ -1,5 +1,7 @@
 CXX       := g++
-CXXFLAGS  := -std=c++11 -Wall -Wextra -I./src
+CXXFLAGS  := -std=c++17 -Wall -Wextra -I./src \
+             -I./3rd_party/googletest/googletest/include/
+LDFLAGS   := -lpthread
 
 # -------------------------
 # Build mode
@@ -22,8 +24,10 @@ TEST_DIR   := tests
 BUILD_DIR  := build
 OBJ_DIR    := $(BUILD_DIR)/obj
 BIN_DIR    := $(BUILD_DIR)/bin
-TEST_BIN_DIR := $(BIN_DIR)/tests
 
+GTEST_DIR := 3rd_party/googletest/googletest
+
+TEST_BIN_DIR := $(BIN_DIR)/tests
 EMULATOR_BIN := $(BIN_DIR)/emulator
 
 # -------------------------
@@ -32,13 +36,14 @@ EMULATOR_BIN := $(BIN_DIR)/emulator
 ALL_SRC_FILES := $(shell find $(SRC_DIR) -name "*.cpp")
 LIB_SRC_FILES := $(filter-out $(SRC_DIR)/main.cpp,$(ALL_SRC_FILES))
 TEST_SRC_FILES := $(shell find $(TEST_DIR) -name "*.cpp")
+GTEST_SRC_FILES := $(GTEST_DIR)/src/gtest-all.cc
 
 LIB_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(LIB_SRC_FILES))
-MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/main.o
-
 TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TEST_SRC_FILES))
+GTEST_OBJS := $(patsubst %.cc,$(OBJ_DIR)/%.o,$(GTEST_SRC_FILES))
 
 # Test executable names (strip path & extension)
+MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/main.o
 TEST_BINS := $(patsubst $(TEST_DIR)/%.cpp,$(TEST_BIN_DIR)/%,$(TEST_SRC_FILES))
 
 # -------------------------
@@ -51,7 +56,7 @@ all: $(EMULATOR_BIN)
 # -------------------------
 $(EMULATOR_BIN): $(LIB_OBJS) $(MAIN_OBJ)
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # -------------------------
 # Tests
@@ -59,13 +64,17 @@ $(EMULATOR_BIN): $(LIB_OBJS) $(MAIN_OBJ)
 tests: $(TEST_BINS)
 
 # Rule: one test source -> one test binary
-$(TEST_BIN_DIR)/%: $(OBJ_DIR)/$(TEST_DIR)/%.o $(LIB_OBJS)
+$(TEST_BIN_DIR)/%: $(OBJ_DIR)/$(TEST_DIR)/%.o $(LIB_OBJS) $(GTEST_OBJS)
 	@mkdir -p $(TEST_BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # -------------------------
 # Object compilation
 # -------------------------
+$(GTEST_OBJS): $(GTEST_SRC_FILES)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -I$(GTEST_DIR) -c $< -o $@
+
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
