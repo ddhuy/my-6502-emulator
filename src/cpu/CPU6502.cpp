@@ -91,10 +91,15 @@ void CPU6502::updateZN(uint8_t value)
 
 uint8_t CPU6502::fetch()
 {
-    DBG_ASSERT(_bus != nullptr);
-
-    _fetched = _bus->read(_addr_abs);
+    if (instructionTable[_opcode].addrmode != &CPU6502::ACC)
+        _fetched = _bus->read(_addr_abs);
     return _fetched;
+}
+
+uint8_t CPU6502::ACC()
+{
+    _fetched = A;
+    return 0;
 }
 
 uint8_t CPU6502::IMM()
@@ -397,5 +402,74 @@ uint8_t CPU6502::BIT()
 
 uint8_t CPU6502::NOP()
 {
+    return 0;
+}
+
+uint8_t CPU6502::ASL()
+{
+    uint16_t value = fetch();
+    uint16_t result = (uint16_t)value << 1;
+
+    setFlag(C, (result & 0xFF00) != 0);
+    setFlag(Z, (result & 0x00FF) == 0);
+    setFlag(N, result & 0x80);
+
+    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
+        A = result & 0x00FF;
+    else
+        _bus->write(_addr_abs, result & 0x00FF);
+
+    return 0;
+}
+
+uint8_t CPU6502::LSR()
+{
+    uint16_t value = fetch();
+    setFlag(C, (value & 0x01) != 0);
+
+    uint16_t result = (uint16_t)value >> 1;
+
+    setFlag(Z, (result & 0x00FF) == 0);
+    setFlag(N, false); // Bit 7 is always 0 after LSR
+
+    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
+        A = result & 0x00FF;
+    else
+        _bus->write(_addr_abs, result & 0x00FF);
+
+    return 0;
+}
+
+uint8_t CPU6502::ROL()
+{
+    uint16_t value = fetch();
+    uint16_t result = ((uint16_t)value << 1) | (getFlag(C) ? 1 : 0);
+
+    setFlag(C, (result & 0x80) != 0);
+    setFlag(Z, (result & 0x00FF) == 0);
+    setFlag(N, result & 0x80);
+
+    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
+        A = result & 0x00FF;
+    else
+        _bus->write(_addr_abs, result & 0x00FF);
+
+    return 0;
+}
+
+uint8_t CPU6502::ROR()
+{
+    uint16_t value = fetch();
+    uint16_t result = ((getFlag(C) ? 0x80 : 0) | (value >> 1));
+
+    setFlag(C, (value & 0x01) != 0);
+    setFlag(Z, (result & 0x00FF) == 0);
+    setFlag(N, result & 0x80);
+
+    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
+        A = result & 0x00FF;
+    else
+        _bus->write(_addr_abs, result & 0x00FF);
+
     return 0;
 }

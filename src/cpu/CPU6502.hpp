@@ -39,15 +39,16 @@ class CPU6502
         uint8_t fetchByte();
 
         // Addressing modes
-        uint8_t IMM();   // Immediate
-        uint8_t ZP0();    // Zero Page
-        uint8_t ZPX();   // Zero Page, X Indexed
-        uint8_t ZPY();   // Zero Page, Y Indexed
-        uint8_t ABS();   // Absolute
-        uint8_t ABX();  // Absolute, X Indexed
-        uint8_t ABY();  // Absolute, Y Indexed
-        uint8_t IMP();   // Implied
-        uint8_t REL();   // Relative
+        uint8_t IMM(); // Immediate
+        uint8_t ZP0(); // Zero Page
+        uint8_t ZPX(); // Zero Page, X Indexed
+        uint8_t ZPY(); // Zero Page, Y Indexed
+        uint8_t ABS(); // Absolute
+        uint8_t ABX(); // Absolute, X Indexed
+        uint8_t ABY(); // Absolute, Y Indexed
+        uint8_t IMP(); // Implied
+        uint8_t REL(); // Relative
+        uint8_t ACC(); // Accumulator Addressing Mode
 
         // Instructions
         uint8_t LDA(); // Load Accumulator
@@ -71,6 +72,10 @@ class CPU6502
         uint8_t CPY(); // Compare Y Register
         uint8_t BIT(); // Bit Test
         uint8_t NOP(); // No Operation
+        uint8_t ASL(); // Arithmetic Shift Left
+        uint8_t LSR(); // Logical Shift Right
+        uint8_t ROL(); // Rotate Left
+        uint8_t ROR(); // Rotate Right
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator
