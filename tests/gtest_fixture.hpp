@@ -19,7 +19,8 @@ protected:
     }
 
     // Helper: load a program at a given address
-    void loadProgram(uint16_t start, const std::vector<uint8_t>& bytes) {
+    void loadProgram(uint16_t start, const std::vector<uint8_t>& bytes)
+    {
         for (size_t i = 0; i < bytes.size(); i++) {
             bus.write(start + i, bytes[i]);
         }
@@ -27,7 +28,8 @@ protected:
     }
 
     // Helper: execute one full instruction
-    void stepInstruction() {
+    void stepInstruction()
+    {
         cpu.step();
     }
 };

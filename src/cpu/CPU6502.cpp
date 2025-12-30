@@ -284,14 +284,13 @@ uint8_t CPU6502::pull()
 
 uint8_t CPU6502::JSR()
 {
-    uint16_t target = _addr_abs;
-
+    uint16_t target_addr = _addr_abs;
     uint16_t return_addr = PC - 1;
 
     push((return_addr >> 8) & 0xFF); // high
     push(return_addr & 0xFF);        // low
 
-    PC = target;
+    PC = target_addr;
     return 0;
 }
 

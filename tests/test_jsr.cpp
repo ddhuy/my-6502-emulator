@@ -1,32 +1,23 @@
-#include <cassert>
-#include "cpu/CPU6502.hpp"
-#include "bus/Bus.hpp"
-#include "mem/RAM.hpp"
+#include "gtest_fixture.hpp"
 
 
-int main()
+TEST_F(CPU6502Test, JSR_Instruction)
 {
-    RAM ram;
-    Bus bus;
-    CPU6502 cpu;
+    loadProgram(0x8000, { 0x20, 0x34, 0x12 }); // JSR $1234
 
-    bus.attachMemory(&ram);
-    cpu.connectBus(&bus);
+    stepInstruction();
+    EXPECT_EQ(cpu.PC, 0x1234);
+    EXPECT_EQ(cpu.SP, 0xFB);
+    EXPECT_EQ(ram.read(0x01FC), 0x02);
+    EXPECT_EQ(ram.read(0x01FD), 0x80);
+}
 
-    cpu.PC = 0x8000;
-    cpu.SP = 0xFD;
-
-    ram.write(0x8000, 0x20); // JSR
-    ram.write(0x8001, 0x34);
-    ram.write(0x8002, 0x12);
-
-    cpu.step();
-
-    assert(cpu.PC == 0x1234);
-    assert(cpu.SP == 0xFB);
-
-    assert(ram.read(0x01FD) == 0x80);
-    assert(ram.read(0x01FC) == 0x02);
-
-    return 0;
+TEST_F(CPU6502Test, JSR_Push_Return_And_Jump)
+{
+    loadProgram(0x8000, {0x20, 0x00, 0x90}); // JSR $9000
+    stepInstruction();
+    EXPECT_EQ(cpu.PC, 0x9000);
+    EXPECT_EQ(cpu.SP, 0xFB);
+    EXPECT_EQ(ram.read(0x01FC), 0x02); // Low byte of return address
+    EXPECT_EQ(ram.read(0x01FD), 0x80); // High byte of return address
 }
