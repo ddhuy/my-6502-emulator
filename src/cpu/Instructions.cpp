@@ -3,7 +3,7 @@
 
 
 const Instruction instructionTable[256] = {
-    /* 0x00 */ {"???", nullptr, nullptr, 0},
+    /* 0x00 */ {"BRK", &CPU6502::BRK, &CPU6502::IMP, 7},
     /* 0x01 */ {"???", nullptr, nullptr, 0},
     /* 0x02 */ {"???", nullptr, nullptr, 0},
     /* 0x03 */ {"???", nullptr, nullptr, 0},
@@ -71,7 +71,7 @@ const Instruction instructionTable[256] = {
     /* 0x3E */ {"ROL", &CPU6502::ROL, &CPU6502::ABX, 7},
     /* 0x3F */ {"???", nullptr, nullptr, 0},
 
-    /* 0x40 */ {"???", nullptr, nullptr, 0},
+    /* 0x40 */ {"RTI", &CPU6502::RTI, &CPU6502::IMP, 6},
     /* 0x41 */ {"???", nullptr, nullptr, 0},
     /* 0x42 */ {"???", nullptr, nullptr, 0},
     /* 0x43 */ {"???", nullptr, nullptr, 0},

@@ -76,6 +76,8 @@ class CPU6502
         uint8_t LSR(); // Logical Shift Right
         uint8_t ROL(); // Rotate Left
         uint8_t ROR(); // Rotate Right
+        uint8_t BRK(); // Force Interrupt
+        uint8_t RTI(); // Return from Interrupt
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator

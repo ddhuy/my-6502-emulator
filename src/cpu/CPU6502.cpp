@@ -472,3 +472,35 @@ uint8_t CPU6502::ROR()
 
     return 0;
 }
+
+uint8_t CPU6502::BRK()
+{
+    PC++; // skip padding byte
+
+    push((PC >> 8) & 0xFF); // Push high byte of PC
+    push(PC & 0xFF);        // Push low byte of PC
+
+    push(P | StatusFlag::B | StatusFlag::U); // Push status register
+
+    setFlag(I, true); // Disable interrupts
+
+    // Load IRQ vector
+    uint16_t lo = _bus->read(0xFFFE); // IRQ vector low byte
+    uint16_t hi = _bus->read(0xFFFF); // IRQ vector high byte
+    PC = (hi << 8) | lo;
+
+    return 0;
+}
+
+uint8_t CPU6502::RTI()
+{
+    P = pull();
+    P &= ~StatusFlag::B; // Clear Break flag
+    P |= StatusFlag::U;  // Set Unused flag
+
+    uint16_t lo = pull();
+    uint16_t hi = pull();
+    PC = (hi << 8) | lo;
+
+    return 0;
+}
