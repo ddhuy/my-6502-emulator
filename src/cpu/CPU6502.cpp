@@ -36,17 +36,30 @@ void CPU6502::clock()
 {
     if (_cycles == 0)
     {
-        // Fetch the next opcode
-        _opcode = _bus->read(PC++);
-        auto& instruction = instructionTable[_opcode];
+        if (nmi_pending)
+        {
+            nmi_pending = false;
+            interrupt(0xFFFA); // NMI vector
+        }
+        else if (irq_pending && !getFlag(I))
+        {
+            irq_pending = false;
+            interrupt(0xFFFE); // IRQ vector
+        }
+        else
+        {
+            // Fetch the next opcode
+            _opcode = _bus->read(PC++);
+            auto& instruction = instructionTable[_opcode];
 
-        _cycles = instruction.cycles;
+            _cycles = instruction.cycles;
 
-        // Call the addressing mode and operation functions
-        uint8_t extra_cycle1 = (this->*instruction.addrmode)();
-        uint8_t extra_cycle2 = (this->*instruction.operate)();
+            // Call the addressing mode and operation functions
+            uint8_t extra_cycle1 = (this->*instruction.addrmode)();
+            uint8_t extra_cycle2 = (this->*instruction.operate)();
 
-        _cycles += (extra_cycle1 & extra_cycle2);
+            _cycles += (extra_cycle1 & extra_cycle2);
+        }
     }
 
     _cycles--;
@@ -503,4 +516,22 @@ uint8_t CPU6502::RTI()
     PC = (hi << 8) | lo;
 
     return 0;
+}
+
+void CPU6502::interrupt(uint16_t vector)
+{
+    push((PC >> 8) & 0xFF); // Push high byte of PC
+    push(PC & 0xFF);        // Push low byte of PC
+
+    // Push status register with B=0, U=1
+    push(P & ~StatusFlag::B | StatusFlag::U);
+
+    setFlag(I, true); // Disable further interrupts
+
+    // Load vector
+    uint16_t lo = _bus->read(vector);
+    uint16_t hi = _bus->read(vector + 1);
+    PC = (hi << 8) | lo;
+
+    _cycles = 7; // Interrupt handling takes 7 cycles
 }

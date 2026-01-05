@@ -34,6 +34,10 @@ class CPU6502
         bool getFlag(StatusFlag flag) const;
         void updateZN(uint8_t value);
 
+        // Interrupts
+        void nmi() { nmi_pending = true; }
+        void irq() { irq_pending = true; }
+
         // Data fetch helper
         uint8_t fetch();
         uint8_t fetchByte();
@@ -98,6 +102,10 @@ class CPU6502
         uint8_t _opcode = 0;
         uint8_t _cycles = 0;
 
+        // Interrupt flags
+        bool irq_pending = false;
+        bool nmi_pending = false;
+
         // Helper methods for flag manipulation, addressing modes, etc.
         uint8_t branch(bool condition);
         void compare(uint8_t reg, uint8_t value);
@@ -105,4 +113,7 @@ class CPU6502
         // Stack operations
         void push(uint8_t value);
         uint8_t pull();
+
+        // Interrupt helpers
+        void interrupt(uint16_t vector_address);
 };
