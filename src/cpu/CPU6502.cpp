@@ -201,7 +201,7 @@ uint8_t CPU6502::LDA()
     fetch();
     A = _fetched;
     updateZN(A);
-    return 0;
+    return 1;
 }
 
 uint8_t CPU6502::STA()

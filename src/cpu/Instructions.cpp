@@ -203,7 +203,7 @@ const Instruction instructionTable[256] = {
     /* 0xBA */ {"???", nullptr, nullptr, 0},
     /* 0xBB */ {"???", nullptr, nullptr, 0},
     /* 0xBC */ {"???", nullptr, nullptr, 0},
-    /* 0xBD */ {"???", nullptr, nullptr, 0},
+    /* 0xBD */ {"LDA", &CPU6502::LDA, &CPU6502::ABX, 4},
     /* 0xBE */ {"???", nullptr, nullptr, 0},
     /* 0xBF */ {"???", nullptr, nullptr, 0},
 

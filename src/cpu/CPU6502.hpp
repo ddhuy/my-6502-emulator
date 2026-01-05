@@ -27,7 +27,10 @@ class CPU6502
         void reset();
         void step();
         void clock();
+
+        // Status methods
         uint8_t cycles() const { return _cycles; }
+        bool complete() const { return _cycles == 0; }
 
         // Flags manipulation methods would go here
         void setFlag(StatusFlag flag, bool value);
