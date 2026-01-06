@@ -368,7 +368,7 @@ uint8_t CPU6502::SBC()
     setFlag(Z, A == 0x00);
     setFlag(N, A & 0x80);
 
-    return 0;
+    return 1;
 }
 
 void CPU6502::compare(uint8_t reg, uint8_t value)
@@ -524,7 +524,7 @@ void CPU6502::interrupt(uint16_t vector)
     push(PC & 0xFF);        // Push low byte of PC
 
     // Push status register with B=0, U=1
-    push(P & ~StatusFlag::B | StatusFlag::U);
+    push((P & ~StatusFlag::B) | StatusFlag::U);
 
     setFlag(I, true); // Disable further interrupts
 
@@ -534,4 +534,66 @@ void CPU6502::interrupt(uint16_t vector)
     PC = (hi << 8) | lo;
 
     _cycles = 7; // Interrupt handling takes 7 cycles
+}
+
+uint8_t CPU6502::LAX()
+{
+    fetch();
+
+    A = _fetched;
+    X = _fetched;
+    updateZN(A);
+    return 1;
+}
+
+uint8_t CPU6502::SAX()
+{
+    _bus->write(_addr_abs, A & X);
+    return 0;
+}
+
+uint8_t CPU6502::DCP()
+{
+    fetch();
+
+    uint8_t decremented = _fetched - 1;
+    _bus->write(_addr_abs, decremented);
+
+    uint16_t temp = uint16_t(A) - uint16_t(decremented);
+    setFlag(C, A >= decremented);
+    setFlag(Z, (temp & 0x00FF) == 0);
+    setFlag(N, temp & 0x80);
+
+    return 1;
+}
+
+uint8_t CPU6502::ISC()
+{
+    fetch();
+
+    // Increment the fetched value and write it back to memory
+    uint8_t incremented = _fetched + 1;
+    _bus->write(_addr_abs, incremented);
+
+    // Perform SBC with the incremented value
+    uint16_t value = incremented ^ 0x00FF;
+    uint16_t sum = (uint16_t)A + value + (getFlag(C) ? 1 : 0);
+
+    setFlag(V, (~(A ^ value) & (A ^ sum)) & 0x80);
+
+    if (getFlag(D)) {
+        if (((A & 0x0F) + (value & 0x0F) + getFlag(C)) > 9)
+            sum += 0x06;
+        if (sum > 0x99)
+            sum += 0x60;
+    }
+
+    setFlag(C, sum > 0xFF);
+
+    A = sum & 0xFF;
+
+    setFlag(Z, A == 0x00);
+    setFlag(N, A & 0x80);
+
+    return 1;
 }
