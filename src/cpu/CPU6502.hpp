@@ -91,14 +91,18 @@ class CPU6502
         uint8_t SAX(); // Store Accumulator and X
         uint8_t DCP(); // Decrement and Compare
         uint8_t ISC(); // Increment and Subtract with Carry
+        uint8_t RLA(); // Rotate Left and AND
+        uint8_t RRA(); // Rotate Right and ADC
+        uint8_t SLO(); // Shift Left and ORA
+        uint8_t SRE(); // Shift Right and EOR
 
         // CPU Registers
         uint8_t A = 0;      // Accumulator
         uint8_t X = 0;      // X Register
         uint8_t Y = 0;      // Y Register
         uint8_t SP = 0;     // Stack Pointer
-        uint16_t PC = 0;    // Program Counter
         uint8_t P = 0;      // Status Register
+        uint16_t PC = 0;    // Program Counter
 
     private:
         Bus* _bus = nullptr;

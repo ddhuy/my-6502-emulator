@@ -18,7 +18,7 @@ const Instruction instructionTable[256] = {
     /* 0x0C */ {"???", nullptr, nullptr, 0},
     /* 0x0D */ {"???", nullptr, nullptr, 0},
     /* 0x0E */ {"ASL", &CPU6502::ASL, &CPU6502::ABS, 6},
-    /* 0x0F */ {"???", nullptr, nullptr, 0},
+    /* 0x0F */ {"SLO", &CPU6502::SLO, &CPU6502::ABS, 6},
 
     /* 0x10 */ {"BPL", &CPU6502::BPL, &CPU6502::REL, 2},
     /* 0x11 */ {"???", nullptr, nullptr, 0},
@@ -52,7 +52,7 @@ const Instruction instructionTable[256] = {
     /* 0x2C */ {"BIT", &CPU6502::BIT, &CPU6502::ABS, 4},
     /* 0x2D */ {"???", nullptr, nullptr, 0},
     /* 0x2E */ {"ROL", &CPU6502::ROL, &CPU6502::ABS, 6},
-    /* 0x2F */ {"???", nullptr, nullptr, 0},
+    /* 0x2F */ {"RLA", &CPU6502::RLA, &CPU6502::ABS, 6},
 
     /* 0x30 */ {"BMI", &CPU6502::BMI, &CPU6502::REL, 2},
     /* 0x31 */ {"???", nullptr, nullptr, 0},
@@ -86,7 +86,7 @@ const Instruction instructionTable[256] = {
     /* 0x4C */ {"???", nullptr, nullptr, 0},
     /* 0x4D */ {"???", nullptr, nullptr, 0},
     /* 0x4E */ {"LSR", &CPU6502::LSR, &CPU6502::ABS, 6},
-    /* 0x4F */ {"???", nullptr, nullptr, 0},
+    /* 0x4F */ {"SRE", &CPU6502::SRE, &CPU6502::ABS, 6},
 
     /* 0x50 */ {"BVC", &CPU6502::BVC, &CPU6502::REL, 2},
     /* 0x51 */ {"???", nullptr, nullptr, 0},
@@ -120,7 +120,7 @@ const Instruction instructionTable[256] = {
     /* 0x6C */ {"???", nullptr, nullptr, 0},
     /* 0x6D */ {"ADC", &CPU6502::ADC, &CPU6502::ABS, 4},
     /* 0x6E */ {"ROR", &CPU6502::ROR, &CPU6502::ABS, 6},
-    /* 0x6F */ {"???", nullptr, nullptr, 0},
+    /* 0x6F */ {"RRA", &CPU6502::RRA, &CPU6502::ABS, 6},
 
     /* 0x70 */ {"BVS", &CPU6502::BVS, &CPU6502::REL, 2},
     /* 0x71 */ {"ADC", &CPU6502::ADC, nullptr, 5},
