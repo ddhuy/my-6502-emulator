@@ -53,6 +53,9 @@ class CPU6502
         uint8_t ABS(); // Absolute
         uint8_t ABX(); // Absolute, X Indexed
         uint8_t ABY(); // Absolute, Y Indexed
+        uint8_t IND(); // Indirect (for JMP)
+        uint8_t IZX(); // Indexed Indirect (Indirect, X)
+        uint8_t IZY(); // Indirect Indexed (Indirect), Y
         uint8_t IMP(); // Implied
         uint8_t REL(); // Relative
         uint8_t ACC(); // Accumulator Addressing Mode

@@ -90,3 +90,47 @@ uint8_t CPU6502::REL()
 
     return 0;
 }
+
+uint8_t CPU6502::IND()
+{
+    uint16_t ptr_lo = _bus->read(PC++);
+    uint16_t ptr_hi = _bus->read(PC++);
+    uint16_t ptr = (ptr_hi << 8) | ptr_lo;
+
+    // Simulate 6502 page-wrap bug
+    if (ptr_lo == 0x00FF)
+    {
+        _addr_abs = (_bus->read(ptr & 0xFF00) << 8) |
+                     _bus->read(ptr);
+    }
+    else
+    {
+        _addr_abs = (_bus->read(ptr + 1) << 8) |
+                     _bus->read(ptr);
+    }
+
+    return 0;
+}
+
+uint8_t CPU6502::IZX()
+{
+    uint16_t t = _bus->read(PC++);
+    uint16_t lo = _bus->read((t + X) & 0x00FF);
+    uint16_t hi = _bus->read((t + X + 1) & 0x00FF);
+
+    _addr_abs = (hi << 8) | lo;
+    return 0;
+}
+
+uint8_t CPU6502::IZY()
+{
+    uint16_t t = _bus->read(PC++);
+    uint16_t lo = _bus->read(t & 0x00FF);
+    uint16_t hi = _bus->read((t + 1) & 0x00FF);
+
+    uint16_t base = (hi << 8) | lo;
+    _addr_abs = base + Y;
+
+    // Page boundary crossed?
+    return ((base & 0xFF00) != (_addr_abs & 0xFF00));
+}
