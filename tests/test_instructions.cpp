@@ -176,7 +176,7 @@ TEST_F(CPU6502Test, TXS)
 }
 
 
-TEST_F(CPU6502Test, PHA)
+TEST_F(CPU6502Test, A)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -337,6 +337,7 @@ TEST_F(CPU6502Test, DEC)
     EXPECT_TRUE(cpu.getFlag(CPU6502::Z));
 }
 
+
 TEST_F(CPU6502Test, ORA)
 {
     // Arrange
@@ -360,4 +361,205 @@ TEST_F(CPU6502Test, ORA)
     EXPECT_EQ(cpu.A, value1 | value2);
     EXPECT_TRUE(cpu.getFlag(CPU6502::N));
     EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+}
+
+
+TEST_F(CPU6502Test, PHP)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x08, // PHP
+    });
+
+    cpu.setFlag(CPU6502::C, true);
+    cpu.setFlag(CPU6502::Z, false);
+    cpu.setFlag(CPU6502::I, true);
+    cpu.setFlag(CPU6502::D, false);
+    cpu.setFlag(CPU6502::B, false);
+    cpu.setFlag(CPU6502::U, false);
+    cpu.setFlag(CPU6502::V, false);
+    cpu.setFlag(CPU6502::N, true);
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_EQ(bus.read(0x0100 | (cpu.SP + 1)), cpu.P | CPU6502::B | CPU6502::U);
+    EXPECT_EQ(cpu.SP, 0xFC);
+}
+
+
+TEST_F(CPU6502Test, PLA)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+    uint8_t value = 0x55;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x68, // PLA
+    });
+
+    cpu.SP = 0xFC;
+    bus.write(0x01FD, value); // value to pull
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_EQ(cpu.A, value);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
+}
+
+
+TEST_F(CPU6502Test, PLA_SetZFlag)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x68, // PLA
+    });
+
+    cpu.SP = 0xFC;
+    bus.write(0x01FD, 0x00); // value to pull
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_EQ(cpu.A, 0x00);
+    EXPECT_TRUE(cpu.getFlag(CPU6502::Z));
+    EXPECT_FALSE(cpu.getFlag(CPU6502::N));
+}
+
+
+TEST_F(CPU6502Test, PLA_SetNFlag)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x68, // PLA
+    });
+
+    cpu.SP = 0xFC;
+    bus.write(0x01FD, 0x80); // value to pull
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_EQ(cpu.A, 0x80);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_TRUE(cpu.getFlag(CPU6502::N));
+}
+
+
+TEST_F(CPU6502Test, CLC)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x18, // CLC
+    });
+
+    cpu.setFlag(CPU6502::C, true);
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_FALSE(cpu.getFlag(CPU6502::C));
+}
+
+
+TEST_F(CPU6502Test, CLV)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0xB8, // CLV
+    });
+
+    cpu.setFlag(CPU6502::V, true);
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_FALSE(cpu.getFlag(CPU6502::V));
+}
+
+
+TEST_F(CPU6502Test, CLD)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0xD8, // CLD
+    });
+
+    cpu.setFlag(CPU6502::D, true);
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_FALSE(cpu.getFlag(CPU6502::D));
+}
+
+
+TEST_F(CPU6502Test, SEI)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x78, // SEI
+    });
+
+    cpu.setFlag(CPU6502::I, false);
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_TRUE(cpu.getFlag(CPU6502::I));
+}
+
+
+TEST_F(CPU6502Test, TYA)
+{
+    // Arrange
+    uint16_t programStart = 0x8000;
+    uint8_t value = 0x85;
+
+    // load the instruction at the program start
+    loadProgram(programStart, {
+        0x98, // TYA
+    });
+
+    cpu.Y = value;
+
+    // Act
+    stepInstruction(); // Execute instruction
+
+    // Assert
+    EXPECT_EQ(cpu.A, value);
+    EXPECT_FALSE(cpu.getFlag(CPU6502::Z));
+    EXPECT_TRUE(cpu.getFlag(CPU6502::N));
 }
