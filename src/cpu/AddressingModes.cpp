@@ -98,8 +98,9 @@ uint8_t CPU6502::IND()
     uint16_t ptr = (ptr_hi << 8) | ptr_lo;
 
     // Simulate 6502 page-wrap bug
-    if (ptr_lo == 0x00FF)
+    if ((ptr & 0x00FF) == 0x00FF)
     {
+        // Simulate page wrap bug.
         _addr_abs = (_bus->read(ptr & 0xFF00) << 8) |
                      _bus->read(ptr);
     }

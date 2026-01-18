@@ -2,7 +2,8 @@
 #include "cpu/Instructions.hpp"
 
 
-const Instruction instructionTable[256] = {
+const Instruction instructionTable[256] =
+{
     /* 0x00 */ {"BRK", &CPU6502::BRK, &CPU6502::IMP, 7},
     /* 0x01 */ {"ORA", &CPU6502::ORA, &CPU6502::IZX, 6},
     /* 0x02 */ {"???", nullptr, nullptr, 2},

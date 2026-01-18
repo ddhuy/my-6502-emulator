@@ -62,9 +62,23 @@ class CPU6502
 
         // Instructions
         uint8_t LDA(); // Load Accumulator
+        uint8_t LDX(); // Load X Register
+        uint8_t LDY(); // Load Y Register
         uint8_t STA(); // Store Accumulator
+        uint8_t STX(); // Store X Register
+        uint8_t STY(); // Store Y Register
         uint8_t TAX(); // Transfer Accumulator to X
+        uint8_t TAY(); // Transfer Accumulator to Y
+        uint8_t TXA(); // Transfer X to Accumulator
+        uint8_t TYA(); // Transfer Y to Accumulator
+        uint8_t TSX(); // Transfer SP to X
+        uint8_t TXS(); // Transfer X to SP
         uint8_t INX(); // Increment X Register
+        uint8_t INY(); // Increment Y Register
+        uint8_t DEX(); // Decrement X Register
+        uint8_t DEY(); // Decrement Y Register
+        uint8_t INC(); // Increment Memory
+        uint8_t DEC(); // Decrement Memory
         uint8_t BEQ(); // Branch if Equal
         uint8_t BNE(); // Branch if Not Equal
         uint8_t BMI(); // Branch if Minus
@@ -73,6 +87,7 @@ class CPU6502
         uint8_t BCC(); // Branch if Carry Clear
         uint8_t BVS(); // Branch if Overflow Set
         uint8_t BVC(); // Branch if Overflow Clear
+        uint8_t JMP(); // Jump to Address
         uint8_t JSR(); // Jump to Subroutine
         uint8_t RTS(); // Return from Subroutine
         uint8_t ADC(); // Add with Carry
@@ -83,13 +98,30 @@ class CPU6502
         uint8_t BIT(); // Bit Test
         uint8_t NOP(); // No Operation
         uint8_t ASL(); // Arithmetic Shift Left
+        uint8_t AND(); // Logical AND
+        uint8_t EOR(); // Logical XOR
         uint8_t LSR(); // Logical Shift Right
         uint8_t ROL(); // Rotate Left
         uint8_t ROR(); // Rotate Right
+        uint8_t ORA(); // Logical OR with Accumulator
         uint8_t BRK(); // Force Interrupt
         uint8_t RTI(); // Return from Interrupt
+        uint8_t CLI(); // Clear Interrupt Disable
+        uint8_t SEI(); // Set Interrupt Disable
+        uint8_t SEC(); // Set Carry Flag
+        uint8_t CLC(); // Clear Carry Flag
+        uint8_t SED(); // Set Decimal Flag
+        uint8_t CLD(); // Clear Decimal Flag
+        uint8_t CLV(); // Clear Overflow Flag
+        uint8_t PHA(); // Push Accumulator
+        uint8_t PLA(); // Pull Accumulator
+        uint8_t PLP(); // Pull Processor Status
+        uint8_t PHP(); // Push Processor Status
 
         // Illegal/Undocumented Instructions
+        uint8_t ANC(); //
+        uint8_t ALR(); //
+        uint8_t ARR(); //
         uint8_t LAX(); // Load Accumulator and X
         uint8_t SAX(); // Store Accumulator and X
         uint8_t DCP(); // Decrement and Compare

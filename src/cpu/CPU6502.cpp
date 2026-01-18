@@ -251,7 +251,7 @@ uint8_t CPU6502::ADC()
     setFlag(Z, A == 0x00);
     setFlag(N, A & 0x80);
 
-    return 0;
+    return 1;
 }
 
 uint8_t CPU6502::SBC()
@@ -297,21 +297,21 @@ uint8_t CPU6502::CMP()
 {
     uint8_t value = fetch();
     compare(A, value);
-    return 0;
+    return 1;
 }
 
 uint8_t CPU6502::CPX()
 {
     uint8_t value = fetch();
     compare(X, value);
-    return 0;
+    return 1;
 }
 
 uint8_t CPU6502::CPY()
 {
     uint8_t value = fetch();
     compare(Y, value);
-    return 0;
+    return 1;
 }
 
 uint8_t CPU6502::BIT()
@@ -477,7 +477,7 @@ uint8_t CPU6502::DCP()
     setFlag(Z, (temp & 0x00FF) == 0);
     setFlag(N, temp & 0x80);
 
-    return 1;
+    return 0;
 }
 
 uint8_t CPU6502::ISC()
@@ -500,7 +500,7 @@ uint8_t CPU6502::ISC()
     setFlag(Z, A == 0x00);
     setFlag(N, A & 0x80);
 
-    return 1;
+    return 0;
 }
 
 uint8_t CPU6502::RLA()
@@ -515,7 +515,7 @@ uint8_t CPU6502::RLA()
     A &= value;
     updateZN(A);
 
-    return 1;
+    return 0;
 }
 
 uint8_t CPU6502::RRA()
@@ -537,7 +537,7 @@ uint8_t CPU6502::RRA()
     setFlag(Z, A == 0x00);
     setFlag(N, A & 0x80);
 
-    return 1;
+    return 0;
 }
 
 uint8_t CPU6502::SLO()
@@ -552,7 +552,7 @@ uint8_t CPU6502::SLO()
     A |= value;
     updateZN(A);
 
-    return 1;
+    return 0;
 }
 
 uint8_t CPU6502::SRE()
@@ -567,5 +567,237 @@ uint8_t CPU6502::SRE()
     A ^= value;
     updateZN(A);
 
+    return 0;
+}
+
+uint8_t CPU6502::SEC()
+{
+    setFlag(C, true);
+    return 0;
+}
+
+uint8_t CPU6502::CLI()
+{
+    setFlag(I, false);
+    return 0;
+}
+
+uint8_t CPU6502::SED()
+{
+    setFlag(D, true);
+    return 0;
+}
+
+uint8_t CPU6502::TXA()
+{
+    A = X;
+    updateZN(A);
+    return 0;
+}
+
+uint8_t CPU6502::TAY()
+{
+    Y = A;
+    updateZN(Y);
+    return 0;
+}
+
+uint8_t CPU6502::TSX()
+{
+    X = SP;
+    updateZN(X);
+    return 0;
+}
+
+uint8_t CPU6502::TXS()
+{
+    SP = X;
+    return 0;
+}
+
+uint8_t CPU6502::PHA()
+{
+    push(A);
+    return 0;
+}
+
+uint8_t CPU6502::PLP()
+{
+    P = pull();
+    P |= U; // bit 5 always set
+    P &= ~B; // clear B internally
+    return 0;
+}
+
+uint8_t CPU6502::DEX()
+{
+    X--;
+    updateZN(X);
+    return 0;
+}
+
+uint8_t CPU6502::DEY()
+{
+    Y--;
+    updateZN(Y);
+    return 0;
+}
+
+uint8_t CPU6502::INY()
+{
+    Y++;
+    updateZN(Y);
+    return 0;
+}
+
+uint8_t CPU6502::INC()
+{
+    fetch();
+    uint8_t value = _fetched + 1;
+    _bus->write(_addr_abs, value);
+    updateZN(value);
+    return 0;
+}
+
+uint8_t CPU6502::DEC()
+{
+    fetch();
+    uint8_t value = _fetched - 1;
+    _bus->write(_addr_abs, value);
+    updateZN(value);
+    return 0;
+}
+
+uint8_t CPU6502::LDX()
+{
+    fetch();
+    X = _fetched;
+    updateZN(X);
     return 1;
+}
+
+uint8_t CPU6502::LDY()
+{
+    fetch();
+    Y = _fetched;
+    updateZN(Y);
+    return 1;
+}
+
+uint8_t CPU6502::STX()
+{
+    _bus->write(_addr_abs, X);
+    return 0;
+}
+
+uint8_t CPU6502::STY()
+{
+    _bus->write(_addr_abs, Y);
+    return 0;
+}
+
+uint8_t CPU6502::AND()
+{
+    fetch();
+    A &= _fetched;
+    updateZN(A);
+    return 1;
+}
+
+uint8_t CPU6502::EOR()
+{
+    fetch();
+    A ^= _fetched;
+    updateZN(A);
+    return 1;
+}
+
+uint8_t CPU6502::ANC()
+{
+    fetch();
+    A &= _fetched;
+    updateZN(A);
+    setFlag(C, A & 0x80);
+    return 1;
+}
+
+uint8_t CPU6502::ALR()
+{
+    fetch();
+    uint8_t value = A & _fetched;
+    setFlag(C, value & 0x01);
+    A = value >> 1;
+    updateZN(A);
+    return 1;
+}
+
+uint8_t CPU6502::ARR()
+{
+    fetch();
+    uint8_t value = A & _fetched;
+    A = (value >> 1) | (getFlag(C) << 7);
+
+    updateZN(A);
+    setFlag(C, A & 0x80);
+    setFlag(V, ((A >> 6) ^ (A >> 5)) & 1);
+
+    return 1;
+}
+
+uint8_t CPU6502::JMP()
+{
+    PC = _addr_abs;
+    return 0;
+}
+
+uint8_t CPU6502::ORA()
+{
+    fetch();
+    A |= _fetched;
+    updateZN(A);
+    return 1;
+}
+
+uint8_t CPU6502::PHP()
+{
+    push(P | StatusFlag::B | StatusFlag::U);
+    return 0;
+}
+
+uint8_t CPU6502::PLA()
+{
+    A = pull();
+    updateZN(A);
+    return 0;
+}
+
+uint8_t CPU6502::CLC()
+{
+    setFlag(C, false);
+    return 0;
+}
+
+uint8_t CPU6502::CLD()
+{
+    setFlag(D, false);
+    return 0;
+}
+
+uint8_t CPU6502::CLV()
+{
+    setFlag(V, false);
+    return 0;
+}
+
+uint8_t CPU6502::TYA()
+{
+    A = Y;
+    updateZN(A);
+    return 0;
+}
+
+uint8_t CPU6502::SEI()
+{
+    setFlag(I, true);
+    return 0;
 }
