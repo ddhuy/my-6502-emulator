@@ -16,6 +16,11 @@ protected:
         bus.attachMemory(&ram);
         cpu.connectBus(&bus);
         cpu.reset();
+
+        // drain the reset cycles
+        while (cpu.cycles() > 0) {
+            cpu.clock();
+        }
     }
 
     // Helper: load a program at a given address

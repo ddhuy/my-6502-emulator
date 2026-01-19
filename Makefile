@@ -9,11 +9,11 @@ LDFLAGS   := -lpthread
 BUILD ?= debug
 
 ifeq ($(BUILD),debug)
-    CXXFLAGS += -g -O0 -DDEBUG \
+    CXXFLAGS += -O0 -g -DDEBUG \
                 -fsanitize=address,undefined \
                 -fno-omit-frame-pointer
 else ifeq ($(BUILD),release)
-    CXXFLAGS += -O2 -DNDEBUG
+    CXXFLAGS += -O3 -flto -march=native -DNDEBUG
 endif
 
 # -------------------------

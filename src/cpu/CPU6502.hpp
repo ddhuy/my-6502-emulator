@@ -33,9 +33,23 @@ class CPU6502
         bool complete() const { return _cycles == 0; }
 
         // Flags manipulation methods would go here
-        void setFlag(StatusFlag flag, bool value);
-        bool getFlag(StatusFlag flag) const;
-        void updateZN(uint8_t value);
+        inline void setFlag(StatusFlag flag, bool value)
+        {
+            if (value)
+                P |= flag;
+            else
+                P &= ~flag;
+        }
+
+        inline bool getFlag(StatusFlag flag) const
+        {
+            return (P & flag) != 0;
+        }
+
+        inline void updateZN(uint8_t value)
+        {
+            P = (P & ~(Z|N)) | (value == 0 ? Z : 0) | (value & 0x80 ? N : 0);
+        }
 
         // Interrupts
         void nmi() { nmi_pending = true; }
@@ -44,6 +58,7 @@ class CPU6502
         // Data fetch helper
         uint8_t fetch();
         uint8_t fetchByte();
+        void commit(uint8_t value);
 
         // Addressing modes
         uint8_t IMM(); // Immediate

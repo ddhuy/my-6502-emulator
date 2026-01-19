@@ -20,16 +20,22 @@ void CPU6502::reset()
     DBG_ASSERT(_bus != nullptr);
 
     // Reset registers
-    A = 0;
-    X = 0;
-    Y = 0;
+    A = X = Y = 0;
     SP = 0xFD; // Stack Pointer starts at 0xFD
-    P = StatusFlag::U; // Set unused flag
+    P = StatusFlag::I | StatusFlag::U; // Set Interrupt Disable and Unused flags
 
     // Set Program Counter to the address stored at the reset vector (0xFFFC)
     uint16_t lo = _bus->read(0xFFFC);
     uint16_t hi = _bus->read(0xFFFD);
     PC = (hi << 8) | lo;
+
+    // Reset internal helper variables
+    _addr_abs = 0;
+    _addr_rel = 0;
+    _fetched = 0;
+
+    // Reset takes time
+    _cycles = 8;
 }
 
 void CPU6502::clock()
@@ -67,8 +73,6 @@ void CPU6502::clock()
 
 void CPU6502::step()
 {
-    DBG_ASSERT(_bus != nullptr);
-
     do {
         clock();
     } while (_cycles > 0);
@@ -83,30 +87,22 @@ uint8_t CPU6502::fetchByte()
     return data;
 }
 
-void CPU6502::setFlag(StatusFlag flag, bool value)
-{
-    if (value)
-        P |= flag;
-    else
-        P &= ~flag;
-}
-
-bool CPU6502::getFlag(StatusFlag flag) const
-{
-    return (P & flag) != 0;
-}
-
-void CPU6502::updateZN(uint8_t value)
-{
-    setFlag(StatusFlag::Z, value == 0);
-    setFlag(StatusFlag::N, (value & 0x80) != 0);
-}
-
 uint8_t CPU6502::fetch()
 {
     if (instructionTable[_opcode].addrmode != &CPU6502::ACC)
         _fetched = _bus->read(_addr_abs);
+    else
+        _fetched = A;
     return _fetched;
+}
+
+void CPU6502::commit(uint8_t value)
+{
+    // write result back
+    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
+        A = value;
+    else
+        _bus->write(_addr_abs, value);
 }
 
 uint8_t CPU6502::LDA()
@@ -339,10 +335,8 @@ uint8_t CPU6502::ASL()
     setFlag(Z, (result & 0x00FF) == 0);
     setFlag(N, result & 0x80);
 
-    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
-        A = result & 0x00FF;
-    else
-        _bus->write(_addr_abs, result & 0x00FF);
+    // write result back
+    commit(result & 0x00FF);
 
     return 0;
 }
@@ -357,27 +351,30 @@ uint8_t CPU6502::LSR()
     setFlag(Z, (result & 0x00FF) == 0);
     setFlag(N, false); // Bit 7 is always 0 after LSR
 
-    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
-        A = result & 0x00FF;
-    else
-        _bus->write(_addr_abs, result & 0x00FF);
+    // write result back
+    commit(result & 0x00FF);
 
     return 0;
 }
 
 uint8_t CPU6502::ROL()
 {
-    uint16_t value = fetch();
-    uint16_t result = ((uint16_t)value << 1) | (getFlag(C) ? 1 : 0);
+    uint8_t value = fetch();
 
-    setFlag(C, (result & 0x80) != 0);
-    setFlag(Z, (result & 0x00FF) == 0);
-    setFlag(N, result & 0x80);
+    // save the current carry flag
+    uint8_t carry_in = getFlag(C) ? 1 : 0;
 
-    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
-        A = result & 0x00FF;
-    else
-        _bus->write(_addr_abs, result & 0x00FF);
+    // bit 7 goes into carry
+    setFlag(C, (value & 0x80) != 0);
+
+    // shift left and add old carry to bit 0
+    value = (value << 1) | carry_in;
+
+    // set zero and negative flags
+    updateZN(value);
+
+    // write result back
+    commit(value);
 
     return 0;
 }
@@ -391,10 +388,8 @@ uint8_t CPU6502::ROR()
     setFlag(Z, (result & 0x00FF) == 0);
     setFlag(N, result & 0x80);
 
-    if (instructionTable[_opcode].addrmode == &CPU6502::ACC)
-        A = result & 0x00FF;
-    else
-        _bus->write(_addr_abs, result & 0x00FF);
+    // write result back
+    commit(result & 0x00FF);
 
     return 0;
 }
@@ -408,7 +403,7 @@ uint8_t CPU6502::BRK()
 
     push(P | StatusFlag::B | StatusFlag::U); // Push status register
 
-    setFlag(I, true); // Disable interrupts
+    setFlag(StatusFlag::I, true); // Disable interrupts
 
     // Load IRQ vector
     uint16_t lo = _bus->read(0xFFFE); // IRQ vector low byte
@@ -505,69 +500,26 @@ uint8_t CPU6502::ISC()
 
 uint8_t CPU6502::RLA()
 {
-    fetch();
-    
-    uint8_t value = (_fetched << 1) | (getFlag(C) ? 1 : 0);
-    setFlag(C, _fetched & 0x80);
-
-    _bus->write(_addr_abs, value);
-
-    A &= value;
-    updateZN(A);
-
-    return 0;
+    ROL();
+    return AND();
 }
 
 uint8_t CPU6502::RRA()
 {
-    fetch();
-
-    uint8_t value = (_fetched >> 1) | (getFlag(C) << 7);
-    setFlag(C, _fetched & 0x01);
-
-    _bus->write(_addr_abs, value);
-
-    uint16_t sum = A + value + (getFlag(C) ? 1 : 0);
-
-    setFlag(V, (~(A ^ value) & (A ^ sum)) & 0x80);
-    setFlag(C, sum > 0xFF);
-
-    A = sum & 0xFF;
-
-    setFlag(Z, A == 0x00);
-    setFlag(N, A & 0x80);
-
-    return 0;
+    ROR();
+    return ADC();
 }
 
 uint8_t CPU6502::SLO()
 {
-    fetch();
-
-    uint8_t value = _fetched << 1;
-    setFlag(C, _fetched & 0x80);
-
-    _bus->write(_addr_abs, value);
-
-    A |= value;
-    updateZN(A);
-
-    return 0;
+    ASL();
+    return ORA();
 }
 
 uint8_t CPU6502::SRE()
 {
-    fetch();
-
-    setFlag(C, _fetched & 0x01);
-    uint8_t value = _fetched >> 1;
-
-    _bus->write(_addr_abs, value);
-
-    A ^= value;
-    updateZN(A);
-
-    return 0;
+    LSR();
+    return EOR();
 }
 
 uint8_t CPU6502::SEC()
