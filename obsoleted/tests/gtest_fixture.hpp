@@ -5,7 +5,7 @@
 #include "mem/RAM.hpp"
 
 
-class CPU6502Test : public ::testing::Test
+class InstructionTest : public ::testing::Test
 {
 protected:
     RAM ram;

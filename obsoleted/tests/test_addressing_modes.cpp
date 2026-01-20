@@ -1,7 +1,7 @@
 #include "gtest_fixture.hpp"
 
 
-TEST_F(CPU6502Test, ADDRESSING_MODE_ABS)
+TEST_F(InstructionTest, ADDRESSING_MODE_ABS)
 {
     cpu.PC = 0x8000;
     ram.write(0x8000, 0x34);

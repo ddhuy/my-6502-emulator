@@ -1,23 +1,26 @@
-#include <cassert>
+#include "Bus.h"
+#include "memory/Memory.h"
 
-#include "utils/Debug.hpp"
-#include "Bus.hpp"
-#include "mem/Memory.hpp"
+Bus::Bus()
+    : _memory(nullptr)
+{
+}
 
+Bus::~Bus()
+{
+}
 
-void Bus::attachMemory(Memory* memory)
+void Bus::AttachMemory(Memory* memory)
 {
     _memory = memory;
 }
 
-uint8_t Bus::read(uint16_t address) const
+uint8_t Bus::Read(uint16_t address) const
 {
-    DBG_ASSERT(_memory != nullptr);
-    return _memory->read(address);
+    return _memory->Read(address);
 }
 
-void Bus::write(uint16_t address, uint8_t value)
+void Bus::Write(uint16_t address, uint8_t value)
 {
-    DBG_ASSERT(_memory != nullptr);
-    _memory->write(address, value);
+    _memory->Write(address, value);
 }

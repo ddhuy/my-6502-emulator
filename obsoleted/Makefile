@@ -34,7 +34,7 @@ EMULATOR_BIN := $(BIN_DIR)/emulator
 # Source files
 # -------------------------
 ALL_SRC_FILES := $(shell find $(SRC_DIR) -name "*.cpp")
-LIB_SRC_FILES := $(filter-out $(SRC_DIR)/emulator_main.cpp,$(ALL_SRC_FILES))
+LIB_SRC_FILES := $(filter-out $(SRC_DIR)/main.cpp,$(ALL_SRC_FILES))
 TEST_SRC_FILES := $(shell find $(TEST_DIR) -name "*.cpp")
 GTEST_SRC_FILES := $(GTEST_DIR)/src/gtest-all.cc
 
@@ -43,7 +43,7 @@ TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TEST_SRC_FILES))
 GTEST_OBJS := $(patsubst %.cc,$(OBJ_DIR)/%.o,$(GTEST_SRC_FILES))
 
 # Test executable names (strip path & extension)
-MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/emulator_main.o
+MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/main.o
 TEST_BINS := $(patsubst $(TEST_DIR)/%.cpp,$(TEST_BIN_DIR)/%,$(TEST_SRC_FILES))
 
 # -------------------------
@@ -83,6 +83,7 @@ $(OBJ_DIR)/%.o: %.cpp
 # Run all tests
 # -------------------------
 run-tests: tests
+	@cp -vr $(TEST_DIR)/nestest $(BIN_DIR)/tests/nestest
 	@set -e; \
 	for t in $(TEST_BINS); do \
 	    echo "Running $$t"; \

@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 
 class Bus;
@@ -20,6 +21,8 @@ class CPU6502
             N = 1 << 7  // Negative
         };
 
+        std::string disassembleOperands() const;
+
     public:
         CPU6502();
 
@@ -30,7 +33,9 @@ class CPU6502
 
         // Status methods
         uint8_t cycles() const { return _cycles; }
+        uint64_t totalCycles() const { return _total_cycles; }
         bool complete() const { return _cycles == 0; }
+        uint8_t getOpcode() const { return _opcode; }
 
         // Flags manipulation methods would go here
         inline void setFlag(StatusFlag flag, bool value)
@@ -164,6 +169,7 @@ class CPU6502
         // Internal helper variables
         uint8_t _opcode = 0;
         uint8_t _cycles = 0;
+        uint64_t _total_cycles = 0;
 
         // Interrupt flags
         bool irq_pending = false;

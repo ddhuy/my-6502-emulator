@@ -1,7 +1,7 @@
 #include "gtest_fixture.hpp"
 
 
-TEST_F(CPU6502Test, SEC)
+TEST_F(InstructionTest, SEC)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -23,7 +23,7 @@ TEST_F(CPU6502Test, SEC)
 }
 
 
-TEST_F(CPU6502Test, CLI)
+TEST_F(InstructionTest, CLI)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -44,7 +44,7 @@ TEST_F(CPU6502Test, CLI)
 }
 
 
-TEST_F(CPU6502Test, SED)
+TEST_F(InstructionTest, SED)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -64,7 +64,7 @@ TEST_F(CPU6502Test, SED)
 }
 
 
-TEST_F(CPU6502Test, TXA_X_To_A)
+TEST_F(InstructionTest, TXA_X_To_A)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -87,7 +87,7 @@ TEST_F(CPU6502Test, TXA_X_To_A)
 }
 
 
-TEST_F(CPU6502Test, TXA_SetZFlag)
+TEST_F(InstructionTest, TXA_SetZFlag)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -109,7 +109,7 @@ TEST_F(CPU6502Test, TXA_SetZFlag)
 }
 
 
-TEST_F(CPU6502Test, TAY)
+TEST_F(InstructionTest, TAY)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -131,7 +131,7 @@ TEST_F(CPU6502Test, TAY)
 }
 
 
-TEST_F(CPU6502Test, TSX)
+TEST_F(InstructionTest, TSX)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -153,7 +153,7 @@ TEST_F(CPU6502Test, TSX)
 }
 
 
-TEST_F(CPU6502Test, TXS)
+TEST_F(InstructionTest, TXS)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -176,7 +176,7 @@ TEST_F(CPU6502Test, TXS)
 }
 
 
-TEST_F(CPU6502Test, A)
+TEST_F(InstructionTest, A)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -200,7 +200,7 @@ TEST_F(CPU6502Test, A)
 }
 
 
-TEST_F(CPU6502Test, PLP_RestoreStatus)
+TEST_F(InstructionTest, PLP_RestoreStatus)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -224,7 +224,7 @@ TEST_F(CPU6502Test, PLP_RestoreStatus)
 }
 
 
-TEST_F(CPU6502Test, PLP_IncrementSP)
+TEST_F(InstructionTest, PLP_IncrementSP)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -245,7 +245,7 @@ TEST_F(CPU6502Test, PLP_IncrementSP)
 }
 
 
-TEST_F(CPU6502Test, DEX)
+TEST_F(InstructionTest, DEX)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -266,7 +266,7 @@ TEST_F(CPU6502Test, DEX)
 }
 
 
-TEST_F(CPU6502Test, INY)
+TEST_F(InstructionTest, INY)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -287,7 +287,7 @@ TEST_F(CPU6502Test, INY)
 }
 
 
-TEST_F(CPU6502Test, INC)
+TEST_F(InstructionTest, INC)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -313,7 +313,7 @@ TEST_F(CPU6502Test, INC)
 }
 
 
-TEST_F(CPU6502Test, DEC)
+TEST_F(InstructionTest, DEC)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -338,7 +338,7 @@ TEST_F(CPU6502Test, DEC)
 }
 
 
-TEST_F(CPU6502Test, ORA)
+TEST_F(InstructionTest, ORA)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -364,7 +364,7 @@ TEST_F(CPU6502Test, ORA)
 }
 
 
-TEST_F(CPU6502Test, PHP)
+TEST_F(InstructionTest, PHP)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -392,7 +392,7 @@ TEST_F(CPU6502Test, PHP)
 }
 
 
-TEST_F(CPU6502Test, PLA)
+TEST_F(InstructionTest, PLA)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -416,7 +416,7 @@ TEST_F(CPU6502Test, PLA)
 }
 
 
-TEST_F(CPU6502Test, PLA_SetZFlag)
+TEST_F(InstructionTest, PLA_SetZFlag)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -439,7 +439,7 @@ TEST_F(CPU6502Test, PLA_SetZFlag)
 }
 
 
-TEST_F(CPU6502Test, PLA_SetNFlag)
+TEST_F(InstructionTest, PLA_SetNFlag)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -462,7 +462,7 @@ TEST_F(CPU6502Test, PLA_SetNFlag)
 }
 
 
-TEST_F(CPU6502Test, CLC)
+TEST_F(InstructionTest, CLC)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -482,7 +482,7 @@ TEST_F(CPU6502Test, CLC)
 }
 
 
-TEST_F(CPU6502Test, CLV)
+TEST_F(InstructionTest, CLV)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -502,7 +502,7 @@ TEST_F(CPU6502Test, CLV)
 }
 
 
-TEST_F(CPU6502Test, CLD)
+TEST_F(InstructionTest, CLD)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -522,7 +522,7 @@ TEST_F(CPU6502Test, CLD)
 }
 
 
-TEST_F(CPU6502Test, SEI)
+TEST_F(InstructionTest, SEI)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -542,7 +542,7 @@ TEST_F(CPU6502Test, SEI)
 }
 
 
-TEST_F(CPU6502Test, TYA)
+TEST_F(InstructionTest, TYA)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -565,7 +565,7 @@ TEST_F(CPU6502Test, TYA)
 }
 
 
-TEST_F(CPU6502Test, RLA_Absolute)
+TEST_F(InstructionTest, RLA_Absolute)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -597,7 +597,7 @@ TEST_F(CPU6502Test, RLA_Absolute)
 }
 
 
-TEST_F(CPU6502Test, RLA_CarryAndZero)
+TEST_F(InstructionTest, RLA_CarryAndZero)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -629,7 +629,7 @@ TEST_F(CPU6502Test, RLA_CarryAndZero)
 }
 
 
-TEST_F(CPU6502Test, BRK_PushesStateAndJumpsToIRQVector_1)
+TEST_F(InstructionTest, BRK_PushesStateAndJumpsToIRQVector_1)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -660,7 +660,7 @@ TEST_F(CPU6502Test, BRK_PushesStateAndJumpsToIRQVector_1)
 }
 
 
-TEST_F(CPU6502Test, BRK_PushesStateAndJumpsToIRQVector_2)
+TEST_F(InstructionTest, BRK_PushesStateAndJumpsToIRQVector_2)
 {
     loadProgram(0x8000, {0x00,  // BRK opcode
                          0xEA   // NOP opcode to follow BRK
@@ -683,7 +683,7 @@ TEST_F(CPU6502Test, BRK_PushesStateAndJumpsToIRQVector_2)
 }
 
 
-TEST_F(CPU6502Test, SAX_ABS_LoadsAandXWithMemoryValue)
+TEST_F(InstructionTest, SAX_ABS_LoadsAandXWithMemoryValue)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -714,7 +714,7 @@ TEST_F(CPU6502Test, SAX_ABS_LoadsAandXWithMemoryValue)
 }
 
 /*
-TEST_F(CPU6502Test, SAX_ZPX_LoadsAandXWithMemoryValue)
+TEST_F(InstructionTest, SAX_ZPX_LoadsAandXWithMemoryValue)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -743,7 +743,7 @@ TEST_F(CPU6502Test, SAX_ZPX_LoadsAandXWithMemoryValue)
     EXPECT_EQ(memoryValue, expectedValue) << "Memory at target address should contain A & X.";
 }
 
-TEST_F(CPU6502Test, SAX_ZPX_WrapsAroundZeroPage)
+TEST_F(InstructionTest, SAX_ZPX_WrapsAroundZeroPage)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -774,7 +774,7 @@ TEST_F(CPU6502Test, SAX_ZPX_WrapsAroundZeroPage)
 */
 
 
-TEST_F(CPU6502Test, JSR_RTS_Instruction)
+TEST_F(InstructionTest, JSR_RTS_Instruction)
 {
     // Load a program that calls JSR and then RTS
 
@@ -792,7 +792,7 @@ TEST_F(CPU6502Test, JSR_RTS_Instruction)
 }
 
 
-TEST_F(CPU6502Test, ASL)
+TEST_F(InstructionTest, ASL)
 {
     // ASL Accumulator
     cpu.A = 0x01;
@@ -830,7 +830,7 @@ TEST_F(CPU6502Test, ASL)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_WithoutCarry)
+TEST_F(InstructionTest, ADC_IMM_WithoutCarry)
 {
     // Test ADC instruction in various scenarios
 
@@ -846,7 +846,7 @@ TEST_F(CPU6502Test, ADC_IMM_WithoutCarry)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_WithCarry)
+TEST_F(InstructionTest, ADC_IMM_WithCarry)
 {
     // Addition with carry
     cpu.A = 0xFF;
@@ -860,7 +860,7 @@ TEST_F(CPU6502Test, ADC_IMM_WithCarry)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_NegativeAndOverflow)
+TEST_F(InstructionTest, ADC_IMM_NegativeAndOverflow)
 {
     // Addition resulting in negative
     cpu.A = 0x40;
@@ -874,7 +874,7 @@ TEST_F(CPU6502Test, ADC_IMM_NegativeAndOverflow)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_OverflowCases)
+TEST_F(InstructionTest, ADC_IMM_OverflowCases)
 {
     // Addition causing overflow (Negative + Negative = Positive)
     cpu.A = 0x50;
@@ -888,7 +888,7 @@ TEST_F(CPU6502Test, ADC_IMM_OverflowCases)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_ZeroFlag)
+TEST_F(InstructionTest, ADC_IMM_ZeroFlag)
 {
     // Zero flag test
     cpu.A = 0x01;
@@ -899,7 +899,7 @@ TEST_F(CPU6502Test, ADC_IMM_ZeroFlag)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_NegativeFlag)
+TEST_F(InstructionTest, ADC_IMM_NegativeFlag)
 {
     // Negative flag test
     cpu.A = 0x40;
@@ -913,7 +913,7 @@ TEST_F(CPU6502Test, ADC_IMM_NegativeFlag)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_MixedSignNoOverflow)
+TEST_F(InstructionTest, ADC_IMM_MixedSignNoOverflow)
 {
     // Mixed sign addition (no overflow)
     cpu.A = 0x50;
@@ -927,7 +927,7 @@ TEST_F(CPU6502Test, ADC_IMM_MixedSignNoOverflow)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_SimpleDecimalMode)
+TEST_F(InstructionTest, ADC_IMM_SimpleDecimalMode)
 {
     // Decimal mode addition
     cpu.setFlag(CPU6502::D, true);
@@ -942,7 +942,7 @@ TEST_F(CPU6502Test, ADC_IMM_SimpleDecimalMode)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_DecimalModeWithCarry)
+TEST_F(InstructionTest, ADC_IMM_DecimalModeWithCarry)
 {
     // Decimal mode addition with carry
     cpu.setFlag(CPU6502::D, true);
@@ -957,7 +957,7 @@ TEST_F(CPU6502Test, ADC_IMM_DecimalModeWithCarry)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_DecimalModeOverflow)
+TEST_F(InstructionTest, ADC_IMM_DecimalModeOverflow)
 {
     // Decimal mode addition causing overflow
     cpu.setFlag(CPU6502::D, true);
@@ -972,7 +972,7 @@ TEST_F(CPU6502Test, ADC_IMM_DecimalModeOverflow)
 }
 
 
-TEST_F(CPU6502Test, ADC_IMM_DecimalModeWithCarryIn)
+TEST_F(InstructionTest, ADC_IMM_DecimalModeWithCarryIn)
 {
     // Decimal mode addition with carry in
     cpu.setFlag(CPU6502::D, true);
@@ -988,7 +988,7 @@ TEST_F(CPU6502Test, ADC_IMM_DecimalModeWithCarryIn)
 }
 
 
-TEST_F(CPU6502Test, RTI_FullRoundTtrip)
+TEST_F(InstructionTest, RTI_FullRoundTtrip)
 {
     // Arrange
     loadProgram(0x8000, {0x00, 0xEA}); // RTI opcode + NOP opcode
@@ -1013,7 +1013,7 @@ TEST_F(CPU6502Test, RTI_FullRoundTtrip)
 
 
 // Branch NOT taken (baseline)
-TEST_F(CPU6502Test, BEQ_NotTaken)
+TEST_F(InstructionTest, BEQ_NotTaken)
 {
     loadProgram(0x8000, { 0xF0, 0x02 }); // BEQ +2
 
@@ -1030,7 +1030,7 @@ TEST_F(CPU6502Test, BEQ_NotTaken)
 
 
 // Branch taken, no page cross
-TEST_F(CPU6502Test, BEQ_Taken_NoPageCross)
+TEST_F(InstructionTest, BEQ_Taken_NoPageCross)
 {
     loadProgram(0x8000, { 0xF0, 0x02 }); // BEQ +2
     
@@ -1049,7 +1049,7 @@ TEST_F(CPU6502Test, BEQ_Taken_NoPageCross)
 
 
 // Branch taken, forward page cross
-TEST_F(CPU6502Test, BEQ_Taken_ForwardPageCross)
+TEST_F(InstructionTest, BEQ_Taken_ForwardPageCross)
 {
     loadProgram(0x80FD, { 0xF0, 0x02 }); // BEQ +2
 
@@ -1068,7 +1068,7 @@ TEST_F(CPU6502Test, BEQ_Taken_ForwardPageCross)
 
 
 // Branch taken backward, no page cross
-TEST_F(CPU6502Test, BEQ_Taken_BackwardNoPageCross)
+TEST_F(InstructionTest, BEQ_Taken_BackwardNoPageCross)
 {
     loadProgram(0x8005, { 0xF0, 0xFB }); // -5
 
@@ -1087,7 +1087,7 @@ TEST_F(CPU6502Test, BEQ_Taken_BackwardNoPageCross)
 
 
 // Branch taken backward, page cross → 4 cycles
-TEST_F(CPU6502Test, BEQ_Taken_BackwardPageCross)
+TEST_F(InstructionTest, BEQ_Taken_BackwardPageCross)
 {
     loadProgram(0x8102, { 0xF0, 0xFB }); // BEQ -5
 
@@ -1106,7 +1106,7 @@ TEST_F(CPU6502Test, BEQ_Taken_BackwardPageCross)
 
 
 // Zero offset
-TEST_F(CPU6502Test, BEQ_Taken_ZeroOffset)
+TEST_F(InstructionTest, BEQ_Taken_ZeroOffset)
 {
     loadProgram(0x8000, { 0xF0, 0x00 }); // BEQ +0
     
@@ -1125,7 +1125,7 @@ TEST_F(CPU6502Test, BEQ_Taken_ZeroOffset)
 
 
 // Page crossing for memory ops
-TEST_F(CPU6502Test, LDA_ABX_PageCross)
+TEST_F(InstructionTest, LDA_ABX_PageCross)
 {
     cpu.X = 0x01; // Set X to cause page crossing
 
@@ -1146,7 +1146,7 @@ TEST_F(CPU6502Test, LDA_ABX_PageCross)
 
 
 // Control-flow timing
-TEST_F(CPU6502Test, JSR_Cycles)
+TEST_F(InstructionTest, JSR_Cycles)
 {
     loadProgram(0x8000, {
         0x20, 0x00, 0x90, // JSR $9000
@@ -1165,7 +1165,7 @@ TEST_F(CPU6502Test, JSR_Cycles)
 
 
 // Interrupt timing
-TEST_F(CPU6502Test, IRQ_Cycles)
+TEST_F(InstructionTest, IRQ_Cycles)
 {
     loadProgram(0x8000, {
         0x00, // BRK (to enable IRQ handling)
@@ -1189,7 +1189,7 @@ TEST_F(CPU6502Test, IRQ_Cycles)
 }
 
 
-TEST_F(CPU6502Test, DCP_ABS_A_Greater)
+TEST_F(InstructionTest, DCP_ABS_A_Greater)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1224,7 +1224,7 @@ TEST_F(CPU6502Test, DCP_ABS_A_Greater)
 }
 
 
-TEST_F(CPU6502Test, DCP_ABS_A_Less)
+TEST_F(InstructionTest, DCP_ABS_A_Less)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1259,7 +1259,7 @@ TEST_F(CPU6502Test, DCP_ABS_A_Less)
 }
 
 
-TEST_F(CPU6502Test, DCP_ABS_A_Equal)
+TEST_F(InstructionTest, DCP_ABS_A_Equal)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1294,7 +1294,7 @@ TEST_F(CPU6502Test, DCP_ABS_A_Equal)
 }
 
 
-TEST_F(CPU6502Test, IRQ_TriggersInterrupt)
+TEST_F(InstructionTest, IRQ_TriggersInterrupt)
 {
     // Arrange
     bus.write(0xFFFE, 0x00); // IRQ vector low byte
@@ -1318,7 +1318,7 @@ TEST_F(CPU6502Test, IRQ_TriggersInterrupt)
 }
 
 
-TEST_F(CPU6502Test, IRQ_DisableFlagPreventsInterrupt)
+TEST_F(InstructionTest, IRQ_DisableFlagPreventsInterrupt)
 {
     // Arrange
     cpu.setFlag(CPU6502::I, true); // Set Interrupt Disable flag
@@ -1336,7 +1336,7 @@ TEST_F(CPU6502Test, IRQ_DisableFlagPreventsInterrupt)
 }
 
 
-TEST_F(CPU6502Test, ISC_ABS_NoBorrow)
+TEST_F(InstructionTest, ISC_ABS_NoBorrow)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1377,7 +1377,7 @@ TEST_F(CPU6502Test, ISC_ABS_NoBorrow)
 }
 
 
-TEST_F(CPU6502Test, ISC_ABS_WithBorrow)
+TEST_F(InstructionTest, ISC_ABS_WithBorrow)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1418,7 +1418,7 @@ TEST_F(CPU6502Test, ISC_ABS_WithBorrow)
 }
 
 
-TEST_F(CPU6502Test, ISC_ABS_WithBorrowIn)
+TEST_F(InstructionTest, ISC_ABS_WithBorrowIn)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1459,7 +1459,7 @@ TEST_F(CPU6502Test, ISC_ABS_WithBorrowIn)
 }
 
 
-TEST_F(CPU6502Test, ISC_ABS_ResultZero)
+TEST_F(InstructionTest, ISC_ABS_ResultZero)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1500,7 +1500,7 @@ TEST_F(CPU6502Test, ISC_ABS_ResultZero)
 }
 
 
-TEST_F(CPU6502Test, ISC_ABS_ResultNegative)
+TEST_F(InstructionTest, ISC_ABS_ResultNegative)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1541,7 +1541,7 @@ TEST_F(CPU6502Test, ISC_ABS_ResultNegative)
 }
 
 
-TEST_F(CPU6502Test, ISC_ABS_Overflow)
+TEST_F(InstructionTest, ISC_ABS_Overflow)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1582,7 +1582,7 @@ TEST_F(CPU6502Test, ISC_ABS_Overflow)
 }
 
 
-TEST_F(CPU6502Test, JSR_Instruction)
+TEST_F(InstructionTest, JSR_Instruction)
 {
     loadProgram(0x8000, { 0x20, 0x34, 0x12 }); // JSR $1234
 
@@ -1594,7 +1594,7 @@ TEST_F(CPU6502Test, JSR_Instruction)
 }
 
 
-TEST_F(CPU6502Test, JSR_Push_Return_And_Jump)
+TEST_F(InstructionTest, JSR_Push_Return_And_Jump)
 {
     loadProgram(0x8000, {0x20, 0x00, 0x90}); // JSR $9000
     stepInstruction();
@@ -1605,7 +1605,7 @@ TEST_F(CPU6502Test, JSR_Push_Return_And_Jump)
 }
 
 
-TEST_F(CPU6502Test, LAX_ABS_LoadsAandXWithMemoryValue)
+TEST_F(InstructionTest, LAX_ABS_LoadsAandXWithMemoryValue)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1633,7 +1633,7 @@ TEST_F(CPU6502Test, LAX_ABS_LoadsAandXWithMemoryValue)
 }
 
 
-TEST_F(CPU6502Test, NMI_TriggersInterrupt)
+TEST_F(InstructionTest, NMI_TriggersInterrupt)
 {
     // Arrange
     bus.write(0xFFFA, 0x00); // NMI vector low byte
@@ -1666,7 +1666,7 @@ TEST_F(CPU6502Test, NMI_TriggersInterrupt)
 }
 
 
-TEST_F(CPU6502Test, NMI_AlwaysTakesPrecedenceOverIRQ)
+TEST_F(InstructionTest, NMI_AlwaysTakesPrecedenceOverIRQ)
 {
     // Arrange
     bus.write(0xFFFA, 0x00); // NMI vector low byte
@@ -1693,7 +1693,7 @@ TEST_F(CPU6502Test, NMI_AlwaysTakesPrecedenceOverIRQ)
 }
 
 
-TEST_F(CPU6502Test, ROR)
+TEST_F(InstructionTest, ROR)
 {
     // ROR Accumulator
     cpu.A = 0x02;
@@ -1725,7 +1725,7 @@ TEST_F(CPU6502Test, ROR)
 }
 
 
-TEST_F(CPU6502Test, RRA_BASIC)
+TEST_F(InstructionTest, RRA_BASIC)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1759,7 +1759,7 @@ TEST_F(CPU6502Test, RRA_BASIC)
 }
 
 
-TEST_F(CPU6502Test, RRA_CarryOverflow)
+TEST_F(InstructionTest, RRA_CarryOverflow)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1795,7 +1795,7 @@ TEST_F(CPU6502Test, RRA_CarryOverflow)
 }
 
 
-TEST_F(CPU6502Test, RTI_RestoresStateFromStack)
+TEST_F(InstructionTest, RTI_RestoresStateFromStack)
 {
     // Arrange
     loadProgram(0x8000, {0x40}); // RTI opcode
@@ -1814,7 +1814,7 @@ TEST_F(CPU6502Test, RTI_RestoresStateFromStack)
 }
 
 
-TEST_F(CPU6502Test, RTS_Instruction)
+TEST_F(InstructionTest, RTS_Instruction)
 {
     // Load a program that calls RTS
     loadProgram(0x8000, { 0x60 }); // RTS
@@ -1832,7 +1832,7 @@ TEST_F(CPU6502Test, RTS_Instruction)
 }
 
 
-TEST_F(CPU6502Test, SLO_Basic)
+TEST_F(InstructionTest, SLO_Basic)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1864,7 +1864,7 @@ TEST_F(CPU6502Test, SLO_Basic)
 }
 
 
-TEST_F(CPU6502Test, SLO_Carry)
+TEST_F(InstructionTest, SLO_Carry)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1897,7 +1897,7 @@ TEST_F(CPU6502Test, SLO_Carry)
 }
 
 
-TEST_F(CPU6502Test, SRE_BASIC)
+TEST_F(InstructionTest, SRE_BASIC)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1931,7 +1931,7 @@ TEST_F(CPU6502Test, SRE_BASIC)
 }
 
 
-TEST_F(CPU6502Test, SRE_Carry)
+TEST_F(InstructionTest, SRE_Carry)
 {
     // Arrange
     uint16_t programStart = 0x8000;
@@ -1965,7 +1965,7 @@ TEST_F(CPU6502Test, SRE_Carry)
 }
 
 
-TEST_F(CPU6502Test, TAX)
+TEST_F(InstructionTest, TAX)
 {
     // Test TAX instruction
     cpu.A = 0x00;

@@ -1,4 +1,5 @@
 #include <cassert>
+#include <string>
 
 #include "CPU6502.hpp"
 #include "bus/Bus.hpp"
@@ -35,7 +36,8 @@ void CPU6502::reset()
     _fetched = 0;
 
     // Reset takes time
-    _cycles = 8;
+    _cycles = 7;
+    _total_cycles = 0;
 }
 
 void CPU6502::clock()
@@ -57,7 +59,19 @@ void CPU6502::clock()
             // Fetch the next opcode
             _opcode = _bus->read(PC++);
             auto& instruction = instructionTable[_opcode];
-
+            
+#if 1
+            const std::string ops = disassembleOperands();
+            printf("%04X  %02X %02X %02X  %-4s %-28s A:%02X X:%02X Y:%02X P:%02X SP:%02X CYC:%lu\n",
+                PC,
+                _opcode,
+                _bus->read(PC),
+                _bus->read(PC + 1),
+                instruction.name,
+                ops.c_str(),
+                A, X, Y, P, SP, _total_cycles);
+#endif
+            
             _cycles = instruction.cycles;
 
             // Call the addressing mode and operation functions
@@ -69,6 +83,7 @@ void CPU6502::clock()
     }
 
     _cycles--;
+    _total_cycles++;
 }
 
 void CPU6502::step()
@@ -753,3 +768,63 @@ uint8_t CPU6502::SEI()
     setFlag(I, true);
     return 0;
 }
+
+std::string CPU6502::disassembleOperands() const
+{
+    char buf[32] = {0};
+    auto addrmode = instructionTable[_opcode].addrmode;
+
+    if (addrmode == &CPU6502::IMP || addrmode == &CPU6502::ACC)
+    {
+        return "";
+    }
+    else if (addrmode == &CPU6502::IMM)
+    {
+        sprintf(buf, "#$%02X", _bus->read(PC));
+    }
+    else if (addrmode == &CPU6502::ZP0)
+    {
+        sprintf(buf, "$%02X", _bus->read(PC));
+    }
+    else if (addrmode == &CPU6502::ZPX)
+    {
+        sprintf(buf, "$%02X,X", _bus->read(PC));
+    }
+    else if (addrmode == &CPU6502::ZPY)
+    {
+        sprintf(buf, "$%02X,Y", _bus->read(PC));
+    }
+    else if (addrmode == &CPU6502::ABS)
+    {
+        sprintf(buf, "$%04X", _bus->read(PC) | (_bus->read(PC+1) << 8));
+    }
+    else if (addrmode == &CPU6502::ABX)
+    {
+        sprintf(buf, "$%04X,X", _bus->read(PC) | (_bus->read(PC+1) << 8));
+    }
+    else if (addrmode == &CPU6502::ABY)
+    {
+        sprintf(buf, "$%04X,Y", _bus->read(PC) | (_bus->read(PC+1) << 8));
+    }
+    else if (addrmode == &CPU6502::IND)
+    {
+        sprintf(buf, "($%04X)", _bus->read(PC) | (_bus->read(PC+1) << 8));
+    }
+    else if (addrmode == &CPU6502::IZX)
+    {
+        sprintf(buf, "($%02X,X)", _bus->read(PC));
+    }
+    else if (addrmode == &CPU6502::IZY)
+    {
+        sprintf(buf, "($%02X),Y", _bus->read(PC));
+    }
+    else if (addrmode == &CPU6502::REL)
+    {
+        int8_t offset = (int8_t)_bus->read(PC);
+        uint16_t target = PC + 1 + offset;
+        sprintf(buf, "$%04X", target);
+    }
+
+    return std::string(buf);
+}
+

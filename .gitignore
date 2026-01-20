@@ -1,4 +1,41 @@
+# Build directory
 build/
 
-# Microsoft Office temporary files
-.~*
+# Object files
+*.o
+*.obj
+
+# Executables
+emulator
+test_runner
+*.exe
+*.out
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled libraries
+*.a
+*.so
+*.dylib
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Google Test
+gtest/
+googletest/
+
+# Dependencies
+*.d
