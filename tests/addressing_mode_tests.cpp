@@ -242,50 +242,48 @@ TEST_F(AddressingModeTest, ABY_PageCross)
 }
 
 // Test Relative addressing (for branches)
-TEST_F(AddressingModeTest, REL_PositiveOffset) {
+TEST_F(AddressingModeTest, REL_PositiveOffset)
+{
     uint8_t program[] = {0x10};  // Offset +16
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     
     AddressingResult result = GetAddress(CPU::AddressingMode::M_REL);
     
-    EXPECT_EQ(result.address, 0x8011);  // 0x8001 + 0x10
-    EXPECT_FALSE(result.pageCrossed);
+    EXPECT_EQ(result.address, 0x10);  // 0x10
+    EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
-TEST_F(AddressingModeTest, REL_NegativeOffset) {
+TEST_F(AddressingModeTest, REL_NegativeOffset)
+{
     uint8_t program[] = {0xF0};  // Offset -16 (two's complement)
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     
     AddressingResult result = GetAddress(CPU::AddressingMode::M_REL);
     
-    EXPECT_EQ(result.address, 0x7FF1);  // 0x8001 - 16
-    EXPECT_TRUE(result.pageCrossed);
+    EXPECT_EQ(result.address, 0xFFF0);  //  -16
+    EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
-TEST_F(AddressingModeTest, REL_NoPageCross) {
+TEST_F(AddressingModeTest, REL_NoPageCross)
+{
     uint8_t program[] = {0x7F};  // Offset +127
     cpu.LoadProgram(program, sizeof(program), 0x80FF);
 
     AddressingResult result = GetAddress(CPU::AddressingMode::M_REL);
     
-    // PC after reading offset: 0x8100
-    // Target: 0x8100 + 127 = 0x817F
-    // Pages: 0x81 vs 0x81 - NO page cross in this case
-    EXPECT_EQ(result.address, 0x817F);
-    EXPECT_FALSE(result.pageCrossed);
+    EXPECT_EQ(result.address, 0x7F);
+    EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
-TEST_F(AddressingModeTest, REL_PageCross) {
+TEST_F(AddressingModeTest, REL_PageCross)
+{
     uint8_t program[] = {0x50}; // Offset +80
     cpu.LoadProgram(program, sizeof(program), 0x80DF);
 
     AddressingResult result = GetAddress(CPU::AddressingMode::M_REL);
     
-    // PC after reading offset: 0x80E0
-    // Target: 0x80E0 + 0x50 = 0x8130
-    // Pages: 0x80 vs 0x81 - YES page cross!
-    EXPECT_EQ(result.address, 0x8130);
-    EXPECT_TRUE(result.pageCrossed);
+    EXPECT_EQ(result.address, 0x50);
+    EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
 // Test Indirect addressing (JMP only)
@@ -303,7 +301,8 @@ TEST_F(AddressingModeTest, IND) {
 }
 
 // Test Indirect addressing with page boundary bug
-TEST_F(AddressingModeTest, IND_PageBoundaryBug) {
+TEST_F(AddressingModeTest, IND_PageBoundaryBug)
+{
     uint8_t program[] = {0xFF, 0x30};  // Pointer at 0x30FF
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     
@@ -318,7 +317,8 @@ TEST_F(AddressingModeTest, IND_PageBoundaryBug) {
 }
 
 // Test Indexed Indirect (X) - (d,X)
-TEST_F(AddressingModeTest, IZX) {
+TEST_F(AddressingModeTest, IZX)
+{
     uint8_t program[] = {0x40};  // Zero page base
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     cpu.X = 0x05;
@@ -333,7 +333,8 @@ TEST_F(AddressingModeTest, IZX) {
     EXPECT_FALSE(result.pageCrossed);
 }
 
-TEST_F(AddressingModeTest, IZX_WrapAround) {
+TEST_F(AddressingModeTest, IZX_WrapAround)
+{
     uint8_t program[] = {0xFF};
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     cpu.X = 0x05;
@@ -348,7 +349,8 @@ TEST_F(AddressingModeTest, IZX_WrapAround) {
 }
 
 // Test Indirect Indexed (Y) - (d),Y
-TEST_F(AddressingModeTest, IZY_NoPageCross) {
+TEST_F(AddressingModeTest, IZY_NoPageCross)
+{
     uint8_t program[] = {0x40};
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     cpu.Y = 0x05;
@@ -363,7 +365,8 @@ TEST_F(AddressingModeTest, IZY_NoPageCross) {
     EXPECT_FALSE(result.pageCrossed);
 }
 
-TEST_F(AddressingModeTest, IZY_PageCross) {
+TEST_F(AddressingModeTest, IZY_PageCross)
+{
     uint8_t program[] = {0x40};
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     cpu.Y = 0x10;

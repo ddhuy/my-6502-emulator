@@ -154,6 +154,7 @@ void CPU::Clock()
     }
 
     _cycles--;
+    _totalCycles++;
 }
 
 void CPU::Step()
@@ -506,15 +507,12 @@ uint8_t CPU::ASL()
 {
     Fetch();
     uint16_t result = (uint16_t)_fetched << 1;
-    SetFlag(F_CARRY, (result & 0xFF00) > 0);
+    
+    SetFlag(F_CARRY, (result & 0xFF00) != 0);
     SetFlag(F_ZERO, (result & 0x00FF) == 0);
     SetFlag(F_NEGATIVE, (result & 0x80) != 0);
     
-    if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::IMP) {
-        A = result & 0xFF;
-    } else {
-        _bus->Write(_addrAbs, result & 0xFF);
-    }
+    Commit(result & 0xFF);
     return 0;
 }
 
@@ -525,11 +523,7 @@ uint8_t CPU::LSR()
     uint8_t result = _fetched >> 1;
      UpdateZN(result);
     
-    if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::IMP) {
-        A = result;
-    } else {
-        _bus->Write(_addrAbs, result);
-    }
+    Commit(result);
     return 0;
 }
 
@@ -541,11 +535,7 @@ uint8_t CPU::ROL()
     result &= 0xFF;
      UpdateZN(result);
     
-    if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::IMP) {
-        A = result;
-    } else {
-        _bus->Write(_addrAbs, result);
-    }
+    Commit(result);
     return 0;
 }
 
@@ -556,11 +546,7 @@ uint8_t CPU::ROR()
     SetFlag(F_CARRY, (_fetched & 0x01) != 0);
      UpdateZN(result);
     
-    if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::IMP) {
-        A = result;
-    } else {
-        _bus->Write(_addrAbs, result);
-    }
+    Commit(result & 0xFF);
     return 0;
 }
 

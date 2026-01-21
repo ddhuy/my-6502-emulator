@@ -2,7 +2,7 @@
 #include "Instructions.h"
 
 // Complete 6502 opcode table (256 entries)
-// Format: {Mnemonic, AddressingMode, Cycles, FunctionPointer, AddCycleOnPageCross}
+// Format: {Mnemonic, Operate, AddressingMode, Cycles}
 const Instruction INSTRUCTION_TABLE[256] = {
     // 0x00-0x0F
     /* 0x00 */ {"BRK", &CPU::BRK, &CPU::IMP, 7},

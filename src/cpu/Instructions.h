@@ -15,8 +15,8 @@ typedef uint8_t (CPU::*AddressModeFunc)();
 struct Instruction
 {
     const char* name;
-    AddressModeFunc addrMode;
     OperateFunc operate;
+    AddressModeFunc addrMode;
     uint8_t cycles;
 };
 
