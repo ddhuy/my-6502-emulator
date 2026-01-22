@@ -188,7 +188,7 @@ const Instruction INSTRUCTION_TABLE[256] = {
     /* 0xA0 */ {"LDY", &CPU::LDY, &CPU::IMM, 2},
     /* 0xA1 */ {"LDA", &CPU::LDA, &CPU::IZX, 6},
     /* 0xA2 */ {"LDX", &CPU::LDX, &CPU::IMM, 2},
-    /* 0xA3 */ {"XXX", &CPU::XXX, &CPU::IMP, 6},
+    /* 0xA3 */ {"LAX", &CPU::XXX, &CPU::IND, 6},
     /* 0xA4 */ {"LDY", &CPU::LDY, &CPU::ZP0, 3},
     /* 0xA5 */ {"LDA", &CPU::LDA, &CPU::ZP0, 3},
     /* 0xA6 */ {"LDX", &CPU::LDX, &CPU::ZP0, 3},
