@@ -398,7 +398,7 @@ uint8_t CPU::ADC()
     SetFlag(F_OVERFLOW, (~(A ^ _fetched) & (A ^ result) & 0x80) != 0);
     
     A = result & 0xFF;
-     UpdateZN(A);
+    UpdateZN(A);
     return 1;  // Can use extra cycle
 }
 
@@ -412,7 +412,7 @@ uint8_t CPU::SBC()
     SetFlag(F_OVERFLOW, (~(A ^ value) & (A ^ result) & 0x80) != 0);
     
     A = result & 0xFF;
-     UpdateZN(A);
+    UpdateZN(A);
     return 1;  // Can use extra cycle
 }
 
@@ -421,7 +421,7 @@ uint8_t CPU::INC()
     Fetch();
     uint8_t result = _fetched + 1;
     _bus->Write(_addrAbs, result);
-     UpdateZN(result);
+    UpdateZN(result);
     return 0;
 }
 
@@ -430,35 +430,35 @@ uint8_t CPU::DEC()
     Fetch();
     uint8_t result = _fetched - 1;
     _bus->Write(_addrAbs, result);
-     UpdateZN(result);
+    UpdateZN(result);
     return 0;
 }
 
 uint8_t CPU::INX()
 {
     X++;
-     UpdateZN(X);
+    UpdateZN(X);
     return 0;
 }
 
 uint8_t CPU::DEX()
 {
     X--;
-     UpdateZN(X);
+    UpdateZN(X);
     return 0;
 }
 
 uint8_t CPU::INY()
 {
     Y++;
-     UpdateZN(Y);
+    UpdateZN(Y);
     return 0;
 }
 
 uint8_t CPU::DEY()
 {
     Y--;
-     UpdateZN(Y);
+    UpdateZN(Y);
     return 0;
 }
 
@@ -521,7 +521,7 @@ uint8_t CPU::LSR()
     Fetch();
     SetFlag(F_CARRY, (_fetched & 0x01) != 0);
     uint8_t result = _fetched >> 1;
-     UpdateZN(result);
+    UpdateZN(result);
     
     Commit(result);
     return 0;
@@ -533,7 +533,7 @@ uint8_t CPU::ROL()
     uint16_t result = (uint16_t)(_fetched << 1) | (GetFlag(F_CARRY) ? 1 : 0);
     SetFlag(F_CARRY, (result & 0xFF00) > 0);
     result &= 0xFF;
-     UpdateZN(result);
+    UpdateZN(result);
     
     Commit(result);
     return 0;
@@ -544,7 +544,7 @@ uint8_t CPU::ROR()
     Fetch();
     uint16_t result = (GetFlag(F_CARRY) ? (1 << 7) : 0) | (_fetched >> 1);
     SetFlag(F_CARRY, (_fetched & 0x01) != 0);
-     UpdateZN(result);
+    UpdateZN(result);
     
     Commit(result & 0xFF);
     return 0;

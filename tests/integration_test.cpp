@@ -67,7 +67,7 @@ TEST_F(IntegrationTest, CountingLoop)
     EXPECT_EQ(cpu.X, 0x00);
     
     // Run the loop
-    for (uint8_t loopCount = 1; loopCount <= 10; loopCount++ )
+    for (uint8_t loopCount = 1; loopCount <= 10; ++loopCount)
     {
         cpu.Step();  // INX
         EXPECT_EQ(cpu.X, loopCount);
@@ -88,6 +88,10 @@ TEST_F(IntegrationTest, CountingLoop)
     
     EXPECT_EQ(cpu.X, 10);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
+    EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 2 + (2 + 2 + 3) * 10 -1 + 7); // 2 for LDX
+                                                                          // (INX + CPX + BNE)*10 for loop 
+                                                                          // -1 for last BNE not taken
+                                                                          // 7 for Reset
 }
 
 // Test subroutine call and return

@@ -1,11 +1,19 @@
 #include <iostream>
 #include "cpu/CPU.h"
+#include "bus/Bus.h"
+#include "memory/Memory.h"
+
 
 int main() {
     std::cout << "NES Emulator - Phase 1: CPU Infrastructure" << std::endl;
     std::cout << "===========================================" << std::endl;
+
+    Memory memory;
+    Bus bus;
+    bus.AttachMemory(&memory);
     
     CPU cpu;
+    cpu.ConnectBus(&bus);
     
     std::cout << "CPU initialized successfully!" << std::endl;
     std::cout << "Initial state:" << std::endl;
