@@ -39,3 +39,6 @@ googletest/
 
 # Dependencies
 *.d
+
+# project specific files
+my_nestest.log

@@ -1,30 +1,8 @@
-#include <gtest/gtest.h>
-#include "cpu/CPU.h"
-#include "bus/Bus.h"
-#include "memory/Memory.h"
+#include "TestFixture.h"
 
-
-class IntegrationTest : public ::testing::Test
-{
-protected:
-    Memory memory;
-    Bus bus;
-    CPU cpu;
-
-    void SetUp() override
-    {
-        bus.AttachMemory(&memory);
-        cpu.ConnectBus(&bus);
-        cpu.Reset();
-
-        // Drain reset cycles
-        while (cpu.GetCycles() > 0)
-            cpu.Clock();
-    }
-};
 
 // Simple program: Load values, add them, store result
-TEST_F(IntegrationTest, SimpleAdditionProgram)
+TEST_F(OpcodeTest, SimpleAdditionProgram)
 {
     uint8_t program[] = {
         0xA9, 0x10,        // LDA #$10
@@ -51,7 +29,7 @@ TEST_F(IntegrationTest, SimpleAdditionProgram)
 }
 
 // Test loop: Count from 0 to 10
-TEST_F(IntegrationTest, CountingLoop)
+TEST_F(OpcodeTest, CountingLoop)
 {
     uint8_t program[] = {
         0xA2, 0x00,        // LDX #$00        ; 0x8000
@@ -95,7 +73,7 @@ TEST_F(IntegrationTest, CountingLoop)
 }
 
 // Test subroutine call and return
-TEST_F(IntegrationTest, SubroutineCall)
+TEST_F(OpcodeTest, SubroutineCall)
 {
     uint8_t program[] = {
         0x20, 0x06, 0x80,  // JSR $8006       ; 0x8000
@@ -124,7 +102,7 @@ TEST_F(IntegrationTest, SubroutineCall)
 }
 
 // Test stack operations
-TEST_F(IntegrationTest, StackOperations)
+TEST_F(OpcodeTest, StackOperations)
 {
     uint8_t program[] = {
         0xA9, 0x55,        // LDA #$55
@@ -150,7 +128,7 @@ TEST_F(IntegrationTest, StackOperations)
 }
 
 // Test flag preservation
-TEST_F(IntegrationTest, FlagOperations)
+TEST_F(OpcodeTest, FlagOperations)
 {
     uint8_t program[] = {
         0x38,              // SEC
@@ -175,7 +153,7 @@ TEST_F(IntegrationTest, FlagOperations)
 }
 
 // Test overflow detection
-TEST_F(IntegrationTest, OverflowDetection)
+TEST_F(OpcodeTest, OverflowDetection)
 {
     uint8_t program[] = {
         0xA9, 0x7F,        // LDA #$7F (127)
@@ -195,7 +173,7 @@ TEST_F(IntegrationTest, OverflowDetection)
 }
 
 // Test all comparison operations
-TEST_F(IntegrationTest, ComparisonOperations)
+TEST_F(OpcodeTest, ComparisonOperations)
 {
     uint8_t program[] = {
         0xA9, 0x50,        // LDA #$50
@@ -223,11 +201,4 @@ TEST_F(IntegrationTest, ComparisonOperations)
     cpu.Step();  // CPY #$20
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));  // Not equal
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY)); // Y < value
-}
-
-// ------------------------------------
-int main()
-{
-    ::testing::InitGoogleTest();
-    return RUN_ALL_TESTS();
 }

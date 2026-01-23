@@ -1,97 +1,8 @@
-#include <gtest/gtest.h>
-#include "cpu/CPU.h"
-#include "bus/Bus.h"
-#include "memory/Memory.h"
-
-
-class AddressingModeTest : public ::testing::Test
-{
-protected:
-    Memory memory;
-    Bus bus;
-    CPU cpu;
-
-    void SetUp() override
-    {
-        bus.AttachMemory(&memory);
-        cpu.ConnectBus(&bus);
-        cpu.Reset();
-    }
-
-    struct AddressingResult
-    {
-        uint16_t address;
-        bool pageCrossed;
-    };
-
-    AddressingResult GetAddress(CPU::AddressingMode mode)
-    {
-        AddressingResult result = {0, false};
-        switch (mode)
-        {
-            case CPU::M_IMM:
-                result.pageCrossed = (cpu.IMM() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ZP0:
-                result.pageCrossed = (cpu.ZP0() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ZPX:
-                result.pageCrossed = (cpu.ZPX() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ZPY:
-                result.pageCrossed = (cpu.ZPY() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ABS:
-                result.pageCrossed = (cpu.ABS() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ABX:
-                result.pageCrossed = (cpu.ABX() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ABY:
-                result.pageCrossed = (cpu.ABY() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_IMP:
-                result.pageCrossed = (cpu.IMP() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_ACC:
-                result.pageCrossed = (cpu.ACC() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_REL:
-                result.pageCrossed = (cpu.REL() == 1);
-                result.address = cpu.GetAddressRelative();
-                break;
-            case CPU::M_IND:
-                result.pageCrossed = (cpu.IND() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_IZX:
-                result.pageCrossed = (cpu.IZX() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            case CPU::M_IZY:
-                result.pageCrossed = (cpu.IZY() == 1);
-                result.address = cpu.GetAddressAbsolute();
-                break;
-            default:
-                assert(false && "Unknown addressing mode");
-                break;
-        }
-        return result;
-    }
-};
+#include "TestFixture.h"
 
 
 // Test Immediate Addressing Mode
-TEST_F(AddressingModeTest, IMM)
+TEST_F(OpcodeTest, IMM)
 {
     // Load a program that uses immediate addressing
     uint8_t program[] = { 0x42 };
@@ -105,7 +16,7 @@ TEST_F(AddressingModeTest, IMM)
 }
 
 // Test Zero Page Addressing Mode
-TEST_F(AddressingModeTest, ZP0)
+TEST_F(OpcodeTest, ZP0)
 {
     uint8_t program[] = { 0x42 };
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -118,7 +29,7 @@ TEST_F(AddressingModeTest, ZP0)
 }
 
 // Test Zero Page,X Addressing Mode
-TEST_F(AddressingModeTest, ZPX)
+TEST_F(OpcodeTest, ZPX)
 {
     uint8_t program[] = { 0x42 };
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -131,7 +42,7 @@ TEST_F(AddressingModeTest, ZPX)
     EXPECT_FALSE(addrResult.pageCrossed);
 }
 
-TEST_F(AddressingModeTest, ZPX_WrapAround)
+TEST_F(OpcodeTest, ZPX_WrapAround)
 {
     uint8_t program[] = { 0xFF };
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -145,7 +56,7 @@ TEST_F(AddressingModeTest, ZPX_WrapAround)
 }
 
 // Test Zero Page,Y Addressing Mode
-TEST_F(AddressingModeTest, ZPY)
+TEST_F(OpcodeTest, ZPY)
 {
     uint8_t program[] = { 0x42 };
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -159,7 +70,7 @@ TEST_F(AddressingModeTest, ZPY)
 }
 
 // Test Zero Page,Y Addressing Mode with Wrap Around
-TEST_F(AddressingModeTest, ZPY_WrapAround)
+TEST_F(OpcodeTest, ZPY_WrapAround)
 {
     uint8_t program[] = { 0xFF };
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -173,7 +84,7 @@ TEST_F(AddressingModeTest, ZPY_WrapAround)
 }
 
 // Test Absolute Addressing Mode
-TEST_F(AddressingModeTest, ABS)
+TEST_F(OpcodeTest, ABS)
 {
     uint8_t program[] = { 0x34, 0x12 }; // Low byte, High byte
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -186,7 +97,7 @@ TEST_F(AddressingModeTest, ABS)
 }
 
 // Test Absolute,X Addressing Mode without page crossing
-TEST_F(AddressingModeTest, ABX_NoPageCross)
+TEST_F(OpcodeTest, ABX_NoPageCross)
 {
     uint8_t program[] = { 0xF0, 0x12 }; // Low byte, High byte
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -200,7 +111,7 @@ TEST_F(AddressingModeTest, ABX_NoPageCross)
 }
 
 // Test Absolute,X Addressing Mode with page crossing
-TEST_F(AddressingModeTest, ABX_PageCross)
+TEST_F(OpcodeTest, ABX_PageCross)
 {
     uint8_t program[] = { 0xF0, 0x12 }; // Low byte, High byte
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -214,7 +125,7 @@ TEST_F(AddressingModeTest, ABX_PageCross)
 }
 
 // Test Absolute,Y Addressing Mode without page crossing
-TEST_F(AddressingModeTest, ABY_NoPageCross)
+TEST_F(OpcodeTest, ABY_NoPageCross)
 {
     uint8_t program[] = { 0xF0, 0x12 }; // Low byte, High byte
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -228,7 +139,7 @@ TEST_F(AddressingModeTest, ABY_NoPageCross)
 }
 
 // Test Absolute,Y Addressing Mode with page crossing
-TEST_F(AddressingModeTest, ABY_PageCross)
+TEST_F(OpcodeTest, ABY_PageCross)
 {
     uint8_t program[] = { 0xF0, 0x12 }; // Low byte, High byte
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -242,7 +153,7 @@ TEST_F(AddressingModeTest, ABY_PageCross)
 }
 
 // Test Relative addressing (for branches)
-TEST_F(AddressingModeTest, REL_PositiveOffset)
+TEST_F(OpcodeTest, REL_PositiveOffset)
 {
     uint8_t program[] = {0x10};  // Offset +16
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -253,7 +164,7 @@ TEST_F(AddressingModeTest, REL_PositiveOffset)
     EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
-TEST_F(AddressingModeTest, REL_NegativeOffset)
+TEST_F(OpcodeTest, REL_NegativeOffset)
 {
     uint8_t program[] = {0xF0};  // Offset -16 (two's complement)
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -264,7 +175,7 @@ TEST_F(AddressingModeTest, REL_NegativeOffset)
     EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
-TEST_F(AddressingModeTest, REL_NoPageCross)
+TEST_F(OpcodeTest, REL_NoPageCross)
 {
     uint8_t program[] = {0x7F};  // Offset +127
     cpu.LoadProgram(program, sizeof(program), 0x80FF);
@@ -275,7 +186,7 @@ TEST_F(AddressingModeTest, REL_NoPageCross)
     EXPECT_FALSE(result.pageCrossed); // REL doesn't report, Branch() handles it
 }
 
-TEST_F(AddressingModeTest, REL_PageCross)
+TEST_F(OpcodeTest, REL_PageCross)
 {
     uint8_t program[] = {0x50}; // Offset +80
     cpu.LoadProgram(program, sizeof(program), 0x80DF);
@@ -287,7 +198,7 @@ TEST_F(AddressingModeTest, REL_PageCross)
 }
 
 // Test Indirect addressing (JMP only)
-TEST_F(AddressingModeTest, IND) {
+TEST_F(OpcodeTest, IND) {
     uint8_t program[] = {0x20, 0x30};  // Pointer at 0x3020
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     
@@ -301,7 +212,7 @@ TEST_F(AddressingModeTest, IND) {
 }
 
 // Test Indirect addressing with page boundary bug
-TEST_F(AddressingModeTest, IND_PageBoundaryBug)
+TEST_F(OpcodeTest, IND_PageBoundaryBug)
 {
     uint8_t program[] = {0xFF, 0x30};  // Pointer at 0x30FF
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -317,7 +228,7 @@ TEST_F(AddressingModeTest, IND_PageBoundaryBug)
 }
 
 // Test Indexed Indirect (X) - (d,X)
-TEST_F(AddressingModeTest, IZX)
+TEST_F(OpcodeTest, IZX)
 {
     uint8_t program[] = {0x40};  // Zero page base
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -333,7 +244,7 @@ TEST_F(AddressingModeTest, IZX)
     EXPECT_FALSE(result.pageCrossed);
 }
 
-TEST_F(AddressingModeTest, IZX_WrapAround)
+TEST_F(OpcodeTest, IZX_WrapAround)
 {
     uint8_t program[] = {0xFF};
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -349,7 +260,7 @@ TEST_F(AddressingModeTest, IZX_WrapAround)
 }
 
 // Test Indirect Indexed (Y) - (d),Y
-TEST_F(AddressingModeTest, IZY_NoPageCross)
+TEST_F(OpcodeTest, IZY_NoPageCross)
 {
     uint8_t program[] = {0x40};
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -365,7 +276,7 @@ TEST_F(AddressingModeTest, IZY_NoPageCross)
     EXPECT_FALSE(result.pageCrossed);
 }
 
-TEST_F(AddressingModeTest, IZY_PageCross)
+TEST_F(OpcodeTest, IZY_PageCross)
 {
     uint8_t program[] = {0x40};
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -379,11 +290,4 @@ TEST_F(AddressingModeTest, IZY_PageCross)
     
     EXPECT_EQ(result.address, 0x1308);  // 0x12F8 + 0x10
     EXPECT_TRUE(result.pageCrossed);
-}
-
-// ------------------------------------
-int main()
-{
-    ::testing::InitGoogleTest();
-    return RUN_ALL_TESTS();
 }

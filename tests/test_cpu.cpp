@@ -1,37 +1,8 @@
-#include <gtest/gtest.h>
-#include "cpu/CPU.h"
-#include "bus/Bus.h"
-#include "memory/Memory.h"
+#include "TestFixture.h"
 
-
-class CPUTest : public ::testing::Test
-{
-protected:
-    Memory memory;
-    Bus bus;
-    CPU cpu;
-
-    void SetUp() override
-    {
-        bus.AttachMemory(&memory);
-        cpu.ConnectBus(&bus);
-        cpu.Reset();
-    }
-};
-
-// Test initial CPU state after reset
-TEST_F(CPUTest, InitialState)
-{
-    EXPECT_EQ(cpu.A, 0);
-    EXPECT_EQ(cpu.X, 0);
-    EXPECT_EQ(cpu.Y, 0);
-    EXPECT_EQ(cpu.SP, 0xFD);
-    EXPECT_EQ(cpu.P & CPU::StatusFlag::F_UNUSED, CPU::StatusFlag::F_UNUSED);
-    EXPECT_EQ(cpu.P & CPU::StatusFlag::F_INTERRUPT, CPU::StatusFlag::F_INTERRUPT);
-}
 
 // Test status flag operations
-TEST_F(CPUTest, SetFlagCarry)
+TEST_F(OpcodeTest, SetFlagCarry)
 {
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
@@ -40,7 +11,7 @@ TEST_F(CPUTest, SetFlagCarry)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(CPUTest, SetFlagZero)
+TEST_F(OpcodeTest, SetFlagZero)
 {
     cpu.SetFlag(CPU::StatusFlag::F_ZERO, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
@@ -49,7 +20,7 @@ TEST_F(CPUTest, SetFlagZero)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(CPUTest, SetFlagNegative)
+TEST_F(OpcodeTest, SetFlagNegative)
 {
     cpu.SetFlag(CPU::StatusFlag::F_NEGATIVE, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
@@ -58,7 +29,7 @@ TEST_F(CPUTest, SetFlagNegative)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(CPUTest, SetFlagOverflow)
+TEST_F(OpcodeTest, SetFlagOverflow)
 {
     cpu.SetFlag(CPU::StatusFlag::F_OVERFLOW, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
@@ -67,21 +38,21 @@ TEST_F(CPUTest, SetFlagOverflow)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
 }
 
-TEST_F(CPUTest, UpdateZN_Zero)
+TEST_F(OpcodeTest, UpdateZN_Zero)
 {
     cpu.UpdateZN(0);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(CPUTest, UpdateZN_Positive)
+TEST_F(OpcodeTest, UpdateZN_Positive)
 {
     cpu.UpdateZN(0x7F);
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(CPUTest, UpdateZN_Negative)
+TEST_F(OpcodeTest, UpdateZN_Negative)
 {
     cpu.UpdateZN(0x80);
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
@@ -89,7 +60,7 @@ TEST_F(CPUTest, UpdateZN_Negative)
 }
 
 // Test stack operations
-TEST_F(CPUTest, PushPopStack)
+TEST_F(OpcodeTest, PushPopStack)
 {
     uint8_t value = 0x42;
 
@@ -102,7 +73,7 @@ TEST_F(CPUTest, PushPopStack)
     EXPECT_EQ(cpu.SP, 0xFD);
 }
 
-TEST_F(CPUTest, PushPopStack16)
+TEST_F(OpcodeTest, PushPopStack16)
 {
     uint16_t value = 0x1234;
 
@@ -115,7 +86,7 @@ TEST_F(CPUTest, PushPopStack16)
     EXPECT_EQ(cpu.SP, 0xFD);
 }
 
-TEST_F(CPUTest, StackUnderflow)
+TEST_F(OpcodeTest, StackUnderflow)
 {
     // Push multiple values
     for (int i = 0; i < 10; ++i)
@@ -139,7 +110,7 @@ TEST_F(CPUTest, StackUnderflow)
 }
 
 // Test memory operations
-TEST_F(CPUTest, MemoryRW)
+TEST_F(OpcodeTest, MemoryRW)
 {
     uint16_t address = 0x2000;
     uint8_t value = 0xAB;
@@ -151,7 +122,7 @@ TEST_F(CPUTest, MemoryRW)
 }
 
 
-TEST_F(CPUTest, LoadProgram)
+TEST_F(OpcodeTest, LoadProgram)
 {
     uint8_t program[] = { 0xA9, 0x01, 0x00 }; // LDA #$01; BRK
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -163,7 +134,7 @@ TEST_F(CPUTest, LoadProgram)
 }
 
 // Test Reset functionality
-TEST_F(CPUTest, Reset)
+TEST_F(OpcodeTest, Reset)
 {
     cpu.A = 0xFF;
     cpu.X = 0xFF;
@@ -186,11 +157,4 @@ TEST_F(CPUTest, Reset)
     EXPECT_EQ(cpu.SP, 0xFD);
     EXPECT_EQ(cpu.PC, 0x8000);
     EXPECT_EQ(cpu.GetCycles(), (uint64_t) 7);
-}
-
-// ------------------------------------
-int main()
-{
-    ::testing::InitGoogleTest();
-    return RUN_ALL_TESTS();
 }

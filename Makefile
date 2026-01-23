@@ -28,23 +28,30 @@ BIN_DIR    := $(BUILD_DIR)/bin
 GTEST_DIR := 3rd_party/googletest/googletest
 
 TEST_BIN_DIR := $(BIN_DIR)/tests
-EMULATOR_BIN := $(BIN_DIR)/emulator
 
 # -------------------------
 # Source files
 # -------------------------
 ALL_SRC_FILES := $(shell find $(SRC_DIR) -name "*.cpp")
+ALL_TEST_SRC_FILES := $(shell find $(TEST_DIR) -name "*.cpp")
+
+NESTEST_SRC := $(TEST_DIR)/nestest_runner.cpp
+OTHER_TEST_SRCS := $(filter-out $(NESTEST_SRC),$(ALL_TEST_SRC_FILES))
+
 LIB_SRC_FILES := $(filter-out $(SRC_DIR)/emulator_main.cpp,$(ALL_SRC_FILES))
-TEST_SRC_FILES := $(shell find $(TEST_DIR) -name "*.cpp")
 GTEST_SRC_FILES := $(GTEST_DIR)/src/gtest-all.cc
 
 LIB_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(LIB_SRC_FILES))
-TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(TEST_SRC_FILES))
 GTEST_OBJS := $(patsubst %.cc,$(OBJ_DIR)/%.o,$(GTEST_SRC_FILES))
 
-# Test executable names (strip path & extension)
+OTHER_TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(OTHER_TEST_SRCS))
+NESTEST_OBJ := $(OBJ_DIR)/$(NESTEST_SRC:.cpp=.o)
 MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/emulator_main.o
-TEST_BINS := $(patsubst $(TEST_DIR)/%.cpp,$(TEST_BIN_DIR)/%,$(TEST_SRC_FILES))
+
+# Test executable names (strip path & extension)
+EMULATOR_BIN := $(BIN_DIR)/nes_emulator
+NES_TEST_BIN := $(TEST_BIN_DIR)/nes_test
+CPU_TEST_BIN := $(TEST_BIN_DIR)/cpu_test
 
 # -------------------------
 # Default target
@@ -61,10 +68,13 @@ $(EMULATOR_BIN): $(LIB_OBJS) $(MAIN_OBJ)
 # -------------------------
 # Tests
 # -------------------------
-tests: $(TEST_BINS)
+tests: $(CPU_TEST_BIN) $(NES_TEST_BIN)
 
-# Rule: one test source -> one test binary
-$(TEST_BIN_DIR)/%: $(OBJ_DIR)/$(TEST_DIR)/%.o $(LIB_OBJS) $(GTEST_OBJS)
+$(CPU_TEST_BIN): $(OTHER_TEST_OBJS) $(LIB_OBJS) $(GTEST_OBJS)
+	@mkdir -p $(TEST_BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+$(NES_TEST_BIN): $(NESTEST_OBJ) $(LIB_OBJS) $(GTEST_OBJS)
 	@mkdir -p $(TEST_BIN_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
@@ -83,12 +93,17 @@ $(OBJ_DIR)/%.o: %.cpp
 # Run all tests
 # -------------------------
 run-tests: tests
-	@set -e; \
-	for t in $(TEST_BINS); do \
-	    echo "Running $$t"; \
-	    $$t; \
-	done; \
-	echo "All tests passed."
+	@echo "-------------------------"
+	@echo "Running CPU Tests"
+	$(CPU_TEST_BIN)
+	
+	@echo "-------------------------"
+	@echo "Running NES Tests"
+	@cp -v $(TEST_DIR)/nestest.nes $(TEST_BIN_DIR)/
+	$(NES_TEST_BIN) $(TEST_BIN_DIR)/nestest.nes
+	
+	@echo "-------------------------"
+	@echo "All tests passed."
 
 # -------------------------
 # Clean
