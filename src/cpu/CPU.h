@@ -156,6 +156,11 @@ public:
     uint8_t CMP(); uint8_t CPX(); uint8_t CPY();
     
     uint8_t NOP(); uint8_t XXX();
+
+    // Illegal/Unofficial opcodes
+    uint8_t LAX(); uint8_t SAX(); uint8_t DCP(); uint8_t ISC();
+    uint8_t SLO(); uint8_t RLA(); uint8_t SRE(); uint8_t RRA();
+    uint8_t ANC(); uint8_t ALR(); uint8_t ARR(); uint8_t SBX();
 };
 
 #endif // CPU_H

@@ -514,6 +514,8 @@ TEST_F(OpcodeTest, ROR_Accumulator)
     cpu.Step();
     
     EXPECT_EQ(cpu.A, 0xD5);  // 0x80 | (0xAA >> 1)
+    EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
+    EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 

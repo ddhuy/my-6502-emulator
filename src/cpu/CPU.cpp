@@ -108,10 +108,10 @@ uint16_t CPU::ReadPC16()
 
 uint8_t CPU::Fetch()
 {
-    if (INSTRUCTION_TABLE[_opcode].addrMode != &CPU::ACC)
-        _fetched = _bus->Read(_addrAbs);
-    else
+    if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::ACC)
         _fetched = A;
+    else
+        _fetched = _bus->Read(_addrAbs);
     return _fetched;
 }
 
@@ -172,7 +172,6 @@ void CPU::Step()
 // Implied - no additional data needed
 uint8_t CPU::IMP()
 {
-    _fetched = A;
     return 0;
 }
 
@@ -542,11 +541,11 @@ uint8_t CPU::ROL()
 uint8_t CPU::ROR()
 {
     Fetch();
-    uint16_t result = (GetFlag(F_CARRY) ? (1 << 7) : 0) | (_fetched >> 1);
+    uint16_t result = (GetFlag(F_CARRY) ? 0x80 : 0x00) | (_fetched >> 1);
     SetFlag(F_CARRY, (_fetched & 0x01) != 0);
     UpdateZN(result);
     
-    Commit(result & 0xFF);
+    Commit(result & 0x00FF);
     return 0;
 }
 
@@ -776,7 +775,8 @@ uint8_t CPU::CPY()
 uint8_t CPU::NOP()
 {
     // Some unofficial NOPs fetch
-    if (INSTRUCTION_TABLE[_opcode].addrMode != &CPU::IMP) {
+    if (INSTRUCTION_TABLE[_opcode].addrMode != &CPU::IMP)
+    {
         Fetch();
     }
     return 1;  // Some NOPs can use extra cycle (like NOP $NNNN,X)
@@ -785,5 +785,211 @@ uint8_t CPU::NOP()
 uint8_t CPU::XXX()
 {
     // Illegal opcode - do nothing
+    return 0;
+}
+
+// ============================================================================
+// ILLEGAL/UNOFFICIAL OPCODES IMPLEMENTATION
+// ============================================================================
+// These opcodes are undocumented but commonly used by NES games for optimization.
+// They combine two operations into a single instruction.
+// ============================================================================
+
+// LAX - Load A and X with the same value
+// Loads a value into both A and X registers simultaneously
+uint8_t CPU::LAX()
+{
+    A = X = Fetch(); // Load both registers!
+    UpdateZN(A);
+    return 1;  // Can use extra cycle on page cross
+}
+
+// SAX - Store A AND X
+// Stores the bitwise AND of A and X to memory
+uint8_t CPU::SAX()
+{
+    _bus->Write(_addrAbs, A & X);
+    return 0;
+}
+
+// DCP - Decrement then Compare
+// Decrements memory value then compares with A
+// Equivalent to: DEC + CMP
+uint8_t CPU::DCP()
+{
+    Fetch();
+    uint8_t value = _fetched - 1;
+    _bus->Write(_addrAbs, value);
+
+    // Compare A with decremented value
+    uint16_t result = (uint16_t) A - (uint16_t) value;
+    SetFlag(StatusFlag::F_CARRY, A >= value);
+    SetFlag(StatusFlag::F_ZERO, (result & 0xFF) == 0);
+    SetFlag(StatusFlag::F_NEGATIVE, (result & 0x80) != 0);
+
+    return 0;
+}
+
+// ISC (also called ISB) - Increment then Subtract with Carry
+// Increments memory value then subtracts from A
+// Equivalent to: INC + SBC
+uint8_t CPU::ISC()
+{
+    Fetch();
+
+    uint8_t value = _fetched + 1;
+    _bus->Write(_addrAbs, value);
+    
+    // SBC with incremented value
+    uint16_t result = A + (value ^ 0xFF) + (GetFlag(StatusFlag::F_CARRY) ? 1 : 0);
+    SetFlag(StatusFlag::F_CARRY, result > 0xFF);
+    SetFlag(StatusFlag::F_OVERFLOW, (~(A ^ (value ^ 0xFF)) & (A ^ result) & 0x80) != 0);
+
+    A = result & 0xFF;
+    UpdateZN(A);
+
+    return 0;
+}
+
+
+// SLO - Shift Left then OR with A
+// Shifts memory left then ORs result with A
+// Equivalent to: ASL + ORA
+uint8_t CPU::SLO()
+{
+    Fetch();
+    uint8_t value = _fetched;
+    
+    // ASL
+    SetFlag(StatusFlag::F_CARRY, (value & 0x80) != 0);
+    value <<= 1;
+    _bus->Write(_addrAbs, value);
+    
+    // ORA
+    A |= value;
+    UpdateZN(A);
+    
+    return 0;
+}
+
+// RLA - Rotate Left then AND with A
+// Rotates memory left then ANDs result with A
+// Equivalent to: ROL + AND
+uint8_t CPU::RLA()
+{
+    Fetch();
+    uint8_t value = _fetched;
+    
+    // ROL
+    bool oldCarry = GetFlag(StatusFlag::F_CARRY);
+    SetFlag(StatusFlag::F_CARRY, (value & 0x80) != 0);
+    value = (value << 1) | (oldCarry ? 1 : 0);
+    _bus->Write(_addrAbs, value);
+    
+    // AND
+    A &= value;
+    UpdateZN(A);
+    
+    return 0;
+}
+
+// SRE - Shift Right then XOR with A
+// Shifts memory right then XORs result with A
+// Equivalent to: LSR + EOR
+uint8_t CPU::SRE()
+{
+    Fetch();
+    uint8_t value = _fetched;
+    
+    // LSR
+    SetFlag(StatusFlag::F_CARRY, (value & 0x01) != 0);
+    value >>= 1;
+    _bus->Write(_addrAbs, value);
+    
+    // EOR
+    A ^= value;
+    UpdateZN(A);
+    
+    return 0;
+}
+
+// RRA - Rotate Right then Add with Carry
+// Rotates memory right then adds result to A
+// Equivalent to: ROR + ADC
+uint8_t CPU::RRA()
+{
+    Fetch();
+    uint8_t value = _fetched;
+    
+    // ROR
+    bool oldCarry = GetFlag(StatusFlag::F_CARRY);
+    SetFlag(StatusFlag::F_CARRY, (value & 0x01) != 0);
+    value = (value >> 1) | (oldCarry ? 0x80 : 0);
+    _bus->Write(_addrAbs, value);
+    
+    // ADC
+    uint16_t result = A + value + (GetFlag(StatusFlag::F_CARRY) ? 1 : 0);
+    SetFlag(StatusFlag::F_CARRY, result > 0xFF);
+    SetFlag(StatusFlag::F_OVERFLOW, (~(A ^ value) & (A ^ result) & 0x80) != 0);
+    
+    A = result & 0xFF;
+    UpdateZN(A);
+    
+    return 0;
+}
+
+// ANC - AND then copy N to C
+// ANDs immediate value with A, then copies bit 7 to carry
+// Used for quick bit testing
+uint8_t CPU::ANC()
+{
+    Fetch();
+    A &= _fetched;
+    UpdateZN(A);
+    SetFlag(StatusFlag::F_CARRY, GetFlag(StatusFlag::F_NEGATIVE));
+    return 0;
+}
+
+// ALR - AND then LSR
+// ANDs immediate value with A, then shifts right
+// Equivalent to: AND + LSR A
+uint8_t CPU::ALR()
+{
+    Fetch();
+    A &= _fetched;
+    SetFlag(StatusFlag::F_CARRY, (A & 0x01) != 0);
+    A >>= 1;
+    UpdateZN(A);
+    return 0;
+}
+
+// ARR - AND then ROR
+// ANDs immediate value with A, then rotates right
+// Has complex flag behavior for BCD support
+uint8_t CPU::ARR()
+{
+    Fetch();
+    A &= _fetched;
+    A = (A >> 1) | (GetFlag(StatusFlag::F_CARRY) ? 0x80 : 0);
+    
+    UpdateZN(A);
+    SetFlag(StatusFlag::F_CARRY, (A & 0x40) != 0);
+    SetFlag(StatusFlag::F_OVERFLOW, ((A & 0x40) ^ ((A & 0x20) << 1)) != 0);
+    
+    return 0;
+}
+
+// AXS (also called SBX) - (A AND X) - value
+// Subtracts immediate from (A AND X), stores in X
+// Does NOT update A, only X
+uint8_t CPU::SBX()
+{
+    Fetch();
+    uint16_t temp = (A & X) - _fetched;
+    
+    X = temp & 0xFF;
+    SetFlag(StatusFlag::F_CARRY, temp < 0x100);
+    UpdateZN(X);
+    
     return 0;
 }

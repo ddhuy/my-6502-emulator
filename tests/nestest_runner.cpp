@@ -184,6 +184,18 @@ public:
         oss << "Y:"  << std::setw(2) << std::setfill('0') << std::right << (int)cpu.Y << " ";
         oss << "P:"  << std::setw(2) << std::setfill('0') << std::right << (int)cpu.P << " ";
         oss << "SP:" << std::setw(2) << std::setfill('0') << std::right << (int)cpu.SP << " ";
+
+        // PPU
+        uint64_t ppu_cycles = cpu.GetTotalCycles() * 3;
+
+        int scanline = (ppu_cycles / 341) % 262;
+        int dot = ppu_cycles % 341;
+
+        oss << "PPU:"
+            << std::dec << std::setw(3) << std::setfill(' ') << std::right
+            << scanline << ","
+            << std::dec << std::setw(3) << std::setfill(' ') << std::right
+            << dot << " ";
         
         // Cycles (PPU cycles = CPU cycles * 3)
         oss << "CYC:" << std::dec << cpu.GetTotalCycles();
@@ -212,51 +224,40 @@ public:
         std::cout << "Running nestest from 0xC000..." << std::endl;
 
         const int MAX_INSTRUCTIONS = 30000;
-        uint16_t lastPC = 0;
-        uint32_t sameCount = 0;
+        uint16_t currentPC = 0;
 
         while (instructionCount < MAX_INSTRUCTIONS)
         {
             LogState();
 
-            uint16_t currentPC = cpu.PC;
+            currentPC = cpu.PC;
 
             // Check for infinite looping (test complete)
-            if (currentPC == lastPC)
+            if (currentPC == 0xC66E)
             {
-                sameCount++;
-                if (sameCount > 2)
+                std::cout << "\nTest completed at PC: 0x" << std::hex << currentPC << std::endl;
+                std::cout << "Final A register: 0x" << std::hex << (int) cpu.A << std::endl;
+
+                logFile.close();
+
+                if (cpu.PC == 0xC66E && cpu.A == 0x00)
                 {
-                    std::cout << "\nTest completed at PC: 0x" << std::hex << currentPC << std::endl;
-                    std::cout << "Final A register: 0x" << std::hex << (int) cpu.A << std::endl;
-
-                    logFile.close();
-
-                    if (cpu.PC == 0xC66E && cpu.A == 0x00)
-                    {
-                        std::cout << "\nSUCCESS! All tests passed." << std::endl;
-                        std::cout << "  PC = 0xC66E (expected)" << std::endl;
-                        std::cout << "  A  = 0x00 (no errors)" << std::endl;
-                        return true;
-                    }
-                    else
-                    {
-                        std::cout << "FAILED! Error code: 0x" << std::hex << cpu.A << std::endl;
-                        std::cout << "  Expected: PC=0xC66E, A=0x00" << std::endl;
-                        std::cout << "  Got:      PC=0x" << std::hex << currentPC 
-                                  << ", A=0x" << (int)cpu.A << std::endl;
-                        std::cout << "  Error code in A: 0x" << (int)cpu.A << std::endl;
-                        return false;
-                    }
+                    std::cout << "\nSUCCESS! All tests passed." << std::endl;
+                    std::cout << "  PC = 0xC66E (expected)" << std::endl;
+                    std::cout << "  A  = 0x00 (no errors)" << std::endl;
+                    return true;
+                }
+                else
+                {
+                    std::cout << "FAILED! Error code: 0x" << std::hex << cpu.A << std::endl;
+                    std::cout << "  Expected: PC=0xC66E, A=0x00" << std::endl;
+                    std::cout << "  Got:      PC=0x" << std::hex << currentPC 
+                                << ", A=0x" << (int)cpu.A << std::endl;
+                    std::cout << "  Error code in A: 0x" << (int)cpu.A << std::endl;
+                    return false;
                 }
             }
-            else
-            {
-                sameCount = 0;
-            }
 
-            lastPC = currentPC;
-            
             // Execute one instruction
             cpu.Step();
             instructionCount++;
@@ -269,8 +270,12 @@ public:
         }
 
         logFile.close();
-        std::cout << "Test did not complete within " << MAX_INSTRUCTIONS
+        std::cout << "\nTest did not complete within " << MAX_INSTRUCTIONS
                   << " instructions" << std::endl;
+        std::cout << "  Expected: PC=0xC66E, A=0x00" << std::endl;
+        std::cout << "  Got:      PC=0x" << std::hex << currentPC 
+                    << ", A=0x" << (int)cpu.A << std::endl;
+        std::cout << "  Error code in A: 0x" << (int)cpu.A << std::endl;
         return false;
     }
 };
@@ -278,19 +283,16 @@ public:
 
 int main(int argc, char** argv)
 {
-    if (argc < 3)
-    {
-        std::cout << "Usage: nestest_runner <nestest.nes file> <nestest.log file>" << std::endl;
-        return 1;
-    }
+    const char* romFile = nullptr;
+    if (argc >= 2)
+        romFile = argv[1];
+    else
+        romFile = "nestest.nes";
 
-    const char* romFile = argv[1];
-    const char* romLog = argv[2];
 
     std::cout << "============================================" << std::endl;
     std::cout << "NES Test ROM Runner" << std::endl;
     std::cout << "============================================" << std::endl;
-    std::cout << "ROM: " << romFile << std::endl << std::endl;
 
     NESTestRunner nestest_runner;
 
