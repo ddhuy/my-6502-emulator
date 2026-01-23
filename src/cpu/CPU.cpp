@@ -129,6 +129,23 @@ const char* CPU::GetCurrentInstruction() const
     return INSTRUCTION_TABLE[_opcode].name;
 }
 
+void CPU::Interrupt(uint16_t vector)
+{
+    PushStack16(PC); 
+
+    // Push status register with B=0, U=1
+    PushStack((P & ~StatusFlag::F_BREAK) | StatusFlag::F_UNUSED);
+
+    SetFlag(StatusFlag::F_INTERRUPT, true); // Disable further interrupts
+
+    // Load vector
+    uint16_t lo = _bus->Read(vector);
+    uint16_t hi = _bus->Read(vector + 1);
+    PC = (hi << 8) | lo;
+
+    _cycles = 7; // Interrupt handling takes 7 cycles
+}
+
 
 // ============================================================================
 // CYCLE EXECUTION
@@ -138,19 +155,33 @@ void CPU::Clock()
 {
     if (_cycles == 0)
     {
-        // Fetch the next opcode
-        _opcode = ReadPC();
-        const Instruction& instr = INSTRUCTION_TABLE[_opcode];
+        if (_nmiPending)
+        {
+            _nmiPending = false;
+            Interrupt(0xFFFA); // NMI vector
+        }
+        else if (_irqPending && !GetFlag(StatusFlag::F_INTERRUPT))
+        {
+            _irqPending = false;
+            Interrupt(0xFFFE); // IRQ vector
+        }
+        else
+        {
+            // Fetch the next opcode
+            _opcode = ReadPC();
+            const Instruction& instr = INSTRUCTION_TABLE[_opcode];
 
-        // Set base _cycles
-        _cycles = instr.cycles;
+            // Set base _cycles
+            _cycles = instr.cycles;
 
-        // Call the addressing mode function and operation function
-        uint8_t additionalCycle1 = (this->*instr.addrMode)();
-        uint8_t additionalCycle2 = (this->*instr.operate)();
-        
-        // Add extra cycle only if BOTH addressing mode AND operation require it
-        _cycles += (additionalCycle1 & additionalCycle2);
+            // Call the addressing mode function and operation function
+            uint8_t additionalCycle1 = (this->*instr.addrMode)();
+            uint8_t additionalCycle2 = (this->*instr.operate)();
+            
+            // Add extra cycle only if BOTH addressing mode AND operation require it
+            _cycles += (additionalCycle1 & additionalCycle2);
+
+        }
     }
 
     _cycles--;

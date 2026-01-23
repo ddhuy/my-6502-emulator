@@ -5,7 +5,7 @@
 // LDA Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, LDA_Immediate)
+TEST_F(CPUTest, LDA_Immediate)
 {
     uint8_t program[] = {0xA9, 0x42};  // LDA #$42
     cpu.LoadProgram(program, sizeof(program));
@@ -18,7 +18,7 @@ TEST_F(OpcodeTest, LDA_Immediate)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 2 + 7); // 2 for LDA + 7 for Reset
 }
 
-TEST_F(OpcodeTest, LDA_ImmediateSetsZeroFlag)
+TEST_F(CPUTest, LDA_ImmediateSetsZeroFlag)
 {
     uint8_t program[] = {0xA9, 0x00};  // LDA #$00
     cpu.LoadProgram(program, sizeof(program));
@@ -29,7 +29,7 @@ TEST_F(OpcodeTest, LDA_ImmediateSetsZeroFlag)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, LDA_ImmediateSetsNegativeFlag)
+TEST_F(CPUTest, LDA_ImmediateSetsNegativeFlag)
 {
     uint8_t program[] = {0xA9, 0x80};  // LDA #$80
     cpu.LoadProgram(program, sizeof(program));
@@ -40,7 +40,7 @@ TEST_F(OpcodeTest, LDA_ImmediateSetsNegativeFlag)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, LDA_ZeroPage)
+TEST_F(CPUTest, LDA_ZeroPage)
 {
     uint8_t program[] = {0xA5, 0x10};  // LDA $10
     cpu.LoadProgram(program, sizeof(program));
@@ -51,7 +51,7 @@ TEST_F(OpcodeTest, LDA_ZeroPage)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 3 + 7); // 3 for LDA + 7 for Reset
 }
 
-TEST_F(OpcodeTest, LDA_ZeroPageX)
+TEST_F(CPUTest, LDA_ZeroPageX)
 {
     uint8_t program[] = {0xB5, 0x10};  // LDA $10,X
     cpu.LoadProgram(program, sizeof(program));
@@ -63,7 +63,7 @@ TEST_F(OpcodeTest, LDA_ZeroPageX)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 4 + 7); // 4 for LDA + 7 for Reset
 }
 
-TEST_F(OpcodeTest, LDA_Absolute)
+TEST_F(CPUTest, LDA_Absolute)
 {
     uint8_t program[] = {0xAD, 0x34, 0x12};  // LDA $1234
     cpu.LoadProgram(program, sizeof(program));
@@ -74,7 +74,7 @@ TEST_F(OpcodeTest, LDA_Absolute)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 4 + 7); // 4 for LDA + 7 for Reset
 }
 
-TEST_F(OpcodeTest, LDA_AbsoluteXNoPageCross)
+TEST_F(CPUTest, LDA_AbsoluteXNoPageCross)
 {
     uint8_t program[] = {0xBD, 0x00, 0x12};  // LDA $1200,X
     cpu.LoadProgram(program, sizeof(program));
@@ -86,7 +86,7 @@ TEST_F(OpcodeTest, LDA_AbsoluteXNoPageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 4 + 7);  // No page cross
 }
 
-TEST_F(OpcodeTest, LDA_AbsoluteXPageCross)
+TEST_F(CPUTest, LDA_AbsoluteXPageCross)
 {
     uint8_t program[] = {0xBD, 0xFF, 0x12};  // LDA $12FF,X
     cpu.LoadProgram(program, sizeof(program));
@@ -98,7 +98,7 @@ TEST_F(OpcodeTest, LDA_AbsoluteXPageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 5 + 7);  // +1 for page cross +7 for Reset
 }
 
-TEST_F(OpcodeTest, LDA_AbsoluteY)
+TEST_F(CPUTest, LDA_AbsoluteY)
 {
     uint8_t program[] = {0xB9, 0x00, 0x12};  // LDA $1200,Y
     cpu.LoadProgram(program, sizeof(program));
@@ -109,7 +109,7 @@ TEST_F(OpcodeTest, LDA_AbsoluteY)
     EXPECT_EQ(cpu.A, 0x66);
 }
 
-TEST_F(OpcodeTest, LDA_IndexedIndirectX)
+TEST_F(CPUTest, LDA_IndexedIndirectX)
 {
     uint8_t program[] = {0xA1, 0x40};  // LDA ($40,X)
     cpu.LoadProgram(program, sizeof(program));
@@ -123,7 +123,7 @@ TEST_F(OpcodeTest, LDA_IndexedIndirectX)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t) 6 + 7); // 6 for LDA + 7 for Reset
 }
 
-TEST_F(OpcodeTest, LDA_IndirectIndexedY)
+TEST_F(CPUTest, LDA_IndirectIndexedY)
 {
     uint8_t program[] = {0xB1, 0x40};  // LDA ($40),Y
     cpu.LoadProgram(program, sizeof(program));
@@ -141,7 +141,7 @@ TEST_F(OpcodeTest, LDA_IndirectIndexedY)
 // LDX Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, LDX_Immediate)
+TEST_F(CPUTest, LDX_Immediate)
 {
     uint8_t program[] = {0xA2, 0x55};  // LDX #$55
     cpu.LoadProgram(program, sizeof(program));
@@ -152,7 +152,7 @@ TEST_F(OpcodeTest, LDX_Immediate)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, LDX_ZeroPage)
+TEST_F(CPUTest, LDX_ZeroPage)
 {
     uint8_t program[] = {0xA6, 0x20};  // LDX $20
     cpu.LoadProgram(program, sizeof(program));
@@ -162,7 +162,7 @@ TEST_F(OpcodeTest, LDX_ZeroPage)
     EXPECT_EQ(cpu.X, 0x33);
 }
 
-TEST_F(OpcodeTest, LDX_ZeroPageY)
+TEST_F(CPUTest, LDX_ZeroPageY)
 {
     uint8_t program[] = {0xB6, 0x20};  // LDX $20,Y
     cpu.LoadProgram(program, sizeof(program));
@@ -177,7 +177,7 @@ TEST_F(OpcodeTest, LDX_ZeroPageY)
 // LDY Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, LDY_Immediate)
+TEST_F(CPUTest, LDY_Immediate)
 {
     uint8_t program[] = {0xA0, 0x66};  // LDY #$66
     cpu.LoadProgram(program, sizeof(program));
@@ -186,7 +186,7 @@ TEST_F(OpcodeTest, LDY_Immediate)
     EXPECT_EQ(cpu.Y, 0x66);
 }
 
-TEST_F(OpcodeTest, LDY_ZeroPageX)
+TEST_F(CPUTest, LDY_ZeroPageX)
 {
     uint8_t program[] = {0xB4, 0x20};  // LDY $20,X
     cpu.LoadProgram(program, sizeof(program));
@@ -201,7 +201,7 @@ TEST_F(OpcodeTest, LDY_ZeroPageX)
 // STA Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, STA_ZeroPage)
+TEST_F(CPUTest, STA_ZeroPage)
 {
     uint8_t program[] = {0x85, 0x10};  // STA $10
     cpu.LoadProgram(program, sizeof(program));
@@ -211,7 +211,7 @@ TEST_F(OpcodeTest, STA_ZeroPage)
     EXPECT_EQ(cpu.ReadMemory(0x10), 0x42);
 }
 
-TEST_F(OpcodeTest, STA_ZeroPageX)
+TEST_F(CPUTest, STA_ZeroPageX)
 {
     uint8_t program[] = {0x95, 0x10};  // STA $10,X
     cpu.LoadProgram(program, sizeof(program));
@@ -222,7 +222,7 @@ TEST_F(OpcodeTest, STA_ZeroPageX)
     EXPECT_EQ(cpu.ReadMemory(0x15), 0x55);
 }
 
-TEST_F(OpcodeTest, STA_Absolute)
+TEST_F(CPUTest, STA_Absolute)
 {
     uint8_t program[] = {0x8D, 0x34, 0x12};  // STA $1234
     cpu.LoadProgram(program, sizeof(program));
@@ -232,7 +232,7 @@ TEST_F(OpcodeTest, STA_Absolute)
     EXPECT_EQ(cpu.ReadMemory(0x1234), 0xAA);
 }
 
-TEST_F(OpcodeTest, STA_AbsoluteX)
+TEST_F(CPUTest, STA_AbsoluteX)
 {
     uint8_t program[] = {0x9D, 0x00, 0x12};  // STA $1200,X
     cpu.LoadProgram(program, sizeof(program));
@@ -243,7 +243,7 @@ TEST_F(OpcodeTest, STA_AbsoluteX)
     EXPECT_EQ(cpu.ReadMemory(0x1210), 0xBB);
 }
 
-TEST_F(OpcodeTest, STA_AbsoluteY)
+TEST_F(CPUTest, STA_AbsoluteY)
 {
     uint8_t program[] = {0x99, 0x00, 0x12};  // STA $1200,Y
     cpu.LoadProgram(program, sizeof(program));
@@ -254,7 +254,7 @@ TEST_F(OpcodeTest, STA_AbsoluteY)
     EXPECT_EQ(cpu.ReadMemory(0x1208), 0xCC);
 }
 
-TEST_F(OpcodeTest, STA_IndexedIndirectX)
+TEST_F(CPUTest, STA_IndexedIndirectX)
 {
     uint8_t program[] = {0x81, 0x40};  // STA ($40,X)
     cpu.LoadProgram(program, sizeof(program));
@@ -267,7 +267,7 @@ TEST_F(OpcodeTest, STA_IndexedIndirectX)
     EXPECT_EQ(cpu.ReadMemory(0x1234), 0xDD);
 }
 
-TEST_F(OpcodeTest, STA_IndirectIndexedY)
+TEST_F(CPUTest, STA_IndirectIndexedY)
 {
     uint8_t program[] = {0x91, 0x40};  // STA ($40),Y
     cpu.LoadProgram(program, sizeof(program));
@@ -284,7 +284,7 @@ TEST_F(OpcodeTest, STA_IndirectIndexedY)
 // STX Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, STX_ZeroPage)
+TEST_F(CPUTest, STX_ZeroPage)
 {
     uint8_t program[] = {0x86, 0x10};  // STX $10
     cpu.LoadProgram(program, sizeof(program));
@@ -294,7 +294,7 @@ TEST_F(OpcodeTest, STX_ZeroPage)
     EXPECT_EQ(cpu.ReadMemory(0x10), 0x99);
 }
 
-TEST_F(OpcodeTest, STX_ZeroPageY)
+TEST_F(CPUTest, STX_ZeroPageY)
 {
     uint8_t program[] = {0x96, 0x10};  // STX $10,Y
     cpu.LoadProgram(program, sizeof(program));
@@ -309,7 +309,7 @@ TEST_F(OpcodeTest, STX_ZeroPageY)
 // STY Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, STY_ZeroPage)
+TEST_F(CPUTest, STY_ZeroPage)
 {
     uint8_t program[] = {0x84, 0x10};  // STY $10
     cpu.LoadProgram(program, sizeof(program));
@@ -323,7 +323,7 @@ TEST_F(OpcodeTest, STY_ZeroPage)
 // Transfer Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, TAX)
+TEST_F(CPUTest, TAX)
 {
     uint8_t program[] = {0xAA};  // TAX
     cpu.LoadProgram(program, sizeof(program));
@@ -335,7 +335,7 @@ TEST_F(OpcodeTest, TAX)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, TAX_SetsZeroFlag)
+TEST_F(CPUTest, TAX_SetsZeroFlag)
 {
     uint8_t program[] = {0xAA};  // TAX
     cpu.LoadProgram(program, sizeof(program));
@@ -346,7 +346,7 @@ TEST_F(OpcodeTest, TAX_SetsZeroFlag)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, TAY)
+TEST_F(CPUTest, TAY)
 {
     uint8_t program[] = {0xA8};  // TAY
     cpu.LoadProgram(program, sizeof(program));
@@ -356,7 +356,7 @@ TEST_F(OpcodeTest, TAY)
     EXPECT_EQ(cpu.Y, 0x55);
 }
 
-TEST_F(OpcodeTest, TXA)
+TEST_F(CPUTest, TXA)
 {
     uint8_t program[] = {0x8A};  // TXA
     cpu.LoadProgram(program, sizeof(program));
@@ -366,7 +366,7 @@ TEST_F(OpcodeTest, TXA)
     EXPECT_EQ(cpu.A, 0x33);
 }
 
-TEST_F(OpcodeTest, TYA)
+TEST_F(CPUTest, TYA)
 {
     uint8_t program[] = {0x98};  // TYA
     cpu.LoadProgram(program, sizeof(program));
@@ -376,7 +376,7 @@ TEST_F(OpcodeTest, TYA)
     EXPECT_EQ(cpu.A, 0x44);
 }
 
-TEST_F(OpcodeTest, TSX)
+TEST_F(CPUTest, TSX)
 {
     uint8_t program[] = {0xBA};  // TSX
     cpu.LoadProgram(program, sizeof(program));
@@ -386,7 +386,7 @@ TEST_F(OpcodeTest, TSX)
     EXPECT_EQ(cpu.X, 0xF0);
 }
 
-TEST_F(OpcodeTest, TXS)
+TEST_F(CPUTest, TXS)
 {
     uint8_t program[] = {0x9A};  // TXS
     cpu.LoadProgram(program, sizeof(program));
@@ -400,7 +400,7 @@ TEST_F(OpcodeTest, TXS)
 // Shift/Rotate Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, ASL_Accumulator)
+TEST_F(CPUTest, ASL_Accumulator)
 {
     uint8_t program[] = {0x0A};  // ASL A
     cpu.LoadProgram(program, sizeof(program));
@@ -413,7 +413,7 @@ TEST_F(OpcodeTest, ASL_Accumulator)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, ASL_SetsCarry)
+TEST_F(CPUTest, ASL_SetsCarry)
 {
     uint8_t program[] = {0x0A};  // ASL A
     cpu.LoadProgram(program, sizeof(program));
@@ -425,7 +425,7 @@ TEST_F(OpcodeTest, ASL_SetsCarry)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, ASL_ZeroPage)
+TEST_F(CPUTest, ASL_ZeroPage)
 {
     uint8_t program[] = {0x06, 0x10};  // ASL $10
     cpu.LoadProgram(program, sizeof(program));
@@ -435,7 +435,7 @@ TEST_F(OpcodeTest, ASL_ZeroPage)
     EXPECT_EQ(cpu.ReadMemory(0x10), 0x02);
 }
 
-TEST_F(OpcodeTest, LSR_Accumulator)
+TEST_F(CPUTest, LSR_Accumulator)
 {
     uint8_t program[] = {0x4A};  // LSR A
     cpu.LoadProgram(program, sizeof(program));
@@ -447,7 +447,7 @@ TEST_F(OpcodeTest, LSR_Accumulator)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, LSR_SetsCarry)
+TEST_F(CPUTest, LSR_SetsCarry)
 {
     uint8_t program[] = {0x4A};  // LSR A
     cpu.LoadProgram(program, sizeof(program));
@@ -459,7 +459,7 @@ TEST_F(OpcodeTest, LSR_SetsCarry)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, ROL_Accumulator)
+TEST_F(CPUTest, ROL_Accumulator)
 {
     uint8_t program[] = {0x2A};  // ROL A
     cpu.LoadProgram(program, sizeof(program));
@@ -471,7 +471,7 @@ TEST_F(OpcodeTest, ROL_Accumulator)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, ROL_SetsCarry)
+TEST_F(CPUTest, ROL_SetsCarry)
 {
     uint8_t program[] = {0x2A};  // ROL A
     cpu.LoadProgram(program, sizeof(program));
@@ -482,7 +482,7 @@ TEST_F(OpcodeTest, ROL_SetsCarry)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, ROR_Accumulator)
+TEST_F(CPUTest, ROR_Accumulator)
 {
     uint8_t program[] = {0x6A};  // ROR A
     cpu.LoadProgram(program, sizeof(program));
@@ -500,7 +500,7 @@ TEST_F(OpcodeTest, ROR_Accumulator)
 // Branch Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, BCC_BranchNotTaken)
+TEST_F(CPUTest, BCC_BranchNotTaken)
 {
     uint8_t program[] = {0x90, 0x05};  // BCC +5
     cpu.LoadProgram(program, sizeof(program));
@@ -513,7 +513,7 @@ TEST_F(OpcodeTest, BCC_BranchNotTaken)
                                                                     // 2 for BCC + 7 for Reset
 }
 
-TEST_F(OpcodeTest, BCC_BranchTaken)
+TEST_F(CPUTest, BCC_BranchTaken)
 {
     uint8_t program[] = {0x90, 0x05};  // BCC +5
     cpu.LoadProgram(program, sizeof(program));
@@ -526,7 +526,7 @@ TEST_F(OpcodeTest, BCC_BranchTaken)
                                                                     // 3 for BCC + 7 for Reset
 }
 
-TEST_F(OpcodeTest, BCS_BranchTaken)
+TEST_F(CPUTest, BCS_BranchTaken)
 {
     uint8_t program[] = {0xB0, 0x10};  // BCS +16
     cpu.LoadProgram(program, sizeof(program));
@@ -536,7 +536,7 @@ TEST_F(OpcodeTest, BCS_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x8012);
 }
 
-TEST_F(OpcodeTest, BEQ_BranchTaken)
+TEST_F(CPUTest, BEQ_BranchTaken)
 {
     uint8_t program[] = {0xF0, 0x08};  // BEQ +8
     cpu.LoadProgram(program, sizeof(program));
@@ -546,7 +546,7 @@ TEST_F(OpcodeTest, BEQ_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x800A);
 }
 
-TEST_F(OpcodeTest, BNE_BranchTaken)
+TEST_F(CPUTest, BNE_BranchTaken)
 {
     uint8_t program[] = {0xD0, 0x08};  // BNE +8
     cpu.LoadProgram(program, sizeof(program));
@@ -556,7 +556,7 @@ TEST_F(OpcodeTest, BNE_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x800A);
 }
 
-TEST_F(OpcodeTest, BMI_BranchTaken)
+TEST_F(CPUTest, BMI_BranchTaken)
 {
     uint8_t program[] = {0x30, 0x04};  // BMI +4
     cpu.LoadProgram(program, sizeof(program));
@@ -566,7 +566,7 @@ TEST_F(OpcodeTest, BMI_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x8006);
 }
 
-TEST_F(OpcodeTest, BPL_BranchTaken)
+TEST_F(CPUTest, BPL_BranchTaken)
 {
     uint8_t program[] = {0x10, 0x04};  // BPL +4
     cpu.LoadProgram(program, sizeof(program));
@@ -576,7 +576,7 @@ TEST_F(OpcodeTest, BPL_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x8006);
 }
 
-TEST_F(OpcodeTest, BVC_BranchTaken)
+TEST_F(CPUTest, BVC_BranchTaken)
 {
     uint8_t program[] = {0x50, 0x04};  // BVC +4
     cpu.LoadProgram(program, sizeof(program));
@@ -586,7 +586,7 @@ TEST_F(OpcodeTest, BVC_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x8006);
 }
 
-TEST_F(OpcodeTest, BVS_BranchTaken)
+TEST_F(CPUTest, BVS_BranchTaken)
 {
     uint8_t program[] = {0x70, 0x04};  // BVS +4
     cpu.LoadProgram(program, sizeof(program));
@@ -596,7 +596,7 @@ TEST_F(OpcodeTest, BVS_BranchTaken)
     EXPECT_EQ(cpu.PC, 0x8006);
 }
 
-TEST_F(OpcodeTest, Branch_BackwardOffset)
+TEST_F(CPUTest, Branch_BackwardOffset)
 {
     uint8_t program[] = {0xD0, 0xFC};  // BNE -4 (0xFC = -4 in two's complement)
     cpu.LoadProgram(program, sizeof(program), 0x8010);
@@ -610,7 +610,7 @@ TEST_F(OpcodeTest, Branch_BackwardOffset)
 // Jump/Call Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, JMP_Absolute)
+TEST_F(CPUTest, JMP_Absolute)
 {
     uint8_t program[] = {0x4C, 0x34, 0x12};  // JMP $1234
     cpu.LoadProgram(program, sizeof(program));
@@ -619,7 +619,7 @@ TEST_F(OpcodeTest, JMP_Absolute)
     EXPECT_EQ(cpu.PC, 0x1234);
 }
 
-TEST_F(OpcodeTest, JMP_Indirect)
+TEST_F(CPUTest, JMP_Indirect)
 {
     uint8_t program[] = {0x6C, 0x20, 0x30};  // JMP ($3020)
     cpu.LoadProgram(program, sizeof(program));
@@ -630,7 +630,7 @@ TEST_F(OpcodeTest, JMP_Indirect)
     EXPECT_EQ(cpu.PC, 0x1234);
 }
 
-TEST_F(OpcodeTest, JSR_RTS)
+TEST_F(CPUTest, JSR_RTS)
 {
     uint8_t program[] = {
         0x20, 0x05, 0x80,  // JSR $8005
@@ -653,7 +653,7 @@ TEST_F(OpcodeTest, JSR_RTS)
 // Stack Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, PHA_PLA)
+TEST_F(CPUTest, PHA_PLA)
 {
     uint8_t program[] = {0x48, 0x68};  // PHA, PLA
     cpu.LoadProgram(program, sizeof(program));
@@ -668,7 +668,7 @@ TEST_F(OpcodeTest, PHA_PLA)
     EXPECT_EQ(cpu.SP, 0xFD);
 }
 
-TEST_F(OpcodeTest, PHP_PLP)
+TEST_F(CPUTest, PHP_PLP)
 {
     uint8_t program[] = {0x08, 0x28};  // PHP, PLP
     cpu.LoadProgram(program, sizeof(program));
@@ -688,7 +688,7 @@ TEST_F(OpcodeTest, PHP_PLP)
 // Status Flag Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, CLC)
+TEST_F(CPUTest, CLC)
 {
     uint8_t program[] = {0x18};  // CLC
     cpu.LoadProgram(program, sizeof(program));
@@ -698,7 +698,7 @@ TEST_F(OpcodeTest, CLC)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, SEC)
+TEST_F(CPUTest, SEC)
 {
     uint8_t program[] = {0x38};  // SEC
     cpu.LoadProgram(program, sizeof(program));
@@ -707,7 +707,7 @@ TEST_F(OpcodeTest, SEC)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, CLI)
+TEST_F(CPUTest, CLI)
 {
     uint8_t program[] = {0x58};  // CLI
     cpu.LoadProgram(program, sizeof(program));
@@ -717,7 +717,7 @@ TEST_F(OpcodeTest, CLI)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_INTERRUPT));
 }
 
-TEST_F(OpcodeTest, SEI)
+TEST_F(CPUTest, SEI)
 {
     uint8_t program[] = {0x78};  // SEI
     cpu.LoadProgram(program, sizeof(program));
@@ -726,7 +726,7 @@ TEST_F(OpcodeTest, SEI)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_INTERRUPT));
 }
 
-TEST_F(OpcodeTest, CLV)
+TEST_F(CPUTest, CLV)
 {
     uint8_t program[] = {0xB8};  // CLV
     cpu.LoadProgram(program, sizeof(program));
@@ -736,7 +736,7 @@ TEST_F(OpcodeTest, CLV)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
 }
 
-TEST_F(OpcodeTest, CLD)
+TEST_F(CPUTest, CLD)
 {
     uint8_t program[] = {0xD8};  // CLD
     cpu.LoadProgram(program, sizeof(program));
@@ -746,7 +746,7 @@ TEST_F(OpcodeTest, CLD)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_DECIMAL));
 }
 
-TEST_F(OpcodeTest, SED)
+TEST_F(CPUTest, SED)
 {
     uint8_t program[] = {0xF8};  // SED
     cpu.LoadProgram(program, sizeof(program));
@@ -759,7 +759,7 @@ TEST_F(OpcodeTest, SED)
 // Comparison Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, CMP_Equal)
+TEST_F(CPUTest, CMP_Equal)
 {
     uint8_t program[] = {0xC9, 0x42};  // CMP #$42
     cpu.LoadProgram(program, sizeof(program));
@@ -771,7 +771,7 @@ TEST_F(OpcodeTest, CMP_Equal)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, CMP_AGreater)
+TEST_F(CPUTest, CMP_AGreater)
 {
     uint8_t program[] = {0xC9, 0x40};  // CMP #$40
     cpu.LoadProgram(program, sizeof(program));
@@ -783,7 +783,7 @@ TEST_F(OpcodeTest, CMP_AGreater)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, CMP_ALess)
+TEST_F(CPUTest, CMP_ALess)
 {
     uint8_t program[] = {0xC9, 0x50};  // CMP #$50
     cpu.LoadProgram(program, sizeof(program));
@@ -795,7 +795,7 @@ TEST_F(OpcodeTest, CMP_ALess)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, CPX_Equal)
+TEST_F(CPUTest, CPX_Equal)
 {
     uint8_t program[] = {0xE0, 0x33};  // CPX #$33
     cpu.LoadProgram(program, sizeof(program));
@@ -806,7 +806,7 @@ TEST_F(OpcodeTest, CPX_Equal)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, CPY_Equal)
+TEST_F(CPUTest, CPY_Equal)
 {
     uint8_t program[] = {0xC0, 0x44};  // CPY #$44
     cpu.LoadProgram(program, sizeof(program));
@@ -820,7 +820,7 @@ TEST_F(OpcodeTest, CPY_Equal)
 // ADC Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, ADC_ImmediateNoCarry)
+TEST_F(CPUTest, ADC_ImmediateNoCarry)
 {
     uint8_t program[] = {0x69, 0x05};  // ADC #$05
     cpu.LoadProgram(program, sizeof(program));
@@ -834,7 +834,7 @@ TEST_F(OpcodeTest, ADC_ImmediateNoCarry)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
 }
 
-TEST_F(OpcodeTest, ADC_ImmediateWithCarry)
+TEST_F(CPUTest, ADC_ImmediateWithCarry)
 {
     uint8_t program[] = {0x69, 0x05};  // ADC #$05
     cpu.LoadProgram(program, sizeof(program));
@@ -845,7 +845,7 @@ TEST_F(OpcodeTest, ADC_ImmediateWithCarry)
     EXPECT_EQ(cpu.A, 0x16);  // 0x10 + 0x05 + 1
 }
 
-TEST_F(OpcodeTest, ADC_SetsCarryFlag)
+TEST_F(CPUTest, ADC_SetsCarryFlag)
 {
     uint8_t program[] = {0x69, 0xFF};  // ADC #$FF
     cpu.LoadProgram(program, sizeof(program));
@@ -856,7 +856,7 @@ TEST_F(OpcodeTest, ADC_SetsCarryFlag)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, ADC_SetsOverflowFlag)
+TEST_F(CPUTest, ADC_SetsOverflowFlag)
 {
     uint8_t program[] = {0x69, 0x7F};  // ADC #$7F (127)
     cpu.LoadProgram(program, sizeof(program));
@@ -869,7 +869,7 @@ TEST_F(OpcodeTest, ADC_SetsOverflowFlag)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, ADC_NoOverflowWhenSignsDiffer)
+TEST_F(CPUTest, ADC_NoOverflowWhenSignsDiffer)
 {
     uint8_t program[] = {0x69, 0x7F};  // ADC #$7F (127)
     cpu.LoadProgram(program, sizeof(program));
@@ -884,7 +884,7 @@ TEST_F(OpcodeTest, ADC_NoOverflowWhenSignsDiffer)
 // SBC Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, SBC_ImmediateNoBorrow)
+TEST_F(CPUTest, SBC_ImmediateNoBorrow)
 {
     uint8_t program[] = {0xE9, 0x05};  // SBC #$05
     cpu.LoadProgram(program, sizeof(program));
@@ -896,7 +896,7 @@ TEST_F(OpcodeTest, SBC_ImmediateNoBorrow)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, SBC_ImmediateWithBorrow)
+TEST_F(CPUTest, SBC_ImmediateWithBorrow)
 {
     uint8_t program[] = {0xE9, 0x05};  // SBC #$05
     cpu.LoadProgram(program, sizeof(program));
@@ -907,7 +907,7 @@ TEST_F(OpcodeTest, SBC_ImmediateWithBorrow)
     EXPECT_EQ(cpu.A, 0x0A);  // 0x10 - 0x05 - 1
 }
 
-TEST_F(OpcodeTest, SBC_ClearsCarryOnBorrow)
+TEST_F(CPUTest, SBC_ClearsCarryOnBorrow)
 {
     uint8_t program[] = {0xE9, 0x10};  // SBC #$10
     cpu.LoadProgram(program, sizeof(program));
@@ -919,7 +919,7 @@ TEST_F(OpcodeTest, SBC_ClearsCarryOnBorrow)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, SBC_SetsOverflowFlag)
+TEST_F(CPUTest, SBC_SetsOverflowFlag)
 {
     uint8_t program[] = {0xE9, 0x01};  // SBC #$01
     cpu.LoadProgram(program, sizeof(program));
@@ -935,7 +935,7 @@ TEST_F(OpcodeTest, SBC_SetsOverflowFlag)
 // INC/DEC Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, INC_ZeroPage)
+TEST_F(CPUTest, INC_ZeroPage)
 {
     uint8_t program[] = {0xE6, 0x10};  // INC $10
     cpu.LoadProgram(program, sizeof(program));
@@ -947,7 +947,7 @@ TEST_F(OpcodeTest, INC_ZeroPage)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, INC_Wraps)
+TEST_F(CPUTest, INC_Wraps)
 {
     uint8_t program[] = {0xE6, 0x10};  // INC $10
     cpu.LoadProgram(program, sizeof(program));
@@ -958,7 +958,7 @@ TEST_F(OpcodeTest, INC_Wraps)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, DEC_ZeroPage)
+TEST_F(CPUTest, DEC_ZeroPage)
 {
     uint8_t program[] = {0xC6, 0x10};  // DEC $10
     cpu.LoadProgram(program, sizeof(program));
@@ -968,7 +968,7 @@ TEST_F(OpcodeTest, DEC_ZeroPage)
     EXPECT_EQ(cpu.ReadMemory(0x10), 0x41);
 }
 
-TEST_F(OpcodeTest, DEC_Wraps)
+TEST_F(CPUTest, DEC_Wraps)
 {
     uint8_t program[] = {0xC6, 0x10};  // DEC $10
     cpu.LoadProgram(program, sizeof(program));
@@ -979,7 +979,7 @@ TEST_F(OpcodeTest, DEC_Wraps)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, INX)
+TEST_F(CPUTest, INX)
 {
     uint8_t program[] = {0xE8};  // INX
     cpu.LoadProgram(program, sizeof(program));
@@ -989,7 +989,7 @@ TEST_F(OpcodeTest, INX)
     EXPECT_EQ(cpu.X, 0x11);
 }
 
-TEST_F(OpcodeTest, DEX)
+TEST_F(CPUTest, DEX)
 {
     uint8_t program[] = {0xCA};  // DEX
     cpu.LoadProgram(program, sizeof(program));
@@ -999,7 +999,7 @@ TEST_F(OpcodeTest, DEX)
     EXPECT_EQ(cpu.X, 0x0F);
 }
 
-TEST_F(OpcodeTest, INY)
+TEST_F(CPUTest, INY)
 {
     uint8_t program[] = {0xC8};  // INY
     cpu.LoadProgram(program, sizeof(program));
@@ -1009,7 +1009,7 @@ TEST_F(OpcodeTest, INY)
     EXPECT_EQ(cpu.Y, 0x11);
 }
 
-TEST_F(OpcodeTest, DEY)
+TEST_F(CPUTest, DEY)
 {
     uint8_t program[] = {0x88};  // DEY
     cpu.LoadProgram(program, sizeof(program));
@@ -1023,7 +1023,7 @@ TEST_F(OpcodeTest, DEY)
 // Logical Operations Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, AND_Immediate)
+TEST_F(CPUTest, AND_Immediate)
 {
     uint8_t program[] = {0x29, 0x0F};  // AND #$0F
     cpu.LoadProgram(program, sizeof(program));
@@ -1035,7 +1035,7 @@ TEST_F(OpcodeTest, AND_Immediate)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, AND_SetsZeroFlag)
+TEST_F(CPUTest, AND_SetsZeroFlag)
 {
     uint8_t program[] = {0x29, 0x00};  // AND #$00
     cpu.LoadProgram(program, sizeof(program));
@@ -1046,7 +1046,7 @@ TEST_F(OpcodeTest, AND_SetsZeroFlag)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, ORA_Immediate)
+TEST_F(CPUTest, ORA_Immediate)
 {
     uint8_t program[] = {0x09, 0x0F};  // ORA #$0F
     cpu.LoadProgram(program, sizeof(program));
@@ -1058,7 +1058,7 @@ TEST_F(OpcodeTest, ORA_Immediate)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, EOR_Immediate)
+TEST_F(CPUTest, EOR_Immediate)
 {
     uint8_t program[] = {0x49, 0xFF};  // EOR #$FF
     cpu.LoadProgram(program, sizeof(program));
@@ -1068,7 +1068,7 @@ TEST_F(OpcodeTest, EOR_Immediate)
     EXPECT_EQ(cpu.A, 0x55);  // 0xAA XOR 0xFF = 0x55
 }
 
-TEST_F(OpcodeTest, EOR_SetsZeroFlag)
+TEST_F(CPUTest, EOR_SetsZeroFlag)
 {
     uint8_t program[] = {0x49, 0xFF};  // EOR #$FF
     cpu.LoadProgram(program, sizeof(program));
@@ -1079,7 +1079,7 @@ TEST_F(OpcodeTest, EOR_SetsZeroFlag)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, BIT_ZeroPage)
+TEST_F(CPUTest, BIT_ZeroPage)
 {
     uint8_t program[] = {0x24, 0x10};  // BIT $10
     cpu.LoadProgram(program, sizeof(program));
@@ -1092,7 +1092,7 @@ TEST_F(OpcodeTest, BIT_ZeroPage)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));  // Bit 6 of value
 }
 
-TEST_F(OpcodeTest, BIT_SetsZeroFlag)
+TEST_F(CPUTest, BIT_SetsZeroFlag)
 {
     uint8_t program[] = {0x24, 0x10};  // BIT $10
     cpu.LoadProgram(program, sizeof(program));
@@ -1107,7 +1107,7 @@ TEST_F(OpcodeTest, BIT_SetsZeroFlag)
 // System Tests
 // ============================================================================
 
-TEST_F(OpcodeTest, NOP)
+TEST_F(CPUTest, NOP)
 {
     uint8_t program[] = {0xEA};  // NOP
     cpu.LoadProgram(program, sizeof(program));
@@ -1122,7 +1122,7 @@ TEST_F(OpcodeTest, NOP)
 // LOAD INSTRUCTIONS - LDA, LDX, LDY (all addressing modes)
 // ============================================================================
 
-TEST_F(OpcodeTest, LDA_IMM_0xA9)
+TEST_F(CPUTest, LDA_IMM_0xA9)
 {
     LoadAndExecute({0xA9, 0x42});  // LDA #$42
     EXPECT_EQ(cpu.A, 0x42);
@@ -1131,7 +1131,7 @@ TEST_F(OpcodeTest, LDA_IMM_0xA9)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, LDA_ZP0_0xA5)
+TEST_F(CPUTest, LDA_ZP0_0xA5)
 {
     cpu.WriteMemory(0x10, 0x55);
     LoadAndExecute({0xA5, 0x10});  // LDA $10
@@ -1139,7 +1139,7 @@ TEST_F(OpcodeTest, LDA_ZP0_0xA5)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, LDA_ZPX_0xB5)
+TEST_F(CPUTest, LDA_ZPX_0xB5)
 {
     cpu.X = 0x05;
     cpu.WriteMemory(0x15, 0xAA);
@@ -1148,7 +1148,7 @@ TEST_F(OpcodeTest, LDA_ZPX_0xB5)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDA_ABS_0xAD)
+TEST_F(CPUTest, LDA_ABS_0xAD)
 {
     cpu.WriteMemory(0x1234, 0x99);
     LoadAndExecute({0xAD, 0x34, 0x12});  // LDA $1234
@@ -1156,7 +1156,7 @@ TEST_F(OpcodeTest, LDA_ABS_0xAD)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDA_ABX_0xBD_NoPageCross)
+TEST_F(CPUTest, LDA_ABX_0xBD_NoPageCross)
 {
     cpu.X = 0x05;
     cpu.WriteMemory(0x1205, 0x77);
@@ -1165,7 +1165,7 @@ TEST_F(OpcodeTest, LDA_ABX_0xBD_NoPageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDA_ABX_0xBD_PageCross)
+TEST_F(CPUTest, LDA_ABX_0xBD_PageCross)
 {
     cpu.X = 0x05;
     cpu.WriteMemory(0x1304, 0x88);
@@ -1174,7 +1174,7 @@ TEST_F(OpcodeTest, LDA_ABX_0xBD_PageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 5));  // +1 for page cross
 }
 
-TEST_F(OpcodeTest, LDA_ABY_0xB9_PageCross)
+TEST_F(CPUTest, LDA_ABY_0xB9_PageCross)
 {
     cpu.Y = 0x10;
     cpu.WriteMemory(0x1305, 0xBB);
@@ -1183,7 +1183,7 @@ TEST_F(OpcodeTest, LDA_ABY_0xB9_PageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 5));
 }
 
-TEST_F(OpcodeTest, LDA_IZX_0xA1)
+TEST_F(CPUTest, LDA_IZX_0xA1)
 {
     cpu.X = 0x05;
     cpu.WriteMemory(0x45, 0x34);
@@ -1194,7 +1194,7 @@ TEST_F(OpcodeTest, LDA_IZX_0xA1)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-TEST_F(OpcodeTest, LDA_IZY_0xB1_PageCross)
+TEST_F(CPUTest, LDA_IZY_0xB1_PageCross)
 {
     cpu.Y = 0x10;
     cpu.WriteMemory(0x40, 0xF0);
@@ -1205,14 +1205,14 @@ TEST_F(OpcodeTest, LDA_IZY_0xB1_PageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));  // +1 for page cross
 }
 
-TEST_F(OpcodeTest, LDX_IMM_0xA2)
+TEST_F(CPUTest, LDX_IMM_0xA2)
 {
     LoadAndExecute({0xA2, 0x55});  // LDX #$55
     EXPECT_EQ(cpu.X, 0x55);
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, LDX_ZP0_0xA6)
+TEST_F(CPUTest, LDX_ZP0_0xA6)
 {
     cpu.WriteMemory(0x20, 0x33);
     LoadAndExecute({0xA6, 0x20});  // LDX $20
@@ -1220,7 +1220,7 @@ TEST_F(OpcodeTest, LDX_ZP0_0xA6)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, LDX_ZPY_0xB6)
+TEST_F(CPUTest, LDX_ZPY_0xB6)
 {
     cpu.Y = 0x05;
     cpu.WriteMemory(0x25, 0x44);
@@ -1229,7 +1229,7 @@ TEST_F(OpcodeTest, LDX_ZPY_0xB6)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDX_ABS_0xAE)
+TEST_F(CPUTest, LDX_ABS_0xAE)
 {
     cpu.WriteMemory(0x1234, 0x66);
     LoadAndExecute({0xAE, 0x34, 0x12});  // LDX $1234
@@ -1237,7 +1237,7 @@ TEST_F(OpcodeTest, LDX_ABS_0xAE)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDX_ABY_0xBE)
+TEST_F(CPUTest, LDX_ABY_0xBE)
 {
     cpu.Y = 0x10;
     cpu.WriteMemory(0x1210, 0x77);
@@ -1246,14 +1246,14 @@ TEST_F(OpcodeTest, LDX_ABY_0xBE)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDY_IMM_0xA0)
+TEST_F(CPUTest, LDY_IMM_0xA0)
 {
     LoadAndExecute({0xA0, 0x66});  // LDY #$66
     EXPECT_EQ(cpu.Y, 0x66);
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, LDY_ZP0_0xA4)
+TEST_F(CPUTest, LDY_ZP0_0xA4)
 {
     cpu.WriteMemory(0x30, 0x88);
     LoadAndExecute({0xA4, 0x30});  // LDY $30
@@ -1261,7 +1261,7 @@ TEST_F(OpcodeTest, LDY_ZP0_0xA4)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, LDY_ZPX_0xB4)
+TEST_F(CPUTest, LDY_ZPX_0xB4)
 {
     cpu.X = 0x03;
     cpu.WriteMemory(0x23, 0x77);
@@ -1270,7 +1270,7 @@ TEST_F(OpcodeTest, LDY_ZPX_0xB4)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDY_ABS_0xAC)
+TEST_F(CPUTest, LDY_ABS_0xAC)
 {
     cpu.WriteMemory(0x1234, 0x99);
     LoadAndExecute({0xAC, 0x34, 0x12});  // LDY $1234
@@ -1278,7 +1278,7 @@ TEST_F(OpcodeTest, LDY_ABS_0xAC)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, LDY_ABX_0xBC)
+TEST_F(CPUTest, LDY_ABX_0xBC)
 {
     cpu.X = 0x05;
     cpu.WriteMemory(0x1205, 0xAA);
@@ -1291,7 +1291,7 @@ TEST_F(OpcodeTest, LDY_ABX_0xBC)
 // STORE INSTRUCTIONS - STA, STX, STY
 // ============================================================================
 
-TEST_F(OpcodeTest, STA_ZP0_0x85)
+TEST_F(CPUTest, STA_ZP0_0x85)
 {
     cpu.A = 0x42;
     LoadAndExecute({0x85, 0x10});  // STA $10
@@ -1299,7 +1299,7 @@ TEST_F(OpcodeTest, STA_ZP0_0x85)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, STA_ZPX_0x95)
+TEST_F(CPUTest, STA_ZPX_0x95)
 {
     cpu.A = 0x55;
     cpu.X = 0x05;
@@ -1308,7 +1308,7 @@ TEST_F(OpcodeTest, STA_ZPX_0x95)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, STA_ABS_0x8D)
+TEST_F(CPUTest, STA_ABS_0x8D)
 {
     cpu.A = 0xAA;
     LoadAndExecute({0x8D, 0x34, 0x12});  // STA $1234
@@ -1316,7 +1316,7 @@ TEST_F(OpcodeTest, STA_ABS_0x8D)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, STA_ABX_0x9D_PageCross)
+TEST_F(CPUTest, STA_ABX_0x9D_PageCross)
 {
     cpu.A = 0xBB;
     cpu.X = 0x10;
@@ -1325,7 +1325,7 @@ TEST_F(OpcodeTest, STA_ABX_0x9D_PageCross)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 5));  // No extra cycle for writes!
 }
 
-TEST_F(OpcodeTest, STA_ABY_0x99)
+TEST_F(CPUTest, STA_ABY_0x99)
 {
     cpu.A = 0xCC;
     cpu.Y = 0x08;
@@ -1334,7 +1334,7 @@ TEST_F(OpcodeTest, STA_ABY_0x99)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 5));
 }
 
-TEST_F(OpcodeTest, STA_IZX_0x81)
+TEST_F(CPUTest, STA_IZX_0x81)
 {
     cpu.A = 0xDD;
     cpu.X = 0x05;
@@ -1345,7 +1345,7 @@ TEST_F(OpcodeTest, STA_IZX_0x81)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-TEST_F(OpcodeTest, STA_IZY_0x91)
+TEST_F(CPUTest, STA_IZY_0x91)
 {
     cpu.A = 0xEE;
     cpu.Y = 0x10;
@@ -1356,7 +1356,7 @@ TEST_F(OpcodeTest, STA_IZY_0x91)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-TEST_F(OpcodeTest, STX_ZP0_0x86)
+TEST_F(CPUTest, STX_ZP0_0x86)
 {
     cpu.X = 0x99;
     LoadAndExecute({0x86, 0x10});  // STX $10
@@ -1364,7 +1364,7 @@ TEST_F(OpcodeTest, STX_ZP0_0x86)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, STX_ZPY_0x96)
+TEST_F(CPUTest, STX_ZPY_0x96)
 {
     cpu.X = 0x88;
     cpu.Y = 0x03;
@@ -1373,7 +1373,7 @@ TEST_F(OpcodeTest, STX_ZPY_0x96)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, STX_ABS_0x8E)
+TEST_F(CPUTest, STX_ABS_0x8E)
 {
     cpu.X = 0x77;
     LoadAndExecute({0x8E, 0x34, 0x12});  // STX $1234
@@ -1381,7 +1381,7 @@ TEST_F(OpcodeTest, STX_ABS_0x8E)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, STY_ZP0_0x84)
+TEST_F(CPUTest, STY_ZP0_0x84)
 {
     cpu.Y = 0x77;
     LoadAndExecute({0x84, 0x10});  // STY $10
@@ -1389,7 +1389,7 @@ TEST_F(OpcodeTest, STY_ZP0_0x84)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, STY_ZPX_0x94)
+TEST_F(CPUTest, STY_ZPX_0x94)
 {
     cpu.Y = 0x66;
     cpu.X = 0x02;
@@ -1398,7 +1398,7 @@ TEST_F(OpcodeTest, STY_ZPX_0x94)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, STY_ABS_0x8C)
+TEST_F(CPUTest, STY_ABS_0x8C)
 {
     cpu.Y = 0x55;
     LoadAndExecute({0x8C, 0x34, 0x12});  // STY $1234
@@ -1410,7 +1410,7 @@ TEST_F(OpcodeTest, STY_ABS_0x8C)
 // TRANSFER INSTRUCTIONS
 // ============================================================================
 
-TEST_F(OpcodeTest, TAX_0xAA)
+TEST_F(CPUTest, TAX_0xAA)
 {
     cpu.A = 0x42;
     LoadAndExecute({0xAA});  // TAX
@@ -1420,7 +1420,7 @@ TEST_F(OpcodeTest, TAX_0xAA)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, TAX_0xAA_Zero)
+TEST_F(CPUTest, TAX_0xAA_Zero)
 {
     cpu.A = 0x00;
     LoadAndExecute({0xAA});  // TAX
@@ -1428,14 +1428,14 @@ TEST_F(OpcodeTest, TAX_0xAA_Zero)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, TAX_0xAA_Negative)
+TEST_F(CPUTest, TAX_0xAA_Negative)
 {
     cpu.A = 0x80;
     LoadAndExecute({0xAA});  // TAX
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, TAY_0xA8)
+TEST_F(CPUTest, TAY_0xA8)
 {
     cpu.A = 0x55;
     LoadAndExecute({0xA8});  // TAY
@@ -1443,7 +1443,7 @@ TEST_F(OpcodeTest, TAY_0xA8)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, TXA_0x8A)
+TEST_F(CPUTest, TXA_0x8A)
 {
     cpu.X = 0x33;
     LoadAndExecute({0x8A});  // TXA
@@ -1451,7 +1451,7 @@ TEST_F(OpcodeTest, TXA_0x8A)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, TYA_0x98)
+TEST_F(CPUTest, TYA_0x98)
 {
     cpu.Y = 0x44;
     LoadAndExecute({0x98});  // TYA
@@ -1459,7 +1459,7 @@ TEST_F(OpcodeTest, TYA_0x98)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, TSX_0xBA)
+TEST_F(CPUTest, TSX_0xBA)
 {
     cpu.SP = 0xF0;
     LoadAndExecute({0xBA});  // TSX
@@ -1467,7 +1467,7 @@ TEST_F(OpcodeTest, TSX_0xBA)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, TXS_0x9A)
+TEST_F(CPUTest, TXS_0x9A)
 {
     cpu.X = 0xA0;
     LoadAndExecute({0x9A});  // TXS
@@ -1479,7 +1479,7 @@ TEST_F(OpcodeTest, TXS_0x9A)
 // ARITHMETIC - ADC
 // ============================================================================
 
-TEST_F(OpcodeTest, ADC_IMM_0x69_NoCarry)
+TEST_F(CPUTest, ADC_IMM_0x69_NoCarry)
 {
     cpu.A = 0x10;
     LoadAndExecute({0x69, 0x05});  // ADC #$05
@@ -1489,7 +1489,7 @@ TEST_F(OpcodeTest, ADC_IMM_0x69_NoCarry)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, ADC_IMM_0x69_WithCarry)
+TEST_F(CPUTest, ADC_IMM_0x69_WithCarry)
 {
     cpu.A = 0x10;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
@@ -1498,7 +1498,7 @@ TEST_F(OpcodeTest, ADC_IMM_0x69_WithCarry)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, ADC_IMM_0x69_SetsCarry)
+TEST_F(CPUTest, ADC_IMM_0x69_SetsCarry)
 {
     cpu.A = 0xFF;
     LoadAndExecute({0x69, 0x02});  // ADC #$02
@@ -1506,7 +1506,7 @@ TEST_F(OpcodeTest, ADC_IMM_0x69_SetsCarry)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, ADC_IMM_0x69_Overflow)
+TEST_F(CPUTest, ADC_IMM_0x69_Overflow)
 {
     cpu.A = 0x7F;  // 127
     LoadAndExecute({0x69, 0x01});  // ADC #$01
@@ -1515,7 +1515,7 @@ TEST_F(OpcodeTest, ADC_IMM_0x69_Overflow)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, ADC_ZP0_0x65)
+TEST_F(CPUTest, ADC_ZP0_0x65)
 {
     cpu.A = 0x20;
     cpu.WriteMemory(0x10, 0x30);
@@ -1524,7 +1524,7 @@ TEST_F(OpcodeTest, ADC_ZP0_0x65)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, ADC_ZPX_0x75)
+TEST_F(CPUTest, ADC_ZPX_0x75)
 {
     cpu.A = 0x15;
     cpu.X = 0x05;
@@ -1534,7 +1534,7 @@ TEST_F(OpcodeTest, ADC_ZPX_0x75)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, ADC_ABS_0x6D)
+TEST_F(CPUTest, ADC_ABS_0x6D)
 {
     cpu.A = 0x40;
     cpu.WriteMemory(0x1234, 0x50);
@@ -1543,7 +1543,7 @@ TEST_F(OpcodeTest, ADC_ABS_0x6D)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, ADC_ABX_0x7D)
+TEST_F(CPUTest, ADC_ABX_0x7D)
 {
     cpu.A = 0x10;
     cpu.X = 0x05;
@@ -1553,7 +1553,7 @@ TEST_F(OpcodeTest, ADC_ABX_0x7D)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, ADC_ABY_0x79)
+TEST_F(CPUTest, ADC_ABY_0x79)
 {
     cpu.A = 0x11;
     cpu.Y = 0x03;
@@ -1563,7 +1563,7 @@ TEST_F(OpcodeTest, ADC_ABY_0x79)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, ADC_IZX_0x61)
+TEST_F(CPUTest, ADC_IZX_0x61)
 {
     cpu.A = 0x12;
     cpu.X = 0x05;
@@ -1575,7 +1575,7 @@ TEST_F(OpcodeTest, ADC_IZX_0x61)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-TEST_F(OpcodeTest, ADC_IZY_0x71)
+TEST_F(CPUTest, ADC_IZY_0x71)
 {
     cpu.A = 0x20;
     cpu.Y = 0x10;
@@ -1591,7 +1591,7 @@ TEST_F(OpcodeTest, ADC_IZY_0x71)
 // ARITHMETIC - SBC
 // ============================================================================
 
-TEST_F(OpcodeTest, SBC_IMM_0xE9)
+TEST_F(CPUTest, SBC_IMM_0xE9)
 {
     cpu.A = 0x10;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);  // No borrow
@@ -1601,7 +1601,7 @@ TEST_F(OpcodeTest, SBC_IMM_0xE9)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 2));
 }
 
-TEST_F(OpcodeTest, SBC_IMM_0xE9_WithBorrow)
+TEST_F(CPUTest, SBC_IMM_0xE9_WithBorrow)
 {
     cpu.A = 0x10;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, false);  // Borrow
@@ -1609,7 +1609,7 @@ TEST_F(OpcodeTest, SBC_IMM_0xE9_WithBorrow)
     EXPECT_EQ(cpu.A, 0x0A);
 }
 
-TEST_F(OpcodeTest, SBC_IMM_0xE9_Underflow)
+TEST_F(CPUTest, SBC_IMM_0xE9_Underflow)
 {
     cpu.A = 0x05;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
@@ -1618,7 +1618,7 @@ TEST_F(OpcodeTest, SBC_IMM_0xE9_Underflow)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, SBC_ZP0_0xE5)
+TEST_F(CPUTest, SBC_ZP0_0xE5)
 {
     cpu.A = 0x50;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
@@ -1628,7 +1628,7 @@ TEST_F(OpcodeTest, SBC_ZP0_0xE5)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 3));
 }
 
-TEST_F(OpcodeTest, SBC_ZPX_0xF5)
+TEST_F(CPUTest, SBC_ZPX_0xF5)
 {
     cpu.A = 0x40;
     cpu.X = 0x05;
@@ -1639,7 +1639,7 @@ TEST_F(OpcodeTest, SBC_ZPX_0xF5)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, SBC_ABS_0xED)
+TEST_F(CPUTest, SBC_ABS_0xED)
 {
     cpu.A = 0x80;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
@@ -1649,7 +1649,7 @@ TEST_F(OpcodeTest, SBC_ABS_0xED)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, SBC_ABX_0xFD)
+TEST_F(CPUTest, SBC_ABX_0xFD)
 {
     cpu.A = 0x60;
     cpu.X = 0x05;
@@ -1660,7 +1660,7 @@ TEST_F(OpcodeTest, SBC_ABX_0xFD)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, SBC_ABY_0xF9)
+TEST_F(CPUTest, SBC_ABY_0xF9)
 {
     cpu.A = 0x70;
     cpu.Y = 0x03;
@@ -1671,7 +1671,7 @@ TEST_F(OpcodeTest, SBC_ABY_0xF9)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 4));
 }
 
-TEST_F(OpcodeTest, SBC_IZX_0xE1)
+TEST_F(CPUTest, SBC_IZX_0xE1)
 {
     cpu.A = 0x50;
     cpu.X = 0x05;
@@ -1684,7 +1684,7 @@ TEST_F(OpcodeTest, SBC_IZX_0xE1)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-TEST_F(OpcodeTest, SBC_IZY_0xF1)
+TEST_F(CPUTest, SBC_IZY_0xF1)
 {
     cpu.A = 0x60;
     cpu.Y = 0x10;
@@ -1698,7 +1698,7 @@ TEST_F(OpcodeTest, SBC_IZY_0xF1)
 }
 
 // Note: 0xEB is unofficial SBC
-TEST_F(OpcodeTest, SBC_IMM_0xEB_Unofficial)
+TEST_F(CPUTest, SBC_IMM_0xEB_Unofficial)
 {
     cpu.A = 0x20;
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
@@ -1711,7 +1711,7 @@ TEST_F(OpcodeTest, SBC_IMM_0xEB_Unofficial)
 // INCREMENT/DECREMENT - INC, DEC, INX, DEX, INY, DEY
 // ============================================================================
 
-TEST_F(OpcodeTest, INC_ZP0_0xE6)
+TEST_F(CPUTest, INC_ZP0_0xE6)
 {
     cpu.WriteMemory(0x10, 0x42);
     LoadAndExecute({0xE6, 0x10});  // INC $10
@@ -1720,7 +1720,7 @@ TEST_F(OpcodeTest, INC_ZP0_0xE6)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 5));
 }
 
-TEST_F(OpcodeTest, INC_ZP0_0xE6_Wrap)
+TEST_F(CPUTest, INC_ZP0_0xE6_Wrap)
 {
     cpu.WriteMemory(0x10, 0xFF);
     LoadAndExecute({0xE6, 0x10});  // INC $10
@@ -1728,7 +1728,7 @@ TEST_F(OpcodeTest, INC_ZP0_0xE6_Wrap)
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, INC_ZPX_0xF6)
+TEST_F(CPUTest, INC_ZPX_0xF6)
 {
     cpu.X = 0x05;
     cpu.WriteMemory(0x15, 0x50);
@@ -1737,7 +1737,7 @@ TEST_F(OpcodeTest, INC_ZPX_0xF6)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-TEST_F(OpcodeTest, INC_ABS_0xEE)
+TEST_F(CPUTest, INC_ABS_0xEE)
 {
     cpu.WriteMemory(0x1234, 0x7F);
     LoadAndExecute({0xEE, 0x34, 0x12});  // INC $1234
@@ -1746,7 +1746,7 @@ TEST_F(OpcodeTest, INC_ABS_0xEE)
     EXPECT_EQ(cpu.GetTotalCycles(), (uint64_t)(7 + 6));
 }
 
-// TEST_F(OpcodeTest, INC_ABX_0xFE)
+// TEST_F(CPUTest, INC_ABX_0xFE)
 // {
 //     cpu.X = 0x05;
 //     cpu.WriteMemory(0x1205, 0

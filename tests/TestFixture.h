@@ -4,7 +4,7 @@
 #include "memory/Memory.h"
 
 
-class OpcodeTest : public ::testing::Test
+class CPUTest : public ::testing::Test
 {
 public:
     struct AddressingResult

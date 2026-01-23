@@ -2,7 +2,7 @@
 
 
 // Simple program: Load values, add them, store result
-TEST_F(OpcodeTest, SimpleAdditionProgram)
+TEST_F(CPUTest, SimpleAdditionProgram)
 {
     uint8_t program[] = {
         0xA9, 0x10,        // LDA #$10
@@ -29,7 +29,7 @@ TEST_F(OpcodeTest, SimpleAdditionProgram)
 }
 
 // Test loop: Count from 0 to 10
-TEST_F(OpcodeTest, CountingLoop)
+TEST_F(CPUTest, CountingLoop)
 {
     uint8_t program[] = {
         0xA2, 0x00,        // LDX #$00        ; 0x8000
@@ -73,7 +73,7 @@ TEST_F(OpcodeTest, CountingLoop)
 }
 
 // Test subroutine call and return
-TEST_F(OpcodeTest, SubroutineCall)
+TEST_F(CPUTest, SubroutineCall)
 {
     uint8_t program[] = {
         0x20, 0x06, 0x80,  // JSR $8006       ; 0x8000
@@ -102,7 +102,7 @@ TEST_F(OpcodeTest, SubroutineCall)
 }
 
 // Test stack operations
-TEST_F(OpcodeTest, StackOperations)
+TEST_F(CPUTest, StackOperations)
 {
     uint8_t program[] = {
         0xA9, 0x55,        // LDA #$55
@@ -128,7 +128,7 @@ TEST_F(OpcodeTest, StackOperations)
 }
 
 // Test flag preservation
-TEST_F(OpcodeTest, FlagOperations)
+TEST_F(CPUTest, FlagOperations)
 {
     uint8_t program[] = {
         0x38,              // SEC
@@ -153,7 +153,7 @@ TEST_F(OpcodeTest, FlagOperations)
 }
 
 // Test overflow detection
-TEST_F(OpcodeTest, OverflowDetection)
+TEST_F(CPUTest, OverflowDetection)
 {
     uint8_t program[] = {
         0xA9, 0x7F,        // LDA #$7F (127)
@@ -173,7 +173,7 @@ TEST_F(OpcodeTest, OverflowDetection)
 }
 
 // Test all comparison operations
-TEST_F(OpcodeTest, ComparisonOperations)
+TEST_F(CPUTest, ComparisonOperations)
 {
     uint8_t program[] = {
         0xA9, 0x50,        // LDA #$50

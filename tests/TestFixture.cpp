@@ -1,7 +1,7 @@
 #include "TestFixture.h"
 
 
-void OpcodeTest::SetUp()
+void CPUTest::SetUp()
 {
     bus.AttachMemory(&memory);
     cpu.ConnectBus(&bus);
@@ -12,7 +12,7 @@ void OpcodeTest::SetUp()
         cpu.Clock();
 }
 
-OpcodeTest::AddressingResult OpcodeTest::GetAddress(CPU::AddressingMode mode)
+CPUTest::AddressingResult CPUTest::GetAddress(CPU::AddressingMode mode)
 {
     AddressingResult result = {0, false};
     switch (mode)
@@ -76,7 +76,7 @@ OpcodeTest::AddressingResult OpcodeTest::GetAddress(CPU::AddressingMode mode)
     return result;
 }
 
-void OpcodeTest::LoadAndExecute(const std::vector<uint8_t>& program)
+void CPUTest::LoadAndExecute(const std::vector<uint8_t>& program)
 {
     for (size_t i = 0; i < program.size(); i++)
     {

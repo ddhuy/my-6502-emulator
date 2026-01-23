@@ -2,7 +2,7 @@
 
 
 // Test status flag operations
-TEST_F(OpcodeTest, SetFlagCarry)
+TEST_F(CPUTest, SetFlagCarry)
 {
     cpu.SetFlag(CPU::StatusFlag::F_CARRY, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
@@ -11,7 +11,7 @@ TEST_F(OpcodeTest, SetFlagCarry)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
 }
 
-TEST_F(OpcodeTest, SetFlagZero)
+TEST_F(CPUTest, SetFlagZero)
 {
     cpu.SetFlag(CPU::StatusFlag::F_ZERO, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
@@ -20,7 +20,7 @@ TEST_F(OpcodeTest, SetFlagZero)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
 }
 
-TEST_F(OpcodeTest, SetFlagNegative)
+TEST_F(CPUTest, SetFlagNegative)
 {
     cpu.SetFlag(CPU::StatusFlag::F_NEGATIVE, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
@@ -29,7 +29,7 @@ TEST_F(OpcodeTest, SetFlagNegative)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, SetFlagOverflow)
+TEST_F(CPUTest, SetFlagOverflow)
 {
     cpu.SetFlag(CPU::StatusFlag::F_OVERFLOW, true);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
@@ -38,21 +38,21 @@ TEST_F(OpcodeTest, SetFlagOverflow)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
 }
 
-TEST_F(OpcodeTest, UpdateZN_Zero)
+TEST_F(CPUTest, UpdateZN_Zero)
 {
     cpu.UpdateZN(0);
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, UpdateZN_Positive)
+TEST_F(CPUTest, UpdateZN_Positive)
 {
     cpu.UpdateZN(0x7F);
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_NEGATIVE));
 }
 
-TEST_F(OpcodeTest, UpdateZN_Negative)
+TEST_F(CPUTest, UpdateZN_Negative)
 {
     cpu.UpdateZN(0x80);
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_ZERO));
@@ -60,7 +60,7 @@ TEST_F(OpcodeTest, UpdateZN_Negative)
 }
 
 // Test stack operations
-TEST_F(OpcodeTest, PushPopStack)
+TEST_F(CPUTest, PushPopStack)
 {
     uint8_t value = 0x42;
 
@@ -73,7 +73,7 @@ TEST_F(OpcodeTest, PushPopStack)
     EXPECT_EQ(cpu.SP, 0xFD);
 }
 
-TEST_F(OpcodeTest, PushPopStack16)
+TEST_F(CPUTest, PushPopStack16)
 {
     uint16_t value = 0x1234;
 
@@ -86,7 +86,7 @@ TEST_F(OpcodeTest, PushPopStack16)
     EXPECT_EQ(cpu.SP, 0xFD);
 }
 
-TEST_F(OpcodeTest, StackUnderflow)
+TEST_F(CPUTest, StackUnderflow)
 {
     // Push multiple values
     for (int i = 0; i < 10; ++i)
@@ -110,7 +110,7 @@ TEST_F(OpcodeTest, StackUnderflow)
 }
 
 // Test memory operations
-TEST_F(OpcodeTest, MemoryRW)
+TEST_F(CPUTest, MemoryRW)
 {
     uint16_t address = 0x2000;
     uint8_t value = 0xAB;
@@ -122,7 +122,7 @@ TEST_F(OpcodeTest, MemoryRW)
 }
 
 
-TEST_F(OpcodeTest, LoadProgram)
+TEST_F(CPUTest, LoadProgram)
 {
     uint8_t program[] = { 0xA9, 0x01, 0x00 }; // LDA #$01; BRK
     cpu.LoadProgram(program, sizeof(program), 0x8000);
@@ -134,7 +134,7 @@ TEST_F(OpcodeTest, LoadProgram)
 }
 
 // Test Reset functionality
-TEST_F(OpcodeTest, Reset)
+TEST_F(CPUTest, Reset)
 {
     cpu.A = 0xFF;
     cpu.X = 0xFF;

@@ -124,6 +124,9 @@ public:
     void NMI() { _nmiPending = true; }
     void IRQ() { _irqPending = true; }
 
+    // Interrupt helpers
+    void Interrupt(uint16_t vector_address);
+
     // Addressing Modes - return 1 if additional cycle may be needed
     uint8_t IMP(); uint8_t ACC(); uint8_t IMM(); uint8_t REL();
     uint8_t ZP0(); uint8_t ZPX(); uint8_t ZPY();
