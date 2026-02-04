@@ -3,12 +3,10 @@
 
 #include <cstdint>
 
-#include "APU/APU.h"
-#include "Cartridge.h"
-#include "Controller.h"
-#include "Mapper.h"
-#include "Memory.h"
-#include "PPU.h"
+// Forward Declarations
+class CPU;
+class PPU;
+class Memory;
 
 
 class Bus
@@ -16,22 +14,31 @@ class Bus
 public:
 
     Bus();
-    Bus(PPU& ppu, APU& apu, Controller& ctrl1, Controller& ctrl2);
-    virtual ~Bus();
+    ~Bus();
 
-    void AttachMemory(Memory* memory);
+    // Connect Components
+    void ConnectCPU(CPU* c);
+    void ConnectPPU(PPU* p);
+    void ConnectMemory(Memory* m);
 
+    // CPU Read/Write operations
     uint8_t Read(uint16_t address) const;
     void Write(uint16_t address, uint8_t value);
 
+    // System operations
+    void Reset();
+    void Clock();
+
+    // Helpers
+    PPU* GetPPU() { return _ppu; }
+
 private:
-    APU*        _apu;
+    CPU*        _cpu;
     PPU*        _ppu;
     Memory*     _memory;
-    Controller* _controller1;
-    Controller* _controller2;
-    Mapper*     _mapper;
 
+    // System clock counter
+    uint64_t _systemClockCounter;
 };
 
 

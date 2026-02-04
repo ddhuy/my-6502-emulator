@@ -3,9 +3,10 @@
 
 void CPUTest::SetUp()
 {
-    bus.AttachMemory(&memory);
-    cpu.ConnectBus(&bus);
-    cpu.Reset();
+    bus.ConnectMemory(&memory);
+    bus.ConnectCPU(&cpu);
+
+    bus.Reset();
 
     // Drain reset cycles
     while (cpu.GetCycles() > 0)

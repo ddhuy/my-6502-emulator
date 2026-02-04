@@ -40,7 +40,7 @@ ALL_TEST_SRC_FILES := $(shell find $(TEST_DIR) -name "*.cpp")
 NESTEST_SRC := $(TEST_DIR)/nestest_runner.cpp
 OTHER_TEST_SRCS := $(filter-out $(NESTEST_SRC),$(ALL_TEST_SRC_FILES))
 
-LIB_SRC_FILES := $(filter-out $(SRC_DIR)/emulator_main.cpp,$(ALL_SRC_FILES))
+LIB_SRC_FILES := $(filter-out $(SRC_DIR)/EmulatorMain.cpp,$(ALL_SRC_FILES))
 GTEST_SRC_FILES := $(GTEST_DIR)/src/gtest-all.cc
 
 LIB_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(LIB_SRC_FILES))
@@ -48,7 +48,7 @@ GTEST_OBJS := $(patsubst %.cc,$(OBJ_DIR)/%.o,$(GTEST_SRC_FILES))
 
 OTHER_TEST_OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(OTHER_TEST_SRCS))
 NESTEST_OBJ := $(OBJ_DIR)/$(NESTEST_SRC:.cpp=.o)
-MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/emulator_main.o
+MAIN_OBJ := $(OBJ_DIR)/$(SRC_DIR)/EmulatorMain.o
 
 # Test executable names (strip path & extension)
 EMULATOR_BIN := $(BIN_DIR)/nes_emulator

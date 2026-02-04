@@ -5,7 +5,7 @@ class APU
 {
 public:
     APU();
-    virtual ~APU();
+    ~APU();
 };
 
 #endif // APU_H

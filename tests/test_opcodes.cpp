@@ -621,10 +621,10 @@ TEST_F(CPUTest, JMP_Absolute)
 
 TEST_F(CPUTest, JMP_Indirect)
 {
-    uint8_t program[] = {0x6C, 0x20, 0x30};  // JMP ($3020)
+    uint8_t program[] = {0x6C, 0x20, 0x10};  // JMP ($1020)
     cpu.LoadProgram(program, sizeof(program));
-    cpu.WriteMemory(0x3020, 0x34);
-    cpu.WriteMemory(0x3021, 0x12);
+    cpu.WriteMemory(0x1020, 0x34);
+    cpu.WriteMemory(0x1021, 0x12);
     cpu.Step();
     
     EXPECT_EQ(cpu.PC, 0x1234);

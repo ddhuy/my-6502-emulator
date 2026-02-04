@@ -60,7 +60,7 @@ public:
     };
 
     CPU();
-    virtual ~CPU();
+    ~CPU();
 
     void ConnectBus(Bus* bus);
 

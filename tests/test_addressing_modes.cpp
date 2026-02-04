@@ -199,12 +199,12 @@ TEST_F(CPUTest, REL_PageCross)
 
 // Test Indirect addressing (JMP only)
 TEST_F(CPUTest, IND) {
-    uint8_t program[] = {0x20, 0x30};  // Pointer at 0x3020
+    uint8_t program[] = {0x20, 0x10};  // Pointer at 0x3020
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     
     // Set up target address at 0x3020
-    cpu.WriteMemory(0x3020, 0x34);
-    cpu.WriteMemory(0x3021, 0x12);
+    cpu.WriteMemory(0x1020, 0x34);
+    cpu.WriteMemory(0x1021, 0x12);
     
     AddressingResult result = GetAddress(CPU::AddressingMode::M_IND);
     
@@ -214,13 +214,13 @@ TEST_F(CPUTest, IND) {
 // Test Indirect addressing with page boundary bug
 TEST_F(CPUTest, IND_PageBoundaryBug)
 {
-    uint8_t program[] = {0xFF, 0x30};  // Pointer at 0x30FF
+    uint8_t program[] = {0xFF, 0x10};  // Pointer at 0x30FF
     cpu.LoadProgram(program, sizeof(program), 0x8000);
     
     // Set up values
-    cpu.WriteMemory(0x30FF, 0x34);
-    cpu.WriteMemory(0x3000, 0x12);  // Wraps to start of page, not 0x3100!
-    cpu.WriteMemory(0x3100, 0x99);  // This should NOT be read
+    cpu.WriteMemory(0x10FF, 0x34);
+    cpu.WriteMemory(0x1000, 0x12);  // Wraps to start of page, not 0x3100!
+    cpu.WriteMemory(0x1100, 0x99);  // This should NOT be read
     
     AddressingResult result = GetAddress(CPU::AddressingMode::M_IND);
     

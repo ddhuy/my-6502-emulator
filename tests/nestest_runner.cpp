@@ -23,7 +23,7 @@ public:
 
     NESTestRunner() : instructionCount(0)
     {
-        bus.AttachMemory(&memory);
+        bus.ConnectMemory(&memory);
         cpu.ConnectBus(&bus);
         cpu.Reset();
 

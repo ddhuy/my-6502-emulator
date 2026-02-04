@@ -112,7 +112,7 @@ TEST_F(CPUTest, StackUnderflow)
 // Test memory operations
 TEST_F(CPUTest, MemoryRW)
 {
-    uint16_t address = 0x2000;
+    uint16_t address = 0x1000;
     uint8_t value = 0xAB;
 
     cpu.WriteMemory(address, value);
