@@ -880,6 +880,19 @@ TEST_F(CPUTest, ADC_NoOverflowWhenSignsDiffer)
     EXPECT_FALSE(cpu.GetFlag(CPU::StatusFlag::F_OVERFLOW));
 }
 
+TEST_F(CPUTest, ADC_DecimalMode)
+{
+    uint8_t program[] = {0x69, 0x46};  // ADC #$46 (BCD)
+    cpu.LoadProgram(program, sizeof(program));
+
+    cpu.SetFlag(CPU::StatusFlag::F_DECIMAL, true);
+    cpu.A = 0x58;  // 58 in BCD
+    cpu.Step();
+    
+    EXPECT_EQ(cpu.A, 0x04);
+    EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_CARRY));
+}
+
 // ============================================================================
 // SBC Tests
 // ============================================================================

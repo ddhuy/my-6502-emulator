@@ -1,6 +1,6 @@
 #include <cstring>
 #include "CPU.h"
-#include "memory/Memory.h"
+#include "Memory.h"
 #include "Instructions.h"
 
 
@@ -424,11 +424,22 @@ uint8_t CPU::ADC()
     Fetch();
     uint16_t result = A + _fetched + (GetFlag(F_CARRY) ? 1 : 0);
     
-    SetFlag(F_CARRY, result > 0xFF);
     SetFlag(F_OVERFLOW, (~(A ^ _fetched) & (A ^ result) & 0x80) != 0);
+
+    if (GetFlag(StatusFlag::F_DECIMAL))
+    {
+        if (((A & 0xFF) + (_fetched & 0xFF) + (GetFlag(StatusFlag::F_CARRY) ? 1 : 0)) > 9)
+            result += 0x06;
+        if (result > 0x99)
+            result += 0x60;
+    }
+
+    SetFlag(F_CARRY, result > 0xFF);
     
     A = result & 0xFF;
+
     UpdateZN(A);
+
     return 1;  // Can use extra cycle
 }
 

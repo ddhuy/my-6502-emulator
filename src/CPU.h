@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <memory>
-#include "bus/Bus.h"
+#include "Bus.h"
 
 
 class CPU

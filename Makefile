@@ -1,7 +1,9 @@
 CXX       := g++
-CXXFLAGS  := -std=c++17 -Wall -Wextra -I./src \
-             -I./3rd_party/googletest/googletest/include/
-LDFLAGS   := -lpthread
+CXXFLAGS  := -std=c++17 -Wall -Wextra -D_REENTRANT \
+			 -I./src \
+             -I./3rd_party/googletest/googletest/include/ \
+			 -I/usr/include/SDL2
+LDFLAGS   := -lpthread -lSDL2
 
 # -------------------------
 # Build mode

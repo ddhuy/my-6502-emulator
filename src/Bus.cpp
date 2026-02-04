@@ -1,8 +1,10 @@
 #include "Bus.h"
-#include "memory/Memory.h"
+
 
 Bus::Bus()
-    : _memory(nullptr)
+{}
+
+Bus::Bus(PPU& ppu, APU& apu, Controller& ctrl1, Controller& ctrl2)
 {
 }
 
