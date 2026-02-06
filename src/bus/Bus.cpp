@@ -1,7 +1,7 @@
 #include "Bus.h"
-#include "CPU.h"
-#include "PPU.h"
-#include "Memory.h"
+#include "cpu/CPU.h"
+#include "ppu/PPU.h"
+#include "memory/Memory.h"
 
 
 Bus::Bus() : _cpu(nullptr), _ppu(nullptr), _memory(nullptr), _systemClockCounter(0)

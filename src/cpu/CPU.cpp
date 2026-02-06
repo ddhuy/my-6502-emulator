@@ -1,7 +1,8 @@
 #include <cstring>
 #include "CPU.h"
-#include "Memory.h"
 #include "Instructions.h"
+#include "bus/Bus.h"
+#include "memory/Memory.h"
 
 
 CPU::CPU() : _bus(nullptr)
@@ -35,6 +36,16 @@ void CPU::Reset()
     // Reset takes time
     _cycles = 7; // Reset takes 7 _cycles
     _totalCycles = 0;
+}
+
+void CPU::WriteMemory(uint16_t address, uint8_t value)
+{
+    _bus->Write(address, value);
+}
+
+uint8_t CPU::ReadMemory(uint16_t address) const
+{
+    return _bus->Read(address);
 }
 
 void CPU::LoadProgram(const uint8_t* program, size_t size, uint16_t address)

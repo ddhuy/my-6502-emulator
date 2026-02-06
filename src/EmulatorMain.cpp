@@ -2,11 +2,11 @@
 #include <memory>
 #include <iostream>
 
-#include "Bus.h"
-#include "CPU.h"
-#include "PPU.h"
-#include "Memory.h"
-#include "Display.h"
+#include "bus/Bus.h"
+#include "cpu/CPU.h"
+#include "memory/Memory.h"
+#include "ppu/PPU.h"
+#include "ppu/Display.h"
 
 
 int main()

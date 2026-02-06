@@ -4,10 +4,10 @@
 #include <sstream>
 #include <vector>
 
-#include "CPU.h"
-#include "Instructions.h"
-#include "Bus.h"
-#include "Memory.h"
+#include "bus/Bus.h"
+#include "cpu/CPU.h"
+#include "cpu/Instructions.h"
+#include "memory/Memory.h"
 
 
 class NESTestRunner

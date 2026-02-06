@@ -3,8 +3,9 @@
 
 #include <cstdint>
 #include <memory>
-#include "Bus.h"
 
+// Forward declarationc
+class Bus;
 
 class CPU
 {
@@ -101,8 +102,8 @@ public:
     // Data read/write helpers
     uint8_t Fetch();
     void Commit(uint8_t value);
-    void WriteMemory(uint16_t address, uint8_t value) { _bus->Write(address, value); }
-    uint8_t ReadMemory(uint16_t address) const { return _bus->Read(address); }
+    void WriteMemory(uint16_t address, uint8_t value);
+    uint8_t ReadMemory(uint16_t address) const;
 
     // Branch helper
     uint8_t Branch(bool condition);

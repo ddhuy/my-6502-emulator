@@ -1,5 +1,5 @@
-#include "Bus.h"
 #include "PPU.h"
+#include "bus/Bus.h"
 
 
 PPU::PPU() 

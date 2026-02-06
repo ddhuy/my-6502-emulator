@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "CPU.h"
-#include "Bus.h"
-#include "Memory.h"
+#include "bus/Bus.h"
+#include "cpu/CPU.h"
+#include "memory/Memory.h"
 
 
 class CPUTest : public ::testing::Test
