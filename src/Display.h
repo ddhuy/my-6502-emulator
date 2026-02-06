@@ -1,9 +1,10 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <SDL2/SDL.h>
 #include <array>
 #include <cstdint>
+
+#include <SDL2/SDL.h>
 
 
 class Display
@@ -17,7 +18,8 @@ public:
     void Render(const uint8_t* screenBuffer);
     void Present();
     bool IsRunning() const { return _running; }
-    void HandlerEvents();
+    void HandleEvents();
+    void Shutdown();
 
     static constexpr int NES_WIDTH = 256;
     static constexpr int NES_HEIGHT = 240;

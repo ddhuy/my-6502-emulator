@@ -1,5 +1,6 @@
-#include "Display.h"
 #include <iostream>
+
+#include "Display.h"
 
 
 // NES Color Palette (RGB values for all 64 colors)
@@ -21,7 +22,7 @@ Display::Display(const char* title, int width, int height, int scale)
     _renderer = nullptr;
     _texture = nullptr;
     _windowWidth = width * scale;
-    _windowWidth = height * scale;
+    _windowHeight = height * scale;
     _scale = scale;
     _running = false;
 }
@@ -115,7 +116,7 @@ void Display::Present()
     SDL_RenderPresent(_renderer);
 }
 
-void Display::HandlerEvents()
+void Display::HandleEvents()
 {
     SDL_Event event;
 
@@ -133,4 +134,11 @@ void Display::HandlerEvents()
                 break;
         }
     }
+}
+
+void Display::Shutdown()
+{
+    SDL_DestroyRenderer(_renderer);
+    SDL_DestroyWindow(_window);
+    SDL_Quit();
 }
