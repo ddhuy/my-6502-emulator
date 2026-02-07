@@ -7,9 +7,10 @@
 #include "memory/Memory.h"
 #include "ppu/PPU.h"
 #include "ppu/Display.h"
+#include "cartridge/Cartridge.h"
 
 
-int main()
+int main(int argc, char **argv)
 {
     std::cout << "+===========================+" << std::endl;
     std::cout << "|      My NES Emulator      |" << std::endl;
@@ -19,6 +20,7 @@ int main()
     std::unique_ptr<Memory> memory = std::make_unique<Memory>();
     std::unique_ptr<CPU>    cpu = std::make_unique<CPU>();
     std::unique_ptr<PPU>    ppu = std::make_unique<PPU>();
+    std::unique_ptr<Cartridge> cartridge = std::make_unique<Cartridge>();
 
     std::unique_ptr<Display> display = std::make_unique<Display>("NES Emulator",
                                                                  Display::NES_WIDTH,
@@ -33,7 +35,7 @@ int main()
     // Initialize display
     if (!display->Init())
     {
-        std::cerr << "Failed to initialized display" << std::endl;
+        std::cerr << "Failed to initialize display" << std::endl;
         return -1;
     }
     std::cout << "Display initialized successfully!" << std::endl;
@@ -42,70 +44,91 @@ int main()
     bus->Reset();
     std::cout << "CPU initialized successfully!" << std::endl;
 
-    // TODO: Load ROM file here
-
-    // Create some simple pattern data (2 tiles: solid and checkered)
-    // Tile 0: Solid tile
-    for (int i = 0; i < 8; i++)
+    // Load ROM file here
+    bool romLoaded = false;
+    if (argc >= 2)
     {
-        ppu->Write(0x0000 + i, 0xFF);      // Low bitplane
-        ppu->Write(0x0008 + i, 0xFF);      // High bitplane
-    }
-    
-    // Tile 1: Checkered tile
-    for (int i = 0; i < 8; i++) {
-        ppu->Write(0x0010 + i, 0xAA);      // Low bitplane (10101010)
-        ppu->Write(0x0018 + i, 0x55);      // High bitplane (01010101)
-    }
-    
-    // Fill nametable with checkerboard pattern
-    for (uint16_t i = 0; i < 960; i++)
-    {
-        uint8_t tileId = ((i / 32) + (i % 32)) % 2 ? 0x01 : 0x00;
-        ppu->Write(0x2000 + i, tileId);
+        if (cartridge->LoadFromFile(argv[1]))
+        {
+            bus->InsertCartridge(cartridge.get());
+            romLoaded = true;
+        }
+        else
+        {
+            std::cerr << "Failed to load ROM, running test pattern instead" << std::endl;
+        }
     }
 
-    // For now, let's write a simple test pattern to PPU memory
-    // This writes to the first nametable to create a checkerboard pattern
-    for (uint16_t i = 0; i < 960; i++)
+    if (!romLoaded)
     {
-        uint8_t tileId = ((i / 32) + (i % 32)) % 2;
-        ppu->Write(0x2000 + i, tileId);
-    }
+		std::cout << "Creating test pattern..." << std::endl;
 
-    // Fill attribute table (set palette for each 2x2 tile region)
-    for (uint16_t i = 0; i < 64; i++)
+        // Create some simple pattern data (2 tiles: solid and checkered)
+        // Tile 0: Solid tile
+        for (int i = 0; i < 8; i++)
+        {
+            ppu->PPUWrite(0x0000 + i, 0xFF);      // Low bitplane
+            ppu->PPUWrite(0x0008 + i, 0xFF);      // High bitplane
+        }
+        
+        // Tile 1: Checkered tile
+        for (int i = 0; i < 8; i++) {
+            ppu->PPUWrite(0x0010 + i, 0xAA);      // Low bitplane (10101010)
+            ppu->PPUWrite(0x0018 + i, 0x55);      // High bitplane (01010101)
+        }
+
+        // This writes to the first nametable to create a checkerboard pattern
+        for (uint16_t i = 0; i < 960; i++)
+        {
+            uint8_t tileId = ((i / 32) + (i % 32)) % 2;
+            ppu->PPUWrite(0x2000 + i, tileId);
+        }
+
+        // Fill attribute table (set palette for each 2x2 tile region)
+        for (uint16_t i = 0; i < 64; i++)
+        {
+            // Alternate between palette 0 and palette 1
+            uint8_t palette = (i % 2) ? 0x55 : 0x00; // 0x55 = palette 1 for all quadrants
+            ppu->PPUWrite(0x23C0 + i, palette);
+        }
+
+        // Set up color palettes
+        // Background palette 0
+        ppu->PPUWrite(0x3F00, 0x0F); // Universal background color (black)
+        ppu->PPUWrite(0x3F01, 0x00); // Color 1 (dark gray)
+        ppu->PPUWrite(0x3F02, 0x10); // Color 2 (light gray)
+        ppu->PPUWrite(0x3F03, 0x30); // Color 3 (white)
+        
+        // Background palette 1
+        ppu->PPUWrite(0x3F04, 0x0F); // Universal background (not used but set anyway)
+        ppu->PPUWrite(0x3F05, 0x02); // Color 1 (blue)
+        ppu->PPUWrite(0x3F06, 0x16); // Color 2 (red)
+        ppu->PPUWrite(0x3F07, 0x2A); // Color 3 (green)
+        
+        // CRITICAL: Enable rendering via PPUMASK register
+        // Bit 3 = show background
+        // Bit 4 = show sprites
+        // Bit 1 = show background in leftmost 8 pixels
+        // Bit 2 = show sprites in leftmost 8 pixels
+        ppu->CPUWrite(0x2001, 0x1E); // Binary: 00011110
+                                     // Enable: bg, sprites, bg left, sprites left
+    }
+    else
     {
-        // Alternate between palette 0 and palette 1
-        uint8_t palette = (i % 2) ? 0x55 : 0x00; // 0x55 = palette 1 for all quadrants
-        ppu->Write(0x23C0 + i, palette);
-    }
-    
+        std::cout << "ROM loaded, starting emulation..." << std::endl;
+        
+        // For real ROMs, the game will setup rendering
+        // But we can enable it here to see something.
+        ppu->CPUWrite(0x2001, 0x1E); // Enable rendering. 
 
-    // Set up color palettes
-    // Background palette 0
-    ppu->Write(0x3F00, 0x0F); // Universal background color (black)
-    ppu->Write(0x3F01, 0x00); // Color 1 (dark gray)
-    ppu->Write(0x3F02, 0x10); // Color 2 (light gray)
-    ppu->Write(0x3F03, 0x30); // Color 3 (white)
-    
-    // Background palette 1
-    ppu->Write(0x3F04, 0x0F); // Universal background (not used but set anyway)
-    ppu->Write(0x3F05, 0x02); // Color 1 (blue)
-    ppu->Write(0x3F06, 0x16); // Color 2 (red)
-    ppu->Write(0x3F07, 0x2A); // Color 3 (green)
-    
-    // CRITICAL: Enable rendering via PPUMASK register
-    // Bit 3 = show background
-    // Bit 4 = show sprites
-    // Bit 1 = show background in leftmost 8 pixels
-    // Bit 2 = show sprites in leftmost 8 pixels
-    ppu->CPUWrite(0x2001, 0x1E); // Binary: 00011110
-                                 // Enable: bg, sprites, bg left, sprites left
-    
+        // Some ROMs might need NMI enabled
+        ppu->CPUWrite(0x2000, 0x80); // Enable NMI.
+    }
 
     // Main emulation loop
-    std::cout << "Entering main loop..." << std::endl;
+    std::cout << "Entering main loop... (Press ESC to exit)" << std::endl;
+
+    uint64_t frameCount = 0;
     
     while (display->IsRunning())
     {
@@ -129,10 +152,16 @@ int main()
 
         // Update the screen
         display->Present();
+
+        // Print FPS
+        frameCount++;
+        if (frameCount % 60 == 0)
+            std::cout << "\rFrame: " << frameCount << std::flush;
     }
 
-    std::cout << "Emulator shutting down..." << std::endl;
-    display->Shutdown();
+    std::cout << std::endl << "Total frames rendered: " << frameCount;
+    std::cout << std::endl << "Emulator shutting down..." << std::endl;
+    // display->Shutdown();
 
     return 0;
 }

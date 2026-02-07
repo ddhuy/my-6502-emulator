@@ -4,8 +4,10 @@
 #include <array>
 #include <cstdint>
 
-// Forward declarationc
+// Forward declarations
 class Bus;
+class Cartridge;
+
 
 class PPU
 {
@@ -19,6 +21,9 @@ public:
     // Connect to bus for CPU communication
     void ConnectBus(Bus* b) { _bus = b; }
 
+    // Connect to Cartridge for CHR memory
+    void ConnectCartridge(Cartridge* cart) { _cartridge = cart; }
+
     // Clock the PPU (called 3 times per CPU cycle)
     void Clock();
 
@@ -29,10 +34,10 @@ public:
     void CPUWrite(uint16_t address, uint8_t value);
 
     // PPU reads from its own memory space
-    uint8_t Read(uint16_t address);
+    uint8_t PPURead(uint16_t address);
     
     // PPU writes to its own memory space
-    void Write(uint16_t address, uint8_t value);
+    void PPUWrite(uint16_t address, uint8_t value);
 
     // Check if frame is complete (ready to render)
     bool IsFrameComplete() const { return _frameComplete; }
@@ -122,7 +127,7 @@ private:
     };
 
     LoopyRegister _vramAddr; // Current VRAM address (15 bits)
-    LoopyRegister _tramAddr; // Temporaty VRAM address (15 bits)
+    LoopyRegister _tramAddr; // Temporary VRAM address (15 bits)
     uint8_t _fineX;          // Fine X scroll (3 bits)
     bool _addressLatch;      // First or second write toggle
 
@@ -143,7 +148,7 @@ private:
 
     // Pattern table memory (CHR-ROM/RAM) - handled by cartridge
     // For now, we'll use dummy pattern tables
-    std::array<uint8_t, 8192> _patternTable; // 8KB pattern tables (temoprar)
+    std::array<uint8_t, 8192> _patternTable; // 8KB pattern tables (temporary)
 
     // Screen buffer - stores palette indices for each pixel
     std::array<uint8_t, SCREEN_WIDTH * SCREEN_HEIGHT> _screen;
@@ -194,6 +199,9 @@ private:
 
     // Bus connection
     Bus* _bus;
+
+    // Cartridge connection
+    Cartridge* _cartridge;
 };
 
 #endif // PPU_H

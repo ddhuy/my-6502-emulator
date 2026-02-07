@@ -72,7 +72,7 @@ bool Display::Init()
                                  NES_HEIGHT);
     if (!_texture)
     {
-        std::cerr << "Texter creation failed: " << SDL_GetError() << std::endl;
+        std::cerr << "Texture creation failed: " << SDL_GetError() << std::endl;
         return false;
     }
 

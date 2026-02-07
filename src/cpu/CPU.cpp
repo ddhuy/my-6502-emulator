@@ -26,7 +26,7 @@ void CPU::Reset()
     P = F_UNUSED | F_INTERRUPT; // Set unused and interrupt disable flags
     
     // Set Program Counter to the address stored at the reset vector (0xFFFC)
-    PC = (_bus->Read(0xFFFD) << 8) | _bus->Read(0xFFFC);
+    PC = (_bus->CPURead(0xFFFD) << 8) | _bus->CPURead(0xFFFC);
     
     // Reset internal helper variables
     _addrAbs = 0;
@@ -40,25 +40,25 @@ void CPU::Reset()
 
 void CPU::WriteMemory(uint16_t address, uint8_t value)
 {
-    _bus->Write(address, value);
+    _bus->CPUWrite(address, value);
 }
 
 uint8_t CPU::ReadMemory(uint16_t address) const
 {
-    return _bus->Read(address);
+    return _bus->CPURead(address);
 }
 
 void CPU::LoadProgram(const uint8_t* program, size_t size, uint16_t address)
 {
     for (size_t i = 0; i < size; ++i)
-        _bus->Write(address + i, program[i]);
+        _bus->CPUWrite(address + i, program[i]);
     
     // Set PC to start of program
     PC = address;
     
     // Set the reset vector to the start of the program
-    _bus->Write(0xFFFC, address & 0xFF);
-    _bus->Write(0xFFFD, (address >> 8) & 0xFF);
+    _bus->CPUWrite(0xFFFC, address & 0xFF);
+    _bus->CPUWrite(0xFFFD, (address >> 8) & 0xFF);
 }
 
 void CPU::SetFlag(StatusFlag flag, bool value)
@@ -82,14 +82,14 @@ void CPU::UpdateZN(uint8_t value)
 
 void CPU::PushStack(uint8_t value)
 {
-    _bus->Write(0x0100 + SP, value);
+    _bus->CPUWrite(0x0100 + SP, value);
     SP--;
 }
 
 uint8_t CPU::PopStack()
 {
     SP++;
-    return _bus->Read(0x0100 + SP);
+    return _bus->CPURead(0x0100 + SP);
 }
 
 void CPU::PushStack16(uint16_t value)
@@ -107,7 +107,7 @@ uint16_t CPU::PopStack16()
 
 uint8_t CPU::ReadPC()
 {
-    return _bus->Read(PC++);
+    return _bus->CPURead(PC++);
 }
 
 uint16_t CPU::ReadPC16()
@@ -122,7 +122,7 @@ uint8_t CPU::Fetch()
     if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::ACC)
         _fetched = A;
     else
-        _fetched = _bus->Read(_addrAbs);
+        _fetched = _bus->CPURead(_addrAbs);
     return _fetched;
 }
 
@@ -132,7 +132,7 @@ void CPU::Commit(uint8_t value)
     if (INSTRUCTION_TABLE[_opcode].addrMode == &CPU::ACC)
         A = value;
     else
-        _bus->Write(_addrAbs, value);
+        _bus->CPUWrite(_addrAbs, value);
 }
 
 const char* CPU::GetCurrentInstruction() const
@@ -150,8 +150,8 @@ void CPU::Interrupt(uint16_t vector)
     SetFlag(StatusFlag::F_INTERRUPT, true); // Disable further interrupts
 
     // Load vector
-    uint16_t lo = _bus->Read(vector);
-    uint16_t hi = _bus->Read(vector + 1);
+    uint16_t lo = _bus->CPURead(vector);
+    uint16_t hi = _bus->CPURead(vector + 1);
     PC = (hi << 8) | lo;
 
     _cycles = 7; // Interrupt handling takes 7 cycles
@@ -308,9 +308,9 @@ uint8_t CPU::IND()
 
     // Simulate 6502 page boundary hardware bug
     if ((ptr & 0x00FF) == 0x00FF)
-        _addrAbs = (_bus->Read(ptr & 0xFF00) << 8) | _bus->Read(ptr);
+        _addrAbs = (_bus->CPURead(ptr & 0xFF00) << 8) | _bus->CPURead(ptr);
     else
-        _addrAbs = (_bus->Read(ptr + 1) << 8) | _bus->Read(ptr);
+        _addrAbs = (_bus->CPURead(ptr + 1) << 8) | _bus->CPURead(ptr);
 
     return 0;
 }
@@ -319,8 +319,8 @@ uint8_t CPU::IND()
 uint8_t CPU::IZX()
 {
     uint16_t t = ReadPC();
-    uint16_t lo = _bus->Read((t + X) & 0x00FF);
-    uint16_t hi = _bus->Read((t + X + 1) & 0x00FF);
+    uint16_t lo = _bus->CPURead((t + X) & 0x00FF);
+    uint16_t hi = _bus->CPURead((t + X + 1) & 0x00FF);
     
     _addrAbs = (hi << 8) | lo;
     
@@ -331,8 +331,8 @@ uint8_t CPU::IZX()
 uint8_t CPU::IZY()
 {
     uint16_t t = ReadPC();
-    uint16_t lo = _bus->Read(t & 0x00FF);
-    uint16_t hi = _bus->Read((t + 1) & 0x00FF);
+    uint16_t lo = _bus->CPURead(t & 0x00FF);
+    uint16_t hi = _bus->CPURead((t + 1) & 0x00FF);
     
     uint16_t base = (hi << 8) | lo;
     _addrAbs = base + Y;
@@ -369,19 +369,19 @@ uint8_t CPU::LDY()
 
 uint8_t CPU::STA()
 {
-    _bus->Write(_addrAbs, A);
+    _bus->CPUWrite(_addrAbs, A);
     return 0;
 }
 
 uint8_t CPU::STX()
 {
-    _bus->Write(_addrAbs, X);
+    _bus->CPUWrite(_addrAbs, X);
     return 0;
 }
 
 uint8_t CPU::STY()
 {
-    _bus->Write(_addrAbs, Y);
+    _bus->CPUWrite(_addrAbs, Y);
     return 0;
 }
 
@@ -472,7 +472,7 @@ uint8_t CPU::INC()
 {
     Fetch();
     uint8_t result = _fetched + 1;
-    _bus->Write(_addrAbs, result);
+    _bus->CPUWrite(_addrAbs, result);
     UpdateZN(result);
     return 0;
 }
@@ -481,7 +481,7 @@ uint8_t CPU::DEC()
 {
     Fetch();
     uint8_t result = _fetched - 1;
-    _bus->Write(_addrAbs, result);
+    _bus->CPUWrite(_addrAbs, result);
     UpdateZN(result);
     return 0;
 }
@@ -643,7 +643,7 @@ uint8_t CPU::BRK()
     SetFlag(F_BREAK, true);
     PushStack(P);
     SetFlag(F_INTERRUPT, true);
-    PC = _bus->Read(0xFFFE) | (_bus->Read(0xFFFF) << 8);
+    PC = _bus->CPURead(0xFFFE) | (_bus->CPURead(0xFFFF) << 8);
     return 0;
 }
 
@@ -861,7 +861,7 @@ uint8_t CPU::LAX()
 // Stores the bitwise AND of A and X to memory
 uint8_t CPU::SAX()
 {
-    _bus->Write(_addrAbs, A & X);
+    _bus->CPUWrite(_addrAbs, A & X);
     return 0;
 }
 
@@ -872,7 +872,7 @@ uint8_t CPU::DCP()
 {
     Fetch();
     uint8_t value = _fetched - 1;
-    _bus->Write(_addrAbs, value);
+    _bus->CPUWrite(_addrAbs, value);
 
     // Compare A with decremented value
     uint16_t result = (uint16_t) A - (uint16_t) value;
@@ -891,7 +891,7 @@ uint8_t CPU::ISC()
     Fetch();
 
     uint8_t value = _fetched + 1;
-    _bus->Write(_addrAbs, value);
+    _bus->CPUWrite(_addrAbs, value);
     
     // SBC with incremented value
     uint16_t result = A + (value ^ 0xFF) + (GetFlag(StatusFlag::F_CARRY) ? 1 : 0);
@@ -916,7 +916,7 @@ uint8_t CPU::SLO()
     // ASL
     SetFlag(StatusFlag::F_CARRY, (value & 0x80) != 0);
     value <<= 1;
-    _bus->Write(_addrAbs, value);
+    _bus->CPUWrite(_addrAbs, value);
     
     // ORA
     A |= value;
@@ -937,7 +937,7 @@ uint8_t CPU::RLA()
     bool oldCarry = GetFlag(StatusFlag::F_CARRY);
     SetFlag(StatusFlag::F_CARRY, (value & 0x80) != 0);
     value = (value << 1) | (oldCarry ? 1 : 0);
-    _bus->Write(_addrAbs, value);
+    _bus->CPUWrite(_addrAbs, value);
     
     // AND
     A &= value;
@@ -957,7 +957,7 @@ uint8_t CPU::SRE()
     // LSR
     SetFlag(StatusFlag::F_CARRY, (value & 0x01) != 0);
     value >>= 1;
-    _bus->Write(_addrAbs, value);
+    _bus->CPUWrite(_addrAbs, value);
     
     // EOR
     A ^= value;
@@ -978,7 +978,7 @@ uint8_t CPU::RRA()
     bool oldCarry = GetFlag(StatusFlag::F_CARRY);
     SetFlag(StatusFlag::F_CARRY, (value & 0x01) != 0);
     value = (value >> 1) | (oldCarry ? 0x80 : 0);
-    _bus->Write(_addrAbs, value);
+    _bus->CPUWrite(_addrAbs, value);
     
     // ADC
     uint16_t result = A + value + (GetFlag(StatusFlag::F_CARRY) ? 1 : 0);

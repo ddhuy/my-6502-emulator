@@ -1,5 +1,6 @@
 #include "PPU.h"
 #include "bus/Bus.h"
+#include "cartridge/Cartridge.h"
 
 
 PPU::PPU() 
@@ -15,7 +16,8 @@ PPU::PPU()
       _spriteCount(0),
       _sprite0HitPossible(false),
       _sprite0Rendering(false),
-      _bus(nullptr)
+      _bus(nullptr),
+	  _cartridge(nullptr)
 {
     
     _ctrl.reg = 0;
@@ -76,7 +78,7 @@ uint8_t PPU::CPURead(uint16_t address)
 
         case 0x0002: // PPUSTATUS
         {
-            data = (_status.reg & 0xEB) | (_ppuDataBuffer & 0x1F);
+            data = (_status.reg & 0xE0) | (_ppuDataBuffer & 0x1F);
             _status.vblank = 0; // Reading clears V-Blank flag
             _addressLatch = false; // Reset address latch
             break;
@@ -100,7 +102,7 @@ uint8_t PPU::CPURead(uint16_t address)
         case 0x0007: // PPUDATA
         {
             data = _ppuDataBuffer;
-            _ppuDataBuffer = Read(_vramAddr.reg);
+            _ppuDataBuffer = PPURead(_vramAddr.reg);
 
             // Palette reads are not buffered
             if (_vramAddr.reg >= 0x3F00)
@@ -192,20 +194,24 @@ void PPU::CPUWrite(uint16_t address, uint8_t data)
 
         case 0x0007: // PPUDATA
         {
-            Write(_vramAddr.reg, data);
-            _vramAddr.reg += (_ctrl.incrementMode ? 32 : 0);
+            PPUWrite(_vramAddr.reg, data);
+            _vramAddr.reg += (_ctrl.incrementMode ? 32 : 1);
             break;
         }
     }
 }
 
-uint8_t PPU::Read(uint16_t address)
+uint8_t PPU::PPURead(uint16_t address)
 {
     address &= 0x3FFF; // Mirror down to 14-bit address space
 
     // Pattern tables (CHR-ROM/RAM) - TODO: Connect to Cartridge
     if (address < 0x2000)
     {
+		// Pattern tables (CHR-ROM/RAM) - Use cartridge
+		if (_cartridge)
+			return _cartridge->PPURead(address);
+
         return _patternTable[address];
     }
     // nametables
@@ -241,14 +247,18 @@ uint8_t PPU::Read(uint16_t address)
     return 0x00;
 }
 
-void PPU::Write(uint16_t address, uint8_t data)
+void PPU::PPUWrite(uint16_t address, uint8_t data)
 {
     address &= 0x3FFF; // Mirror down to 14-bit address space
 
     // Pattern tables - TODO: Some cartridges have CHR-RAM
     if (address < 0x2000)
     {
-        _patternTable[address] = data;
+		// Pattern tables - Use cartridge (for CHR-RAM)
+		if (_cartridge)
+			_cartridge->PPUWrite(address, data);
+		else
+	        _patternTable[address] = data;
     }
     // Nametables
     else if (address < 0x3F00)
@@ -302,7 +312,7 @@ void PPU::Clock()
             {
                 case 0:
                     LoadBackgroundShifters();
-                    _bgNextTileId = Read(0x2000 | (_vramAddr.reg & 0x0FFF));
+                    _bgNextTileId = PPURead(0x2000 | (_vramAddr.reg & 0x0FFF));
                     break;
                 case 2:
                     {
@@ -310,7 +320,7 @@ void PPU::Clock()
                                             (_vramAddr.nametableX << 10) |
                                             ((_vramAddr.coarseY >> 2) << 3) |
                                             (_vramAddr.coarseX >> 2);
-                        _bgNextTileAttrib = Read(attribAddr);
+                        _bgNextTileAttrib = PPURead(attribAddr);
                         
                         if (_vramAddr.coarseY & 0x02) _bgNextTileAttrib >>= 4;
                         if (_vramAddr.coarseX & 0x02) _bgNextTileAttrib >>= 2;
@@ -322,7 +332,7 @@ void PPU::Clock()
                         uint16_t patternAddr = (_ctrl.bgPattern << 12) +
                                              ((uint16_t)_bgNextTileId << 4) +
                                              _vramAddr.fineY;
-                        _bgNextTileLsb = Read(patternAddr);
+                        _bgNextTileLsb = PPURead(patternAddr);
                     }
                     break;
                 case 6:
@@ -330,7 +340,7 @@ void PPU::Clock()
                         uint16_t patternAddr = (_ctrl.bgPattern << 12) +
                                              ((uint16_t)_bgNextTileId << 4) +
                                              _vramAddr.fineY + 8;
-                        _bgNextTileMsb = Read(patternAddr);
+                        _bgNextTileMsb = PPURead(patternAddr);
                     }
                     break;
                 case 7:
@@ -466,7 +476,7 @@ void PPU::Clock()
             }
         }
 
-        uint8_t colorIndex = Read(0x3F00 + (paletteIndex << 2) + pixel);
+        uint8_t colorIndex = PPURead(0x3F00 + (paletteIndex << 2) + pixel);
         _screen[(_scanline * 256) + (_cycle - 1)] = colorIndex & 0x3F;
     }
     
@@ -490,7 +500,7 @@ void PPU::IncrementScrollX()
     if (!_mask.showBg && !_mask.showSprites)
         return;
 
-    if (_vramAddr.coarseX >= 31)
+    if (_vramAddr.coarseX == 31)
     {
         _vramAddr.coarseX = 0;
         _vramAddr.nametableX = ~_vramAddr.nametableX;
@@ -554,9 +564,9 @@ void PPU::LoadBackgroundShifters()
     _bgShifters.patternLo = (_bgShifters.patternLo & 0xFF00) | _bgNextTileLsb;
     _bgShifters.patternHi = (_bgShifters.patternHi & 0xFF00) | _bgNextTileMsb;
 
-    _bgShifters.attributeLo = (_bgShifters.attributeLo & 0xFF) |
+    _bgShifters.attributeLo = (_bgShifters.attributeLo & 0xFF00) |
                               ((_bgNextTileAttrib & 0x01) ? 0xFF : 0x00);
-    _bgShifters.attributeHi = (_bgShifters.attributeHi & 0xFF) |
+    _bgShifters.attributeHi = (_bgShifters.attributeHi & 0xFF00) |
                               ((_bgNextTileAttrib & 0x02) ? 0xFF : 0x00);
 }
 
