@@ -50,6 +50,10 @@ public:
     // Get screen buffer (256x240 pixels, NES color palette indices 0-63)
     const uint8_t* GetScreenBuffer() const { return _screen.data(); };
 
+    uint16_t GetScanline() { return _scanline; }
+    uint16_t GetCycle() { return _cycle; }
+    uint64_t GetFrameCount() { return _frameCount; }
+
     static constexpr int SCREEN_WIDTH  = 256;
     static constexpr int SCREEN_HEIGHT = 240;
 

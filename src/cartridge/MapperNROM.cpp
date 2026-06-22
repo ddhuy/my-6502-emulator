@@ -1,4 +1,5 @@
 #include "MapperNROM.h"
+#include "utils/Logger.h"
 
 
 MapperNROM::MapperNROM(uint8_t prgBanks, uint8_t chrBanks)
@@ -8,6 +9,8 @@ MapperNROM::MapperNROM(uint8_t prgBanks, uint8_t chrBanks)
 
 bool MapperNROM::CPUMapRead(uint16_t address, uint32_t &mappedAddress)
 {
+    LOG_DEBUG("address=0x%04x  mappedAddress=0x%04x", address, mappedAddress);
+
     // CPU Address range: $8000-$FFFF
     if (0x8000 <= address && address <= 0xFFFF)
     {
@@ -22,6 +25,8 @@ bool MapperNROM::CPUMapRead(uint16_t address, uint32_t &mappedAddress)
 
 bool MapperNROM::CPUMapWrite(uint16_t address, uint32_t &mappedAddress, uint8_t data)
 {
+    LOG_DEBUG("address=0x%04x  mappedAddress=0x%04x  data=0x%02x", address, mappedAddress, data);
+
     // NROM has no PRG-RAM, writing does nothing
     (void) data;
 
@@ -37,6 +42,8 @@ bool MapperNROM::CPUMapWrite(uint16_t address, uint32_t &mappedAddress, uint8_t 
 
 bool MapperNROM::PPUMapRead(uint16_t address, uint32_t &mappedAddress)
 {
+    LOG_DEBUG("address=0x%04x  mappedAddress=0x%02x", address, mappedAddress);
+
     // PPU address range: $0000-$1FFF (pattern table)
     if (0x0000 <= address && address < 0x2000)
     {
@@ -49,6 +56,8 @@ bool MapperNROM::PPUMapRead(uint16_t address, uint32_t &mappedAddress)
 
 bool MapperNROM::PPUMapWrite(uint16_t address, uint32_t &mappedAddress)
 {
+    LOG_DEBUG("address=0x%04x  mappedAddress=0x%02x", address, mappedAddress);
+
     // If there is no CHR-ROM (chrBanks == 0), then we have CHR-RAM
     if (0x0000 <= address && address < 0x2000)
     {

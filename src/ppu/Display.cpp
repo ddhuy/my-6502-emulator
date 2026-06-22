@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Display.h"
+#include "utils/Logger.h"
 
 
 // NES Color Palette (RGB values for all 64 colors)
@@ -42,7 +43,7 @@ bool Display::Init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
+        LOG_ERROR("SDL initialization failed: %s", SDL_GetError());
         return false;
     }
 
@@ -54,14 +55,14 @@ bool Display::Init()
         SDL_WINDOW_SHOWN);
     if (!_window)
     {
-        std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
+        LOG_ERROR("Window creation failed: %s", SDL_GetError());
         return false;
     }
 
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!_renderer)
     {
-        std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+        LOG_ERROR("Renderer creation failed: %s", SDL_GetError());
         return false;
     }
 
@@ -72,7 +73,7 @@ bool Display::Init()
                                  NES_HEIGHT);
     if (!_texture)
     {
-        std::cerr << "Texture creation failed: " << SDL_GetError() << std::endl;
+        LOG_ERROR("Texture creation failed: %s", SDL_GetError());
         return false;
     }
 
@@ -93,7 +94,7 @@ void Display::Render(const uint8_t* screenBuffer)
 
     if (SDL_LockTexture(_texture, nullptr, (void**) &pixels, &pitch) < 0)
     {
-        std::cerr << "Failed to lock texture: " << SDL_GetError() << std::endl;
+        LOG_ERROR("Failed to lock texture: %s", SDL_GetError());
         return;
     }
 

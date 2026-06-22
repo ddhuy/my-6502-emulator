@@ -8,6 +8,8 @@ void CPUTest::SetUp()
 
     bus.Reset();
 
+    bus.InsertCartridge(&cartridge);
+
     // Drain reset cycles
     while (cpu.GetCycles() > 0)
         cpu.Clock();

@@ -104,7 +104,7 @@ public:
         uint8_t opcode = cpu.ReadMemory(address);
         auto addrmode = INSTRUCTION_TABLE[opcode].addrMode;
         const char* mnemonic = INSTRUCTION_TABLE[opcode].name;
-        
+
         std::ostringstream oss;
         oss << std::hex << std::uppercase << std::setfill('0');
         
@@ -209,7 +209,6 @@ public:
         cpu.Reset();
         cpu.PC = 0xC000;
 
-        // Drain reset cycles
         // Drain reset cycles
         while (cpu.GetCycles() > 0)
             cpu.Clock();

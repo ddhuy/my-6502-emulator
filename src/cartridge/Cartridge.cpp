@@ -6,6 +6,7 @@
 #include "Cartridge.h"
 #include "Mapper.h"
 #include "MapperNROM.h"
+#include "utils/Logger.h"
 
 
 Cartridge::Cartridge()
@@ -32,7 +33,7 @@ bool Cartridge::LoadFromFile(const std::string &filename)
     std::ifstream f(_filename, std::ios::binary);
     if (!f.is_open())
     {
-        std::cerr << "Failed to open ROM file: " << _filename << std::endl;
+        LOG_ERROR("Failed to open ROM file: %s", _filename.c_str());
         return false;
     }
 
@@ -43,7 +44,7 @@ bool Cartridge::LoadFromFile(const std::string &filename)
 
     if (romData.size() < sizeof(INESHeader))
     {
-        std::cerr << "ROM file is too small!" << std::endl;
+        LOG_ERROR("ROM file is too small!");
         return false;
     }
 
@@ -64,7 +65,7 @@ bool Cartridge::LoadFromFile(const std::string &filename)
     size_t prgSize = _prgRomBanks * 16 * 1024; // 16KB per bank
     if (offset + prgSize > romData.size())
     {
-        std::cerr << "Invalid PRG-ROM size" << std::endl;
+        LOG_ERROR("Invalid PRG-ROM size");
         return false;
     }
 
@@ -78,7 +79,7 @@ bool Cartridge::LoadFromFile(const std::string &filename)
         size_t chrSize = _chrRomBanks * 8192; // 8KB per bank
         if (offset + chrSize > romData.size())
         {
-            std::cerr << "Invalid CHR-ROM size" << std::endl;
+            LOG_ERROR("Invalid CHR-ROM size");
             return false;
         }
         _chrROM.resize(chrSize);
@@ -103,13 +104,13 @@ bool Cartridge::LoadFromFile(const std::string &filename)
             break;
         // TODO: Add more mappers here        
         default:
-            std::cerr << "Unsupported mapper: " << (int) _mapperNumber << std::endl;
+            LOG_ERROR("Unsupported mapper: %d", (int)_mapperNumber);
             return false;
     }
 
     _loaded = true;
-    std::cout << "ROM loaded successfully: " << _filename << std::endl;
-    std::cout << GetRomInfo() << std::endl;
+    LOG_INFO("ROM loaded successfully: %s", _filename.c_str());
+    LOG_INFO("%s", GetRomInfo().c_str());
     
     return true;
 }
@@ -122,7 +123,7 @@ bool Cartridge::ParseHeader(const std::vector<uint8_t> &romData)
     if (header->name[0] != 'N' || header->name[1] != 'E'
         || header->name[2] != 'S' || header->name[3] != 0x1A)
     {
-        std::cerr << "Invalid iNES header" << std::endl;
+        LOG_ERROR("Invalid iNES header");
         return false;
     }
 
@@ -143,7 +144,7 @@ bool Cartridge::ParseHeader(const std::vector<uint8_t> &romData)
     // Check for NES 2.0 format
     if ((header->flags7 & 0x0C) == 0x08)
     {
-        std::cout << "NES 2.0 format detected!" << std::endl;
+        LOG_INFO("NES 2.0 format detected!");
         // For now, treat it as iNES;
     }
 
@@ -152,6 +153,8 @@ bool Cartridge::ParseHeader(const std::vector<uint8_t> &romData)
 
 uint8_t Cartridge::CPURead(uint16_t address)
 {
+    LOG_DEBUG("address=0x%04x", address);
+
     uint32_t mappedAddress = 0;
 
     // Check PRG-RAM range ($6000-$7FFF)
@@ -170,6 +173,8 @@ uint8_t Cartridge::CPURead(uint16_t address)
 
 void Cartridge::CPUWrite(uint16_t address, uint8_t data)
 {
+    LOG_DEBUG("address=0x%04x  data=0x%02x", address, data);
+
     uint32_t mappedAddress = 0;
 
     // Check PRG-RAM range ($6000-$7FFF)
@@ -190,6 +195,8 @@ void Cartridge::CPUWrite(uint16_t address, uint8_t data)
 
 uint8_t Cartridge::PPURead(uint16_t address)
 {
+    LOG_DEBUG("address=0x%04x", address);
+
     uint32_t mappedAddress = 0;
 
     if (_mapper->PPUMapRead(address, mappedAddress) && (mappedAddress < _chrROM.size()))
@@ -200,6 +207,8 @@ uint8_t Cartridge::PPURead(uint16_t address)
 
 void Cartridge::PPUWrite(uint16_t address, uint8_t data)
 {
+    LOG_DEBUG("address=0x%04x  data=0x%02x", address, data);
+
     uint32_t mappedAddress = 0;
 
     if (_mapper->PPUMapWrite(address, mappedAddress) && (mappedAddress < _chrROM.size()))
@@ -208,6 +217,7 @@ void Cartridge::PPUWrite(uint16_t address, uint8_t data)
 
 void Cartridge::Reset()
 {
+    LOG_INFO("Cartridge Reset");
     _mapper->Reset();
 }
 

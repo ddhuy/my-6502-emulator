@@ -1,6 +1,7 @@
 #include "PPU.h"
 #include "bus/Bus.h"
 #include "cartridge/Cartridge.h"
+#include "utils/Logger.h"
 
 
 PPU::PPU() 
@@ -19,7 +20,8 @@ PPU::PPU()
       _bus(nullptr),
 	  _cartridge(nullptr)
 {
-    
+    LOG_INFO("PPU Init");
+
     _ctrl.reg = 0;
     _mask.reg = 0;
     _status.reg = 0;
@@ -41,6 +43,8 @@ PPU::PPU()
 
 void PPU::Reset()
 {
+    LOG_INFO("PPU Reset");
+
     _ctrl.reg = 0;
     _mask.reg = 0;
     _status.reg = 0;
@@ -64,6 +68,8 @@ void PPU::Reset()
 
 uint8_t PPU::CPURead(uint16_t address)
 {
+    LOG_DEBUG("address=0x%04x", address);
+
     uint8_t data = 0x0;
 
     address &= 0x0007; // Mirror down to $2000-$2007
@@ -120,6 +126,8 @@ uint8_t PPU::CPURead(uint16_t address)
 
 void PPU::CPUWrite(uint16_t address, uint8_t data)
 {
+    LOG_DEBUG("address=0x%04x  data=0x%02x", address, data);
+
     address &= 0x0007; // Mirror down to $2000-$2007
 
     switch (address)
@@ -129,6 +137,7 @@ void PPU::CPUWrite(uint16_t address, uint8_t data)
             _ctrl.reg = data;
             _tramAddr.nametableX = _ctrl.nametableX;
             _tramAddr.nametableY = _ctrl.nametableY;
+            LOG_INFO("PPUCTRL 0x%02x", _ctrl.reg);
             break;
         }
 
@@ -203,6 +212,8 @@ void PPU::CPUWrite(uint16_t address, uint8_t data)
 
 uint8_t PPU::PPURead(uint16_t address)
 {
+    LOG_DEBUG("address=0x%04x", address);
+
     address &= 0x3FFF; // Mirror down to 14-bit address space
 
     // Pattern tables (CHR-ROM/RAM) - TODO: Connect to Cartridge
@@ -249,6 +260,8 @@ uint8_t PPU::PPURead(uint16_t address)
 
 void PPU::PPUWrite(uint16_t address, uint8_t data)
 {
+    LOG_DEBUG("address=0x%04x  data=0x%02x", address, data);
+
     address &= 0x3FFF; // Mirror down to 14-bit address space
 
     // Pattern tables - TODO: Some cartridges have CHR-RAM
@@ -292,16 +305,26 @@ void PPU::PPUWrite(uint16_t address, uint8_t data)
 
 void PPU::Clock()
 {
+    // ==========================================
+    // STEP 1: Visible scanlines and pre-render
+    // ==========================================
     // Visible scanlines (0-239) and pre-render scanline (261/-1)
     if (_scanline >= -1 && _scanline < 240)
     {
-        // Skip cycle 0 of scanline -1 on odd frames
+        // Clear flags at start of pre-render scanline
         if (_scanline == -1 && _cycle == 1)
         {
             _status.vblank = 0;
             _status.sprite0Hit = 0;
             _status.spriteOverflow = 0;
             _sprite0HitPossible = false;
+            _nmiOutput = false;
+        }
+
+        // Skip cycle 0 on odd frames (NTSC timing quirk)
+        if (_scanline == -1 && _cycle == 0 && (_frameCount & 1))
+        {
+            _cycle = 1;
         }
         
         if ((_cycle >= 2 && _cycle < 258) || (_cycle >= 321 && _cycle < 338))
@@ -376,10 +399,18 @@ void PPU::Clock()
         }
     }
     
+    // ==========================================
+    // STEP 3: VBlank scanlines (241-260)
+    // ==========================================
     // V-Blank scanlines (240-260)
-    if (_scanline == 241 && _cycle == 1) {
+    if (_scanline == 241 && _cycle == 1)
+    {
+        // Set VBlank flag
         _status.vblank = 1;
-        if (_ctrl.enableNMI) {
+        
+        // Trigger NMI if enabled
+        if (_ctrl.enableNMI)
+        {
             _nmiOutput = true;
         }
     }
@@ -480,12 +511,20 @@ void PPU::Clock()
         _screen[(_scanline * 256) + (_cycle - 1)] = colorIndex & 0x3F;
     }
     
-    // Advance renderer
+
+    // ==========================================
+    // STEP 4: Increment cycle and scanline
+    // THIS IS CRITICAL - MUST HAPPEN EVERY CLOCK!
+    // ==========================================
     _cycle++;
+    
+    // End of scanline (341 cycles per scanline)
     if (_cycle >= 341)
     {
         _cycle = 0;
         _scanline++;
+
+        // End of frame (262 scanlines: -1 to 260)
         if (_scanline >= 261)
         {
             _scanline = -1;

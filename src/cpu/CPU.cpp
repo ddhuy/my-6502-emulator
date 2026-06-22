@@ -3,10 +3,12 @@
 #include "Instructions.h"
 #include "bus/Bus.h"
 #include "memory/Memory.h"
+#include "utils/Logger.h"
 
 
 CPU::CPU() : _bus(nullptr)
 {
+    LOG_INFO("CPU Init");
 }
 
 CPU::~CPU()
@@ -20,6 +22,8 @@ void CPU::ConnectBus(Bus* bus)
 
 void CPU::Reset()
 {
+    LOG_INFO("CPU Reset");
+
     // Reset registers and flags
     A = X = Y = 0;
     SP = 0xFD; // Stack Pointer starts at 0xFD
@@ -142,19 +146,22 @@ const char* CPU::GetCurrentInstruction() const
 
 void CPU::Interrupt(uint16_t vector)
 {
-    PushStack16(PC); 
+    // Push PC to stack
+    PushStack16(PC);
 
     // Push status register with B=0, U=1
     PushStack((P & ~StatusFlag::F_BREAK) | StatusFlag::F_UNUSED);
 
-    SetFlag(StatusFlag::F_INTERRUPT, true); // Disable further interrupts
+    // Disable further interrupts
+    SetFlag(StatusFlag::F_INTERRUPT, true);
 
     // Load vector
     uint16_t lo = _bus->CPURead(vector);
     uint16_t hi = _bus->CPURead(vector + 1);
     PC = (hi << 8) | lo;
 
-    _cycles = 7; // Interrupt handling takes 7 cycles
+    // Interrupt handling takes 7 cycles
+    _cycles = 7; 
 }
 
 
@@ -168,11 +175,13 @@ void CPU::Clock()
     {
         if (_nmiPending)
         {
+            LOG_INFO("NMI Interrupt");
             _nmiPending = false;
             Interrupt(0xFFFA); // NMI vector
         }
         else if (_irqPending && !GetFlag(StatusFlag::F_INTERRUPT))
         {
+            LOG_INFO("IRQ Interrupt");
             _irqPending = false;
             Interrupt(0xFFFE); // IRQ vector
         }
@@ -191,7 +200,6 @@ void CPU::Clock()
             
             // Add extra cycle only if BOTH addressing mode AND operation require it
             _cycles += (additionalCycle1 & additionalCycle2);
-
         }
     }
 

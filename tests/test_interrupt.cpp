@@ -4,8 +4,8 @@
 TEST_F(CPUTest, NMI_TriggersInterrupt)
 {
     // Arrange
-    bus.Write(0xFFFA, 0x00); // NMI vector low byte
-    bus.Write(0xFFFB, 0x80); // NMI vector high byte
+    bus.CPUWrite(0xFFFA, 0x00); // NMI vector low byte
+    bus.CPUWrite(0xFFFB, 0x80); // NMI vector high byte
 
     uint16_t initial_pc = cpu.PC;
 
@@ -24,12 +24,12 @@ TEST_F(CPUTest, NMI_TriggersInterrupt)
     EXPECT_NE(pc_after, initial_pc); // PC should have changed
 
     // Check that the stack contains the correct return address and status
-    uint8_t status = bus.Read(0x0100 + cpu.SP + 1);
+    uint8_t status = bus.CPURead(0x0100 + cpu.SP + 1);
     EXPECT_EQ(status & CPU::StatusFlag::F_UNUSED, CPU::StatusFlag::F_UNUSED); // Unused flag should be set
     EXPECT_TRUE(cpu.GetFlag(CPU::StatusFlag::F_INTERRUPT)); // the Interrupt Disable should be set
 
-    uint8_t pcl = bus.Read(0x0100 + cpu.SP + 2);
-    uint8_t pch = bus.Read(0x0100 + cpu.SP + 3);
+    uint8_t pcl = bus.CPURead(0x0100 + cpu.SP + 2);
+    uint8_t pch = bus.CPURead(0x0100 + cpu.SP + 3);
     uint16_t return_address = (pch << 8) | pcl;
     EXPECT_EQ(return_address, initial_pc);
 }
@@ -38,11 +38,11 @@ TEST_F(CPUTest, NMI_TriggersInterrupt)
 TEST_F(CPUTest, NMI_AlwaysTakesPrecedenceOverIRQ)
 {
     // Arrange
-    bus.Write(0xFFFA, 0x00); // NMI vector low byte
-    bus.Write(0xFFFB, 0x80); // NMI vector high byte
+    bus.CPUWrite(0xFFFA, 0x00); // NMI vector low byte
+    bus.CPUWrite(0xFFFB, 0x80); // NMI vector high byte
 
-    bus.Write(0xFFFE, 0x00); // IRQ vector low byte
-    bus.Write(0xFFFF, 0x90); // IRQ vector high byte
+    bus.CPUWrite(0xFFFE, 0x00); // IRQ vector low byte
+    bus.CPUWrite(0xFFFF, 0x90); // IRQ vector high byte
 
     uint16_t initial_pc = cpu.PC;
 

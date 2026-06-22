@@ -46,6 +46,59 @@ public:
         
         return oss.str();
     }
+    
+    static std::string LogState(CPU& cpu)
+    {
+        std::ostringstream oss;
+        oss << std::hex << std::uppercase << std::setfill('0');
+        
+        uint16_t pc = cpu.PC;
+        auto addrmode = INSTRUCTION_TABLE[cpu.GetOpcode()].addrMode;
+        const char* mnemonic = INSTRUCTION_TABLE[cpu.GetOpcode()].name;        
+
+        // PC and opcode bytes
+        oss << std::setw(4) << pc << "  ";
+        
+        int length = GetInstructionBytes(addrmode);
+        for (int i = 0; i < length; i++)
+        {
+            oss << std::setw(2) << (int)cpu.ReadMemory(pc + i) << " ";
+        }
+        
+        // Padding to align instruction (nestest uses 3 bytes max)
+        for (int i = length; i < 3; i++)
+        {
+            oss << "   ";
+        }
+        
+        // Instruction
+        oss << std::hex << std::uppercase << std::setfill(' ');
+        oss << " " << std::setw(32) << std::left << FormatOperand(cpu, pc, addrmode);
+        
+        // Registers
+        oss << "A:"  << std::setw(2) << std::setfill('0') << std::right << (int)cpu.A << " ";
+        oss << "X:"  << std::setw(2) << std::setfill('0') << std::right << (int)cpu.X << " ";
+        oss << "Y:"  << std::setw(2) << std::setfill('0') << std::right << (int)cpu.Y << " ";
+        oss << "P:"  << std::setw(2) << std::setfill('0') << std::right << (int)cpu.P << " ";
+        oss << "SP:" << std::setw(2) << std::setfill('0') << std::right << (int)cpu.SP << " ";
+
+        // PPU
+        uint64_t ppu_cycles = cpu.GetTotalCycles() * 3;
+
+        int scanline = (ppu_cycles / 341) % 262;
+        int dot = ppu_cycles % 341;
+
+        oss << "PPU:"
+            << std::dec << std::setw(3) << std::setfill(' ') << std::right
+            << scanline << ","
+            << std::dec << std::setw(3) << std::setfill(' ') << std::right
+            << dot << " ";
+        
+        // Cycles (PPU cycles = CPU cycles * 3)
+        oss << "CYC:" << std::dec << cpu.GetTotalCycles() << std::endl;
+        
+        return oss.str();
+    }
 
 private:
     static int GetInstructionBytes(AddressModeFunc addrMode)

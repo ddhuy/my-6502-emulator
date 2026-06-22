@@ -2,6 +2,7 @@
 #include "bus/Bus.h"
 #include "cpu/CPU.h"
 #include "memory/Memory.h"
+#include "cartridge/Cartridge.h"
 
 
 class CPUTest : public ::testing::Test
@@ -18,6 +19,7 @@ protected:
     Memory memory;
     Bus bus;
     CPU cpu;
+    Cartridge cartridge;
 
     void SetUp() override;
 

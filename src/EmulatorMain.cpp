@@ -8,13 +8,14 @@
 #include "ppu/PPU.h"
 #include "ppu/Display.h"
 #include "cartridge/Cartridge.h"
+#include "utils/Logger.h"
 
 
 int main(int argc, char **argv)
 {
-    std::cout << "+===========================+" << std::endl;
-    std::cout << "|      My NES Emulator      |" << std::endl;
-    std::cout << "+===========================+" << std::endl;
+    LOG_INFO("+===========================+");
+    LOG_INFO("|      My NES Emulator      |");
+    LOG_INFO("+===========================+");
 
     std::unique_ptr<Bus>    bus = std::make_unique<Bus>();
     std::unique_ptr<Memory> memory = std::make_unique<Memory>();
@@ -35,14 +36,14 @@ int main(int argc, char **argv)
     // Initialize display
     if (!display->Init())
     {
-        std::cerr << "Failed to initialize display" << std::endl;
+        LOG_ERROR("Failed to initialize display");
         return -1;
     }
-    std::cout << "Display initialized successfully!" << std::endl;
+    LOG_INFO("Display initialized successfully!");
 
     // Reset system
     bus->Reset();
-    std::cout << "CPU initialized successfully!" << std::endl;
+    LOG_INFO("CPU initialized successfully!");
 
     // Load ROM file here
     bool romLoaded = false;
@@ -55,13 +56,13 @@ int main(int argc, char **argv)
         }
         else
         {
-            std::cerr << "Failed to load ROM, running test pattern instead" << std::endl;
+            LOG_ERROR("Failed to load ROM, running test pattern instead");
         }
     }
 
     if (!romLoaded)
     {
-		std::cout << "Creating test pattern..." << std::endl;
+		LOG_INFO("Creating test pattern...");
 
         // Create some simple pattern data (2 tiles: solid and checkered)
         // Tile 0: Solid tile
@@ -115,7 +116,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        std::cout << "ROM loaded, starting emulation..." << std::endl;
+        LOG_INFO("ROM loaded, starting emulation...");
         
         // For real ROMs, the game will setup rendering
         // But we can enable it here to see something.
@@ -126,7 +127,7 @@ int main(int argc, char **argv)
     }
 
     // Main emulation loop
-    std::cout << "Entering main loop... (Press ESC to exit)" << std::endl;
+    LOG_INFO("Entering main loop... (Press ESC to exit)");
 
     uint64_t frameCount = 0;
     
@@ -156,11 +157,11 @@ int main(int argc, char **argv)
         // Print FPS
         frameCount++;
         if (frameCount % 60 == 0)
-            std::cout << "\rFrame: " << frameCount << std::flush;
+            LOG_INFO("Frame: %ld", frameCount);
     }
 
-    std::cout << std::endl << "Total frames rendered: " << frameCount;
-    std::cout << std::endl << "Emulator shutting down..." << std::endl;
+    LOG_INFO("Total frames rendered: %ld", frameCount);
+    LOG_INFO("Emulator shutting down...");
     // display->Shutdown();
 
     return 0;

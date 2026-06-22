@@ -3,6 +3,8 @@
 #include "ppu/PPU.h"
 #include "memory/Memory.h"
 #include "cartridge/Cartridge.h"
+#include "utils/Logger.h"
+#include "utils/Disassembler.h"
 
 
 Bus::Bus()
@@ -47,6 +49,8 @@ void Bus::InsertCartridge(Cartridge* cart)
 
 uint8_t Bus::CPURead(uint16_t address) const
 {
+    LOG_DEBUG("address=0x%04x", address);
+
     // Cartridge space ($4020-$FFFF, but mostly $6000-$FFFF)
     if (_cartridge && address >= 0x6000)
     {
@@ -72,6 +76,8 @@ uint8_t Bus::CPURead(uint16_t address) const
 
 void Bus::CPUWrite(uint16_t address, uint8_t data)
 {
+    LOG_DEBUG("address=0x%04x data=0x%02x", address, data);
+
     // Cartridge space
     if (address >= 0x6000)
     {
@@ -109,6 +115,8 @@ void Bus::CPUWrite(uint16_t address, uint8_t data)
 
 void Bus::Reset()
 {
+    LOG_INFO("Bus Reset");
+
     _systemClockCounter = 0;
     if (_cpu) _cpu->Reset();
     if (_ppu) _ppu->Reset();
@@ -122,8 +130,10 @@ void Bus::Clock()
     
     // CPU runs every 3 PPU clocks
     if (_systemClockCounter % 3 == 0)
+    {
         _cpu->Clock();
-
+    }
+    
     // Check for NMI from PPU
     if (_ppu->NMIOccurred())
     {
@@ -131,6 +141,7 @@ void Bus::Clock()
         
         // Trigger NMI on CPU
         _cpu->NMI();
+        // _cpu->Interrupt(0xFFFA);
     }
 
     // Increase Clock
