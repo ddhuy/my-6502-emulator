@@ -79,7 +79,7 @@ void Bus::CPUWrite(uint16_t address, uint8_t data)
     LOG_DEBUG("address=0x%04x data=0x%02x", address, data);
 
     // Cartridge space
-    if (address >= 0x6000)
+    if (_cartridge && address >= 0x6000)
     {
         _cartridge->CPUWrite(address, data);
     }

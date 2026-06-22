@@ -41,10 +41,6 @@ int main(int argc, char **argv)
     }
     LOG_INFO("Display initialized successfully!");
 
-    // Reset system
-    bus->Reset();
-    LOG_INFO("CPU initialized successfully!");
-
     // Load ROM file here
     bool romLoaded = false;
     if (argc >= 2)
@@ -59,6 +55,14 @@ int main(int argc, char **argv)
             LOG_ERROR("Failed to load ROM, running test pattern instead");
         }
     }
+    else
+    {
+        LOG_INFO("No ROM specified, running test pattern");
+    }
+
+    // Reset system
+    bus->Reset();
+    LOG_INFO("CPU initialized successfully!");
 
     if (!romLoaded)
     {
@@ -117,13 +121,6 @@ int main(int argc, char **argv)
     else
     {
         LOG_INFO("ROM loaded, starting emulation...");
-        
-        // For real ROMs, the game will setup rendering
-        // But we can enable it here to see something.
-        ppu->CPUWrite(0x2001, 0x1E); // Enable rendering. 
-
-        // Some ROMs might need NMI enabled
-        ppu->CPUWrite(0x2000, 0x80); // Enable NMI.
     }
 
     // Main emulation loop

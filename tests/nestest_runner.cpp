@@ -54,7 +54,7 @@ public:
         }
 
         // Get PRG ROM size (int 16KB units)
-        int prgSize = header[4] + 0x4000;
+        int prgSize = header[4] * 0x4000;
 
         // Read PRG ROM (16KB)
         std::vector<uint8_t> prgRom(prgSize);
