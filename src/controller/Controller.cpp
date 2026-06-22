@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Controller.h"
 #include "utils/Logger.h"
 
@@ -11,7 +13,11 @@ void Controller::Write(uint8_t data)
 {
     _strobe = (data & 0x01);
     if (_strobe)
+    {
         _shift = _buttons; // while strob is high, register tracks live state
+        if (_buttons)
+            std::cerr << "latch buttons=0x" << std::hex << (int)_buttons << "\n";
+    }
 }
 
 

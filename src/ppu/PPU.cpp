@@ -1,8 +1,18 @@
+#include <iostream>
+
 #include "PPU.h"
 #include "bus/Bus.h"
 #include "cartridge/Cartridge.h"
 #include "utils/Logger.h"
 
+
+static uint8_t ReverseByte(uint8_t b)
+{
+    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+    return b;
+}
 
 PPU::PPU() 
     : _oamAddress(0),
@@ -458,6 +468,12 @@ void PPU::Clock()
                         if (i == 0)
                         {
                             _sprite0Rendering = true;
+                            // TEMP diagnostic
+                            static int dbg = 0;
+                            if (dbg++ < 100)
+                                std::cerr << "spr0 opaque sl=" << std::dec << _scanline
+                                        << " cyc=" << _cycle
+                                        << " bg=" << (int)bgPixel << "\n";
                         }
                         break;
                     }
@@ -498,10 +514,23 @@ void PPU::Clock()
                     if (!(_mask.showBgLeft || _mask.showSpritesLeft))
                     {
                         if (_cycle >= 9 && _cycle < 258)
+                        {
+                            // in the sprite 0 hit block, just before setting it
+                            if (!_status.sprite0Hit)
+                                std::cerr << "sprite0 hit @ scanline " << std::dec << _scanline
+                                        << " cycle " << _cycle << "\n";
+
                             _status.sprite0Hit = 1;
+                        }
                     } else {
                         if (_cycle >= 1 && _cycle < 258)
+                        {
+                            if (!_status.sprite0Hit)
+                                std::cerr << "sprite0 hit @ scanline " << std::dec << _scanline
+                                        << " cycle " << _cycle << "\n";
+
                             _status.sprite0Hit = 1;
+                        }
                     }
                 }
             }
@@ -640,40 +669,57 @@ void PPU::EvaluateSprites()
 {
     _spriteCount = 0;
     _sprite0HitPossible = false;
-    
-    for (uint8_t i = 0; i < _spriteCount; i++)
-    {
-        _spriteShifterPatternLo[i] = 0;
-        _spriteShifterPatternHi[i] = 0;
-    }
-    
+    _sprite0Rendering   = false;   // reset each scanline so the hit can re-arm
+
     uint8_t oamEntry = 0;
-    _spriteCount = 0;
-    
+
     while (oamEntry < 64 && _spriteCount < 9)
     {
-        int16_t diff = ((int16_t)_scanline - (int16_t)_oam[oamEntry * 4]);
-        
+        int16_t diff = (int16_t)_scanline - (int16_t)_oam[oamEntry * 4];
+
         if (diff >= 0 && diff < (_ctrl.spriteSize ? 16 : 8) && _spriteCount < 8)
         {
-            if (_spriteCount < 8)
+            if (oamEntry == 0)
+                _sprite0HitPossible = true;
+
+            SpriteData& s = _spriteScanline[_spriteCount];
+            s.y         = _oam[oamEntry * 4 + 0];
+            s.tileId    = _oam[oamEntry * 4 + 1];
+            s.attribute = _oam[oamEntry * 4 + 2];
+            s.x         = _oam[oamEntry * 4 + 3];
+
+            // --- fetch this sprite's pattern bytes into the shifters ---
+            uint8_t  row   = (uint8_t)diff;
+            bool     flipV = (s.attribute & 0x80);
+            bool     flipH = (s.attribute & 0x40);
+            uint16_t addr;
+
+            if (!_ctrl.spriteSize)            // 8x8
             {
-                if (oamEntry == 0)
-                {
-                    _sprite0HitPossible = true;
-                }
-                
-                _spriteScanline[_spriteCount].y = _oam[oamEntry * 4];
-                _spriteScanline[_spriteCount].tileId = _oam[oamEntry * 4 + 1];
-                _spriteScanline[_spriteCount].attribute = _oam[oamEntry * 4 + 2];
-                _spriteScanline[_spriteCount].x = _oam[oamEntry * 4 + 3];
-                
-                _spriteCount++;
+                if (flipV) row = 7 - row;
+                addr = (_ctrl.spritePattern << 12) | (s.tileId << 4) | row;
             }
+            else                              // 8x16
+            {
+                if (flipV) row = 15 - row;
+                uint16_t bank = (s.tileId & 0x01) << 12;
+                uint8_t  tile = (s.tileId & 0xFE) + (row >= 8 ? 1 : 0);
+                addr = bank | (tile << 4) | (row & 0x07);
+            }
+
+            uint8_t lo = PPURead(addr);
+            uint8_t hi = PPURead(addr + 8);
+            if (flipH) { lo = ReverseByte(lo); hi = ReverseByte(hi); }
+
+            _spriteShifterPatternLo[_spriteCount] = lo;
+            _spriteShifterPatternHi[_spriteCount] = hi;
+            // -----------------------------------------------------------
+
+            _spriteCount++;
         }
         oamEntry++;
     }
-    
+
     if (_spriteCount > 8)
     {
         _status.spriteOverflow = 1;
