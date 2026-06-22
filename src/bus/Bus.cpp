@@ -47,7 +47,7 @@ void Bus::InsertCartridge(Cartridge* cart)
     }
 }
 
-uint8_t Bus::CPURead(uint16_t address) const
+uint8_t Bus::CPURead(uint16_t address)
 {
     LOG_DEBUG("address=0x%04x", address);
 
@@ -61,17 +61,24 @@ uint8_t Bus::CPURead(uint16_t address) const
     {
         return _ppu ? _ppu->CPURead(address) : 0x00;
     }
+    // Controller readers: $4016 for controller 1, $4017 for controller 2
+    else if (address == 0x4016 || address == 0x4017)
+    {
+        uint8_t index = address & 0x0001; // 0 for $4016, 1 for $4017
+        return _controllers[index].Read();
+    }
     // APU and I/O registers ($4000-$4017)
     else if (0x4000 <= address && address < 0x4020)
     {
-		// TODO: implement APU and controller readers
-        return 0x00;
+
     }
     // RAM & mirrors ($0000-$1FFF)
     else
     {
         return _memory->Read(address);
     }
+
+    return 0x00; // Default return value for unmapped addresses
 }
 
 void Bus::CPUWrite(uint16_t address, uint8_t data)
@@ -101,10 +108,16 @@ void Bus::CPUWrite(uint16_t address, uint8_t data)
         // DMA takes 513 or 514 cycles
         // TODO: Add proper cycle counting.
     }
+    // Controller strobe ($4016)
+    else if (address == 0x4016)
+    {
+        _controllers[0].Write(data);
+        _controllers[1].Write(data);
+    }
     // APU and I/O registers ($4000-$4017)
     else if (0x4000 <= address && address < 0x4020)
     {
-        // TODO: implement APU & Controller writes
+        // TODO: implement APU writes
     }
     // RAM & mirrors ($0000-$1FFF)
     else
@@ -146,4 +159,10 @@ void Bus::Clock()
 
     // Increase Clock
     _systemClockCounter++;
+}
+
+void Bus::SetControllerState(int index, uint8_t state)
+{
+    if (index == 0 || index == 1)
+        _controllers[index].SetButtons(state);
 }

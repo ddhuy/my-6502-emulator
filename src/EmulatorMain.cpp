@@ -133,6 +133,9 @@ int main(int argc, char **argv)
         // Handle input events
         display->HandleEvents();
 
+        // Poll pad 1 and hand it to the bus before clocking the frame
+        bus->SetControllerState(0, display->GetController1State());
+
         // Clock the system until frame is complete
         do
         {

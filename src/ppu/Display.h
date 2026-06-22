@@ -21,6 +21,9 @@ public:
     void HandleEvents();
     void Shutdown();
 
+    // Read the keyboard and pack it into an NES controller byte.
+    uint8_t GetController1State() const;
+
     static constexpr int NES_WIDTH = 256;
     static constexpr int NES_HEIGHT = 240;
 

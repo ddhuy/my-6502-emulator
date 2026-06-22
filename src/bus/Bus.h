@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <memory>
 
+#include "controller/Controller.h"
+
 // Forward Declarations
 class CPU;
 class PPU;
@@ -25,7 +27,7 @@ public:
     void InsertCartridge(Cartridge* cart);
 
     // CPU Read/Write operations
-    uint8_t CPURead(uint16_t address) const;
+    uint8_t CPURead(uint16_t address);
     void CPUWrite(uint16_t address, uint8_t value);
 
     // System operations
@@ -36,6 +38,9 @@ public:
     PPU* GetPPU() { return _ppu; }
     Cartridge* GetCartridge() { return _cartridge; }
 
+    // Controller input
+    void SetControllerState(int index, uint8_t state);
+
 private:
     CPU*        _cpu;
     PPU*        _ppu;
@@ -44,6 +49,9 @@ private:
 
     // System clock counter
     uint64_t _systemClockCounter;
+
+    // Controller Input
+    Controller _controllers[2];
 };
 
 

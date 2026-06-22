@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Display.h"
+#include "controller/Controller.h"
 #include "utils/Logger.h"
 
 
@@ -142,4 +143,21 @@ void Display::Shutdown()
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     SDL_Quit();
+}
+
+uint8_t Display::GetController1State() const
+{
+    uint8_t state = 0x00;
+    const uint8_t* keys = SDL_GetKeyboardState(nullptr);
+
+    if (keys[SDL_SCANCODE_Z])      state |= Controller::Button::A;
+    if (keys[SDL_SCANCODE_X])      state |= Controller::Button::B;
+    if (keys[SDL_SCANCODE_RSHIFT]) state |= Controller::Button::SELECT;
+    if (keys[SDL_SCANCODE_RETURN]) state |= Controller::Button::START;
+    if (keys[SDL_SCANCODE_UP])     state |= Controller::Button::UP;
+    if (keys[SDL_SCANCODE_DOWN])   state |= Controller::Button::DOWN;
+    if (keys[SDL_SCANCODE_LEFT])   state |= Controller::Button::LEFT;
+    if (keys[SDL_SCANCODE_RIGHT])  state |= Controller::Button::RIGHT;
+
+    return state;
 }
