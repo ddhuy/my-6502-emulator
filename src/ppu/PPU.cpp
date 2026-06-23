@@ -147,7 +147,7 @@ void PPU::CPUWrite(uint16_t address, uint8_t data)
             _ctrl.reg = data;
             _tramAddr.nametableX = _ctrl.nametableX;
             _tramAddr.nametableY = _ctrl.nametableY;
-            LOG_INFO("PPUCTRL 0x%02x", _ctrl.reg);
+            // LOG_INFO("PPUCTRL 0x%02x", _ctrl.reg);
             break;
         }
 
