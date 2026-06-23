@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
 #include "bus/Bus.h"
-#include "cpu/CPU.h"
-#include "memory/Memory.h"
-#include "cartridge/Cartridge.h"
 
 
 class CPUTest : public ::testing::Test

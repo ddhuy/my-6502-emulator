@@ -54,7 +54,6 @@ public:
         
         uint16_t pc = cpu.PC;
         auto addrmode = INSTRUCTION_TABLE[cpu.GetOpcode()].addrMode;
-        const char* mnemonic = INSTRUCTION_TABLE[cpu.GetOpcode()].name;        
 
         // PC and opcode bytes
         oss << std::setw(4) << pc << "  ";

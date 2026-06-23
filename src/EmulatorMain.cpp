@@ -3,11 +3,7 @@
 #include <iostream>
 
 #include "bus/Bus.h"
-#include "cpu/CPU.h"
-#include "memory/Memory.h"
-#include "ppu/PPU.h"
 #include "ppu/Display.h"
-#include "cartridge/Cartridge.h"
 #include "utils/Logger.h"
 
 

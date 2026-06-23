@@ -4,13 +4,11 @@
 #include <cstdint>
 #include <memory>
 
+#include "cartridge/Cartridge.h"
+#include "cpu/CPU.h"
 #include "controller/Controller.h"
-
-// Forward Declarations
-class CPU;
-class PPU;
-class Memory;
-class Cartridge;
+#include "memory/Memory.h"
+#include "ppu/PPU.h"
 
 
 class Bus

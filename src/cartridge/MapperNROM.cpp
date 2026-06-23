@@ -12,7 +12,7 @@ bool MapperNROM::CPUMapRead(uint16_t address, uint32_t &mappedAddress)
     LOG_DEBUG("address=0x%04x  mappedAddress=0x%04x", address, mappedAddress);
 
     // CPU Address range: $8000-$FFFF
-    if (0x8000 <= address && address <= 0xFFFF)
+    if (0x8000 <= address)
     {
         // If only 1 PRG bank (16KB), mirror it
         // If 2 PRG banks (32KB), use both
@@ -45,7 +45,7 @@ bool MapperNROM::PPUMapRead(uint16_t address, uint32_t &mappedAddress)
     LOG_DEBUG("address=0x%04x  mappedAddress=0x%02x", address, mappedAddress);
 
     // PPU address range: $0000-$1FFF (pattern table)
-    if (0x0000 <= address && address < 0x2000)
+    if (address < 0x2000)
     {
         mappedAddress = address;
         return true;
@@ -59,7 +59,7 @@ bool MapperNROM::PPUMapWrite(uint16_t address, uint32_t &mappedAddress)
     LOG_DEBUG("address=0x%04x  mappedAddress=0x%02x", address, mappedAddress);
 
     // If there is no CHR-ROM (chrBanks == 0), then we have CHR-RAM
-    if (0x0000 <= address && address < 0x2000)
+    if (address < 0x2000)
     {
         if (_chrBanks == 0)
         {

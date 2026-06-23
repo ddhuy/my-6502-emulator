@@ -5,9 +5,7 @@
 #include <vector>
 
 #include "bus/Bus.h"
-#include "cpu/CPU.h"
 #include "cpu/Instructions.h"
-#include "memory/Memory.h"
 
 
 class NESTestRunner
