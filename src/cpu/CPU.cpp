@@ -175,7 +175,7 @@ void CPU::Clock()
     {
         if (_nmiPending)
         {
-            LOG_INFO("NMI Interrupt");
+            // LOG_INFO("NMI Interrupt");
             _nmiPending = false;
             Interrupt(0xFFFA); // NMI vector
         }
@@ -442,23 +442,12 @@ uint8_t CPU::ADC()
 {
     Fetch();
     uint16_t result = A + _fetched + (GetFlag(F_CARRY) ? 1 : 0);
-    
-    SetFlag(F_OVERFLOW, (~(A ^ _fetched) & (A ^ result) & 0x80) != 0);
-
-    if (GetFlag(StatusFlag::F_DECIMAL))
-    {
-        if (((A & 0xFF) + (_fetched & 0xFF) + (GetFlag(StatusFlag::F_CARRY) ? 1 : 0)) > 9)
-            result += 0x06;
-        if (result > 0x99)
-            result += 0x60;
-    }
 
     SetFlag(F_CARRY, result > 0xFF);
-    
+    SetFlag(F_OVERFLOW, (~(A ^ _fetched) & (A ^ result) & 0x80) != 0);
+
     A = result & 0xFF;
-
     UpdateZN(A);
-
     return 1;  // Can use extra cycle
 }
 
@@ -467,10 +456,10 @@ uint8_t CPU::SBC()
     Fetch();
     uint16_t value = _fetched ^ 0xFF;  // Invert for subtraction
     uint16_t result = A + value + (GetFlag(F_CARRY) ? 1 : 0);
-    
+
     SetFlag(F_CARRY, result > 0xFF);
     SetFlag(F_OVERFLOW, (~(A ^ value) & (A ^ result) & 0x80) != 0);
-    
+
     A = result & 0xFF;
     UpdateZN(A);
     return 1;  // Can use extra cycle
