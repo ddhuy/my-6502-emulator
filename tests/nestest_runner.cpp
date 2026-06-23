@@ -99,6 +99,46 @@ public:
         return 1;
     }
 
+    // Returns true and sets effAddr to the effective memory address for modes
+    // that nestest annotates with " = XX". Returns false for modes that don't.
+    bool GetEffectiveAddress(uint16_t address, uint16_t& effAddr)
+    {
+        uint8_t opcode = cpu.ReadMemory(address);
+        auto addrmode  = INSTRUCTION_TABLE[opcode].addrMode;
+        const char* mn = INSTRUCTION_TABLE[opcode].name;
+
+        uint8_t op1 = cpu.ReadMemory(address + 1);
+        uint8_t op2 = cpu.ReadMemory(address + 2);
+
+        // JMP/JSR print the target, not a "= value", so skip them.
+        bool isJump = (mn[0] == 'J');
+
+        if (addrmode == &CPU::ZP0) {
+            effAddr = op1;                              return true;
+        } else if (addrmode == &CPU::ZPX) {
+            effAddr = (uint8_t)(op1 + cpu.X);           return true;  // wraps in page 0
+        } else if (addrmode == &CPU::ZPY) {
+            effAddr = (uint8_t)(op1 + cpu.Y);           return true;
+        } else if (addrmode == &CPU::ABS) {
+            if (isJump) return false;
+            effAddr = op1 | (op2 << 8);                 return true;
+        } else if (addrmode == &CPU::ABX) {
+            effAddr = (op1 | (op2 << 8)) + cpu.X;       return true;
+        } else if (addrmode == &CPU::ABY) {
+            effAddr = (op1 | (op2 << 8)) + cpu.Y;       return true;
+        } else if (addrmode == &CPU::IZX) {
+            uint8_t ptr = (uint8_t)(op1 + cpu.X);
+            uint8_t lo  = cpu.ReadMemory(ptr);
+            uint8_t hi  = cpu.ReadMemory((uint8_t)(ptr + 1));
+            effAddr = lo | (hi << 8);                   return true;
+        } else if (addrmode == &CPU::IZY) {
+            uint8_t lo = cpu.ReadMemory(op1);
+            uint8_t hi = cpu.ReadMemory((uint8_t)(op1 + 1));
+            effAddr = (lo | (hi << 8)) + cpu.Y;         return true;
+        }
+        return false;  // IMM, IMP, ACC, REL, JMP/JSR — no "= XX"
+    }
+
     std::string FormatInstruction(uint16_t address)
     {
         uint8_t opcode = cpu.ReadMemory(address);
@@ -147,6 +187,12 @@ public:
             int8_t offset = (int8_t)op1;
             uint16_t target = address + 2 + offset;
             oss << "$" << std::setw(4) << target;
+        }
+
+        uint16_t effAddr;
+        if (GetEffectiveAddress(address, effAddr))
+        {
+            oss << " = " << std::setw(2) << (int)cpu.ReadMemory(effAddr);
         }
         
         return oss.str();
