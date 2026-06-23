@@ -11,7 +11,7 @@ LDFLAGS   := -lpthread -lSDL2
 BUILD ?= debug
 
 ifeq ($(BUILD),debug)
-    CXXFLAGS += -O0 -g \
+    CXXFLAGS += -O2 -g \
                 -fsanitize=address,undefined \
                 -fno-omit-frame-pointer
 else ifeq ($(BUILD),release)
