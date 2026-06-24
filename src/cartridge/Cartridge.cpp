@@ -6,6 +6,8 @@
 #include "Cartridge.h"
 #include "Mapper.h"
 #include "MapperNROM.h"
+#include "MapperUxROM.h"
+#include "MapperCNROM.h"
 #include "utils/Logger.h"
 
 
@@ -102,7 +104,12 @@ bool Cartridge::LoadFromFile(const std::string &filename)
         case 0:
             _mapper = std::make_unique<MapperNROM>(_prgRomBanks, _chrRomBanks);
             break;
-        // TODO: Add more mappers here        
+        case 2:
+            _mapper = std::make_unique<MapperUxROM>(_prgRomBanks, _chrRomBanks);
+            break;
+        case 3:
+            _mapper = std::make_unique<MapperCNROM>(_prgRomBanks, _chrRomBanks);
+            break;
         default:
             LOG_ERROR("Unsupported mapper: %d", (int)_mapperNumber);
             return false;

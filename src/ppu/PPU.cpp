@@ -76,6 +76,38 @@ void PPU::Reset()
     _bgShifters.attributeHi = 0;
 }
 
+// address here is already masked to 0x0000-0x0FFF (the 4 logical nametables)
+uint16_t PPU::MapNametable(uint16_t address) const
+{
+    MirrorMode mode = _cartridge ? _cartridge->GetMirrorMode()
+                                 : MIRROR_MODE_HORIZONTAL;
+    uint16_t table = (address & 0x0C00) >> 10;  // which of the 4 logical NTs (0-3)
+    uint16_t offset = address & 0x03FF;
+
+    uint16_t physical = 0; // which physical 1KB nametable (0 or 1)
+    switch (mode)
+    {
+        case MIRROR_MODE_VERTICAL:
+            // NT0,NT2 -> physical 0 ; NT1,NT3 -> physical 1
+            physical = (table & 0x01);
+            break;
+        case MIRROR_MODE_HORIZONTAL:
+            // NT0,NT1 -> physical 0 ; NT2,NT3 -> physical 1
+            physical = (table >> 1);
+            break;
+        case MIRROR_MODE_ONE_SCREEN_LOWER:
+            physical = 0;
+            break;
+        case MIRROR_MODE_ONE_SCREEN_UPPER:
+            physical = 1;
+            break;
+        default:
+            physical = (table >> 1); // treat unknown as horizontal
+            break;
+    }
+    return physical * 0x0400 + offset;
+}
+
 uint8_t PPU::CPURead(uint16_t address)
 {
     LOG_DEBUG("address=0x%04x", address);
@@ -239,17 +271,7 @@ uint8_t PPU::PPURead(uint16_t address)
     else if (address < 0x3F00)
     {
         address &= 0x0FFF;
-
-        // Mirror nametables (horizontal mirroring for now)
-        // TODO: Proper mirroring based cartridge
-        if (address < 0x0400)
-            return _nametable[address & 0x03FF];
-        else if (address < 0x0800)
-            return _nametable[address & 0x03FF];
-        else if (address < 0x0C00)
-            return _nametable[(address & 0x03FF) + 0x0400];
-        else
-            return _nametable[(address & 0x03FF) + 0x0400];
+        return _nametable[MapNametable(address)];
     }
     // Palette RAM
     else if (address < 0x4000)
@@ -287,15 +309,7 @@ void PPU::PPUWrite(uint16_t address, uint8_t data)
     else if (address < 0x3F00)
     {
         address &= 0x0FFF;
-
-        if (address < 0x0400)
-            _nametable[address & 0x03FF] = data;
-        else if (address < 0x0800)
-            _nametable[address & 0x03FF] = data;
-        else if (address < 0x0C00)
-            _nametable[(address & 0x03FF) + 0x0400] = data;
-        else
-            _nametable[(address & 0x03FF) + 0x0400] = data;
+        _nametable[MapNametable(address)] = data;
     }
     // Palette RAM
     else if (address < 0x4000)

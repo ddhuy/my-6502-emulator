@@ -194,6 +194,8 @@ private:
     void LoadBackgroundShifters();
     void UpdateShifters();
     
+    uint16_t MapNametable(uint16_t address) const;
+
     // Sprite evaluation
     void EvaluateSprites();
     
