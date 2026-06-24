@@ -468,12 +468,6 @@ void PPU::Clock()
                         if (i == 0)
                         {
                             _sprite0Rendering = true;
-                            // TEMP diagnostic
-                            static int dbg = 0;
-                            if (dbg++ < 100)
-                                std::cerr << "spr0 opaque sl=" << std::dec << _scanline
-                                        << " cyc=" << _cycle
-                                        << " bg=" << (int)bgPixel << "\n";
                         }
                         break;
                     }
@@ -515,20 +509,11 @@ void PPU::Clock()
                     {
                         if (_cycle >= 9 && _cycle < 258)
                         {
-                            // in the sprite 0 hit block, just before setting it
-                            if (!_status.sprite0Hit)
-                                std::cerr << "sprite0 hit @ scanline " << std::dec << _scanline
-                                        << " cycle " << _cycle << "\n";
-
                             _status.sprite0Hit = 1;
                         }
                     } else {
                         if (_cycle >= 1 && _cycle < 258)
                         {
-                            if (!_status.sprite0Hit)
-                                std::cerr << "sprite0 hit @ scanline " << std::dec << _scanline
-                                        << " cycle " << _cycle << "\n";
-
                             _status.sprite0Hit = 1;
                         }
                     }

@@ -131,8 +131,6 @@ int main(int argc, char **argv)
 
         // Poll pad 1 and hand it to the bus before clocking the frame
         uint8_t s = display->GetController1State();
-        if (s) std::cerr << "pad: " << std::hex << (int)s << "\n";
-        
         bus->SetControllerState(0, s);
 
         // Clock the system until frame is complete

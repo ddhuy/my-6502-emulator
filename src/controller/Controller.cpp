@@ -15,8 +15,6 @@ void Controller::Write(uint8_t data)
     if (_strobe)
     {
         _shift = _buttons; // while strob is high, register tracks live state
-        if (_buttons)
-            std::cerr << "latch buttons=0x" << std::hex << (int)_buttons << "\n";
     }
 }
 

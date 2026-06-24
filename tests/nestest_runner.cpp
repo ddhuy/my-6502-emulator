@@ -6,6 +6,7 @@
 
 #include "bus/Bus.h"
 #include "cpu/Instructions.h"
+#include "utils/Logger.h"
 
 
 class NESTestRunner
@@ -37,7 +38,7 @@ public:
         std::ifstream file(filename, std::ios::binary);
         if (!file)
         {
-            std::cerr << "Could not open NES file: " << filename << std::endl;
+            LOG_ERROR("Could not open NES file: %s", filename);
             return false;
         }
 
@@ -47,7 +48,7 @@ public:
 
         if (header[0] != 'N' || header[1] != 'E' || header[2] != 'S' || header[3] != 0x1A)
         {
-            std::cerr << "Invalid NES ROM header" << std::endl;
+            LOG_ERROR("Invalid NES ROM header");
             return false;
         }
 
@@ -65,7 +66,7 @@ public:
             cpu.WriteMemory(0xC000 + i, prgRom[i]);
         }
 
-        std::cout << "Loaded " << prgSize << " bytes of PRG ROM" << std::endl;
+        LOG_INFO("Loaded %d bytes of PRG ROM", prgSize);
         return true;
     }
 
@@ -260,11 +261,11 @@ public:
         logFile.open("my_nestest.log");
         if (!logFile)
         {
-            std::cerr << "Failed to create log file" << std::endl;
+            LOG_ERROR("Failed to create log file");
             return false;
         }
 
-        std::cout << "Running nestest from 0xC000..." << std::endl;
+        LOG_INFO("Starting nestest at PC: 0x%04X", cpu.PC);
 
         const int MAX_INSTRUCTIONS = 30000;
         uint16_t currentPC = 0;
@@ -278,25 +279,23 @@ public:
             // Check for infinite looping (test complete)
             if (currentPC == 0xC66E)
             {
-                std::cout << "\nTest completed at PC: 0x" << std::hex << currentPC << std::endl;
-                std::cout << "Final A register: 0x" << std::hex << (int) cpu.A << std::endl;
+                LOG_INFO("Test completed at PC: 0x%04X", currentPC);
+                LOG_INFO("Final A register: 0x%02X", (int)cpu.A);
 
                 logFile.close();
 
                 if (cpu.PC == 0xC66E && cpu.A == 0x00)
                 {
-                    std::cout << "\nSUCCESS! All tests passed." << std::endl;
-                    std::cout << "  PC = 0xC66E (expected)" << std::endl;
-                    std::cout << "  A  = 0x00 (no errors)" << std::endl;
+                    LOG_INFO("SUCCESS! All tests passed.");
+                    LOG_INFO("  PC = 0xC66E (expected)");
+                    LOG_INFO("  A  = 0x00 (no errors)");
                     return true;
                 }
                 else
                 {
-                    std::cout << "FAILED! Error code: 0x" << std::hex << cpu.A << std::endl;
-                    std::cout << "  Expected: PC=0xC66E, A=0x00" << std::endl;
-                    std::cout << "  Got:      PC=0x" << std::hex << currentPC 
-                                << ", A=0x" << (int)cpu.A << std::endl;
-                    std::cout << "  Error code in A: 0x" << (int)cpu.A << std::endl;
+                    LOG_ERROR("FAILED! Error code: 0x%02X", (int)cpu.A);
+                    LOG_ERROR("  Expected: PC=0xC66E, A=0x00");
+                    LOG_ERROR("  Got:      PC=0x%04X, A=0x%02X", currentPC, (int)cpu.A);
                     return false;
                 }
             }
@@ -308,17 +307,15 @@ public:
             // Program indicator
             if (instructionCount % 1000 == 0)
             {
-                std::cout << "." << std::flush;
+                LOG_INFO("Executed %d instructions", instructionCount);
             }
         }
 
         logFile.close();
-        std::cout << "\nTest did not complete within " << MAX_INSTRUCTIONS
-                  << " instructions" << std::endl;
-        std::cout << "  Expected: PC=0xC66E, A=0x00" << std::endl;
-        std::cout << "  Got:      PC=0x" << std::hex << currentPC 
-                    << ", A=0x" << (int)cpu.A << std::endl;
-        std::cout << "  Error code in A: 0x" << (int)cpu.A << std::endl;
+        LOG_INFO("\nTest did not complete within %d instructions", MAX_INSTRUCTIONS);
+        LOG_INFO("  Expected: PC=0xC66E, A=0x00");
+        LOG_INFO("  Got:      PC=0x%04X, A=0x%02X", currentPC, (int)cpu.A);
+        LOG_INFO("  Error code in A: 0x%02X", (int)cpu.A);
         return false;
     }
 };
@@ -332,27 +329,26 @@ int main(int argc, char** argv)
     else
         romFile = "nestest.nes";
 
-
-    std::cout << "============================================" << std::endl;
-    std::cout << "NES Test ROM Runner" << std::endl;
-    std::cout << "============================================" << std::endl;
+    LOG_INFO("============================================");
+    LOG_INFO("NES Test ROM Runner");
+    LOG_INFO("============================================");
 
     NESTestRunner nestest_runner;
 
     if (!nestest_runner.LoadROM(romFile))
     {
-        std::cerr << "Failed to load nestest.nes" << std::endl;
+        LOG_ERROR("Failed to load nestest.nes");
         return 2;
     }
 
     bool success = nestest_runner.Run();
 
-    std::cout << "\n============================================" << std::endl;
-    std::cout << "Compare output with golden log:" << std::endl;
-    std::cout << "  diff nestest.log my_nestest.log" << std::endl;
-    std::cout << "\nOr use:" << std::endl;
-    std::cout << "  diff nestest.log my_nestest.log | head -20" << std::endl;
-    std::cout << "============================================" << std::endl;
+    LOG_INFO("============================================");
+    LOG_INFO("Comparison with golden log (nestest.log):");
+    LOG_INFO("  diff nestest.log my_nestest.log");
+    LOG_INFO("Or use:");
+    LOG_INFO("  diff nestest.log my_nestest.log | head -20");
+    LOG_INFO("============================================");
 
     return success ? 0 : 3;
 }
