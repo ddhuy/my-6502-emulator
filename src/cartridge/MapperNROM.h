@@ -7,7 +7,7 @@
 class MapperNROM : public Mapper
 {
 public:
-    MapperNROM(uint8_t prgBanks, uint8_t chrBanks);
+    MapperNROM(uint8_t prgBanks, uint8_t chrBanks, MirrorMode mirror);
     virtual ~MapperNROM() override = default;
 
     virtual bool CPUMapRead(uint16_t address, uint32_t &mappedAddress) override;

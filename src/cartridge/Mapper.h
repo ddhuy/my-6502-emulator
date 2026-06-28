@@ -4,11 +4,13 @@
 #include <cstdint>
 #include <vector>
 
+#include "MirrorMode.h"
+
 // Base class for all mappers
 class Mapper
 {
 public:
-    Mapper(uint8_t prgBanks, uint8_t chrBanks);
+    Mapper(uint8_t prgBanks, uint8_t chrBanks, MirrorMode mirror = MIRROR_MODE_HORIZONTAL);
     virtual ~Mapper() = default;
 
     // CPU Memory mapping (PRG)
@@ -27,10 +29,12 @@ public:
     virtual void IRQClear() {}
     virtual void Scanline() {} // Called once per scanline
 
+    virtual MirrorMode GetMirrorMode() const { return MIRROR_MODE_HORIZONTAL; }
+
 protected:
     uint8_t _prgBanks; // Number of PRG-ROM banks
     uint8_t _chrBanks; // Number of CHR-ROM banks
-
+    MirrorMode _mirrorMode;
 };
 
 #endif // MAPPER_H

@@ -6,8 +6,8 @@
 #include "utils/Logger.h"
 
 
-MapperCNROM::MapperCNROM(uint8_t prgBanks, uint8_t chrBanks)
-    : Mapper(prgBanks, chrBanks)
+MapperCNROM::MapperCNROM(uint8_t prgBanks, uint8_t chrBanks, MirrorMode mirror)
+    : Mapper(prgBanks, chrBanks, mirror)
 {
 }
 

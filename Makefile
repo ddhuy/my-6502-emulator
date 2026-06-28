@@ -99,7 +99,7 @@ run-tests: tests
 	
 	@echo "-------------------------"
 	@echo "Running NES Tests"
-	@cp -v $(TEST_DIR)/nestest.nes $(TEST_BIN_DIR)/
+	@cp -v nes/nestest.nes $(TEST_BIN_DIR)/
 	$(NES_TEST_BIN) $(TEST_BIN_DIR)/nestest.nes
 	
 	@echo "-------------------------"

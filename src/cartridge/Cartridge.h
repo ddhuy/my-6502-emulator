@@ -6,20 +6,11 @@
 #include <vector>
 #include <memory>
 
+#include "MirrorMode.h"
+
 
 // Forward declarations
 class Mapper;
-
-
-// Mirroring modes
-enum MirrorMode
-{
-    MIRROR_MODE_HORIZONTAL,
-    MIRROR_MODE_VERTICAL,
-    MIRROR_MODE_FOUR_SCREEN,
-    MIRROR_MODE_ONE_SCREEN_LOWER,
-    MIRROR_MODE_ONE_SCREEN_UPPER
-};
 
 
 class Cartridge
@@ -40,7 +31,7 @@ public:
     void PPUWrite(uint16_t address, uint8_t data);
 
     // Get mirroring mode
-    MirrorMode GetMirrorMode() const { return _mirrorMode; }
+    MirrorMode GetMirrorMode() const;
 
     // Check if cartridge is loaded
     bool IsLoaded() const { return _loaded; }

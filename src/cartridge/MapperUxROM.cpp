@@ -6,8 +6,8 @@
 #include "utils/Logger.h"
 
 
-MapperUxROM::MapperUxROM(uint8_t prgBanks, uint8_t chrBanks)
-    : Mapper(prgBanks, chrBanks)
+MapperUxROM::MapperUxROM(uint8_t prgBanks, uint8_t chrBanks, MirrorMode mirror)
+    : Mapper(prgBanks, chrBanks, mirror)
 {
     LOG_INFO("MapperUxROM created: prgBanks=%d", (int)prgBanks);
 }

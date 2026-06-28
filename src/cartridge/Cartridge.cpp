@@ -5,9 +5,11 @@
 
 #include "Cartridge.h"
 #include "Mapper.h"
-#include "MapperNROM.h"
-#include "MapperUxROM.h"
 #include "MapperCNROM.h"
+#include "MapperNROM.h"
+#include "MapperMMC1.h"
+#include "MapperUxROM.h"
+#include "MirrorMode.h"
 #include "utils/Logger.h"
 
 
@@ -24,6 +26,13 @@ Cartridge::Cartridge()
 
 Cartridge::~Cartridge()
 {
+}
+
+MirrorMode Cartridge::GetMirrorMode() const
+{
+    if (_mapper)
+        return _mapper->GetMirrorMode();
+    return _mirrorMode;    // Fallback to header value
 }
 
 bool Cartridge::LoadFromFile(const std::string &filename)
@@ -102,13 +111,16 @@ bool Cartridge::LoadFromFile(const std::string &filename)
     switch (_mapperNumber)
     {
         case 0:
-            _mapper = std::make_unique<MapperNROM>(_prgRomBanks, _chrRomBanks);
+            _mapper = std::make_unique<MapperNROM>(_prgRomBanks, _chrRomBanks, _mirrorMode);
+            break;
+        case 1:
+            _mapper = std::make_unique<MapperMMC1>(_prgRomBanks, _chrRomBanks);
             break;
         case 2:
-            _mapper = std::make_unique<MapperUxROM>(_prgRomBanks, _chrRomBanks);
+            _mapper = std::make_unique<MapperUxROM>(_prgRomBanks, _chrRomBanks, _mirrorMode);
             break;
         case 3:
-            _mapper = std::make_unique<MapperCNROM>(_prgRomBanks, _chrRomBanks);
+            _mapper = std::make_unique<MapperCNROM>(_prgRomBanks, _chrRomBanks, _mirrorMode);
             break;
         default:
             LOG_ERROR("Unsupported mapper: %d", (int)_mapperNumber);

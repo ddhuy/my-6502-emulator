@@ -7,7 +7,7 @@
 class MapperUxROM : public Mapper
 {
 public:
-    MapperUxROM(uint8_t prgBanks, uint8_t chrBanks);
+    MapperUxROM(uint8_t prgBanks, uint8_t chrBanks, MirrorMode mirror);
     virtual ~MapperUxROM() override = default;
 
     virtual bool CPUMapRead(uint16_t address, uint32_t &mappedAddress) override;
