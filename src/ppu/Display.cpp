@@ -150,8 +150,8 @@ uint8_t Display::GetController1State() const
     uint8_t state = 0x00;
     const uint8_t* keys = SDL_GetKeyboardState(nullptr);
 
-    if (keys[SDL_SCANCODE_Z])      state |= Controller::Button::A;
-    if (keys[SDL_SCANCODE_X])      state |= Controller::Button::B;
+    if (keys[SDL_SCANCODE_X])      state |= Controller::Button::A;
+    if (keys[SDL_SCANCODE_C])      state |= Controller::Button::B;
     if (keys[SDL_SCANCODE_RSHIFT]) state |= Controller::Button::SELECT;
     if (keys[SDL_SCANCODE_RETURN]) state |= Controller::Button::START;
     if (keys[SDL_SCANCODE_UP])     state |= Controller::Button::UP;
