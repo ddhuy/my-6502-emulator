@@ -2,10 +2,6 @@
 #include "utils/Logger.h"
 
 
-#include "MapperUxROM.h"
-#include "utils/Logger.h"
-
-
 MapperUxROM::MapperUxROM(uint8_t prgBanks, uint8_t chrBanks, MirrorMode mirror)
     : Mapper(prgBanks, chrBanks, mirror)
 {
@@ -17,7 +13,7 @@ bool MapperUxROM::CPUMapRead(uint16_t address, uint32_t &mappedAddress)
     LOG_DEBUG("address=0x%04x  mappedAddress=0x%04x", address, mappedAddress);
 
     // Switchable PRG-ROM bank at $8000-$BFFF
-    if (0x8000 <= address && address < 0xBFFF)
+    if (0x8000 <= address && address <= 0xBFFF)
     {
         mappedAddress = (uint32_t)(_prgBankSelect * 0x4000) + (address & 0x3FFF);
         return true;

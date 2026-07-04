@@ -29,7 +29,7 @@ public:
     virtual void IRQClear() {}
     virtual void Scanline() {} // Called once per scanline
 
-    virtual MirrorMode GetMirrorMode() const { return MIRROR_MODE_HORIZONTAL; }
+    virtual MirrorMode GetMirrorMode() const { return _mirrorMode; }
 
 protected:
     uint8_t _prgBanks; // Number of PRG-ROM banks

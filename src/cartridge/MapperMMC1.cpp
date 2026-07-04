@@ -11,7 +11,7 @@ MapperMMC1::MapperMMC1(uint8_t prgBanks, uint8_t chrBanks)
       _prgBank(0),
       _prgMode(3),           // decoded from _controlReg bits 2-3
       _chrMode(0),           // decoded from _controlReg bit 4
-      _mirrorMode(MIRROR_MODE_HORIZONTAL)
+      _mirrorMode(MirrorMode::MIRROR_MODE_HORIZONTAL)
 {
     // Allocate CHR-RAM if no CHR-ROM banks
     if (_chrBanks == 0)
@@ -28,7 +28,7 @@ void MapperMMC1::Reset()
     _prgBank        = 0;
     _prgMode        = 3;
     _chrMode        = 0;
-    _mirrorMode     = MIRROR_MODE_HORIZONTAL;
+    _mirrorMode     = MirrorMode::MIRROR_MODE_HORIZONTAL;
 }
 
 void MapperMMC1::ApplyRegister(uint16_t address, uint8_t data)
@@ -45,10 +45,10 @@ void MapperMMC1::ApplyRegister(uint16_t address, uint8_t data)
 
             switch (_controlReg & 0x03)
             {
-                case 0: _mirrorMode = MIRROR_MODE_ONE_SCREEN_LOWER; break;
-                case 1: _mirrorMode = MIRROR_MODE_ONE_SCREEN_UPPER; break;
-                case 2: _mirrorMode = MIRROR_MODE_VERTICAL;         break;
-                case 3: _mirrorMode = MIRROR_MODE_HORIZONTAL;       break;
+                case 0: _mirrorMode = MirrorMode::MIRROR_MODE_ONE_SCREEN_LOWER; break;
+                case 1: _mirrorMode = MirrorMode::MIRROR_MODE_ONE_SCREEN_UPPER; break;
+                case 2: _mirrorMode = MirrorMode::MIRROR_MODE_VERTICAL;         break;
+                case 3: _mirrorMode = MirrorMode::MIRROR_MODE_HORIZONTAL;       break;
             }
             break;
 
