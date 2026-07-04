@@ -21,6 +21,9 @@ public:
     void HandleEvents();
     void Shutdown();
 
+    void OpenGamepad(int deviceIndex);
+    void CloseGamepad();
+
     // Read the keyboard and pack it into an NES controller byte.
     uint8_t GetController1State() const;
 
@@ -31,6 +34,7 @@ private:
     SDL_Window* _window;
     SDL_Renderer* _renderer;
     SDL_Texture* _texture;
+    SDL_GameController* _controller1;
 
     const char* _title;
     int _windowWidth;

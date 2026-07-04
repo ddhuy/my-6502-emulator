@@ -42,7 +42,7 @@ Display::~Display()
 
 bool Display::Init()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
     {
         LOG_ERROR("SDL initialization failed: %s", SDL_GetError());
         return false;
@@ -134,6 +134,17 @@ void Display::HandleEvents()
                 if (event.key.keysym.sym == SDLK_ESCAPE)
                     _running = false;
                 break;
+
+            case SDL_CONTROLLERDEVICEADDED:
+                OpenGamepad(event.cdevice.which);
+                break;
+
+            case SDL_CONTROLLERDEVICEREMOVED:
+                if (_controller1
+                    && SDL_GameControllerGetJoystick(_controller1) == SDL_JoystickFromInstanceID(event.cdevice.which))
+                {
+                    CloseGamepad();
+                }
         }
     }
 }
@@ -159,5 +170,72 @@ uint8_t Display::GetController1State() const
     if (keys[SDL_SCANCODE_LEFT])   state |= Controller::Button::LEFT;
     if (keys[SDL_SCANCODE_RIGHT])  state |= Controller::Button::RIGHT;
 
+    if (_controller1)
+    {
+        auto btn = [this](SDL_GameControllerButton b) {
+            return SDL_GameControllerGetButton(_controller1, b) != 0;
+        };
+
+        if (btn(SDL_CONTROLLER_BUTTON_A))          state |= Controller::Button::A;
+        if (btn(SDL_CONTROLLER_BUTTON_X))          state |= Controller::Button::B;
+        if (btn(SDL_CONTROLLER_BUTTON_BACK))       state |= Controller::Button::SELECT;
+        if (btn(SDL_CONTROLLER_BUTTON_START))      state |= Controller::Button::START;
+        if (btn(SDL_CONTROLLER_BUTTON_DPAD_UP))    state |= Controller::Button::UP;
+        if (btn(SDL_CONTROLLER_BUTTON_DPAD_DOWN))  state |= Controller::Button::DOWN;
+        if (btn(SDL_CONTROLLER_BUTTON_DPAD_LEFT))  state |= Controller::Button::LEFT;
+        if (btn(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) state |= Controller::Button::RIGHT;
+
+        if (btn(SDL_CONTROLLER_BUTTON_PADDLE1))
+            LOG_INFO("PADDLE1 pressed");
+        if (btn(SDL_CONTROLLER_BUTTON_PADDLE2))
+            LOG_INFO("PADDLE2 pressed");
+        if (btn(SDL_CONTROLLER_BUTTON_PADDLE3))
+            LOG_INFO("PADDLE3 pressed");
+        if (btn(SDL_CONTROLLER_BUTTON_PADDLE4))
+            LOG_INFO("PADDLE4 pressed");
+
+        // Left stick as d-pad fallback
+        const int16_t DEADZONE = 8000;
+        int16_t lx = SDL_GameControllerGetAxis(_controller1, SDL_CONTROLLER_AXIS_LEFTX);
+        int16_t ly = SDL_GameControllerGetAxis(_controller1, SDL_CONTROLLER_AXIS_LEFTY);
+        if (lx < -DEADZONE) state |= Controller::Button::LEFT;
+        if (lx >  DEADZONE) state |= Controller::Button::RIGHT;
+        if (ly < -DEADZONE) state |= Controller::Button::UP;
+        if (ly >  DEADZONE) state |= Controller::Button::DOWN;
+    }
+
     return state;
+}
+
+void Display::OpenGamepad(int deviceIndex)
+{
+    if (_controller1)
+        return; // Already opened
+
+    if (SDL_IsGameController(deviceIndex))
+    {
+        _controller1 = SDL_GameControllerOpen(deviceIndex);
+        if (_controller1)
+        {
+            LOG_INFO("Gamepad connected: %s", SDL_GameControllerName(_controller1));
+        }
+        else
+        {
+            LOG_ERROR("Failed to open game controller: %s", SDL_GetError());
+        }
+    }
+    else
+    {
+        LOG_WARN("Device at index %d is not a game controller", deviceIndex);
+    }
+}
+
+void Display::CloseGamepad()
+{
+    if (_controller1)
+    {
+        SDL_GameControllerClose(_controller1);
+        _controller1 = nullptr;
+        LOG_INFO("Gamepad disconnected");
+    }
 }
