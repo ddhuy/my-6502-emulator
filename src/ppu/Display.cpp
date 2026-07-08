@@ -27,10 +27,19 @@ Display::Display(const char* title, int width, int height, int scale)
     _windowHeight = height * scale;
     _scale = scale;
     _running = false;
+    _gamepads.fill(nullptr);
 }
 
 Display::~Display()
 {
+    for (auto& controller : _gamepads)
+    {
+        if (controller)
+        {
+            SDL_GameControllerClose(controller);
+            controller = nullptr;
+        }
+    }
     if (_texture)
         SDL_DestroyTexture(_texture);
     if (_renderer)
@@ -140,11 +149,7 @@ void Display::HandleEvents()
                 break;
 
             case SDL_CONTROLLERDEVICEREMOVED:
-                if (_controller1
-                    && SDL_GameControllerGetJoystick(_controller1) == SDL_JoystickFromInstanceID(event.cdevice.which))
-                {
-                    CloseGamepad();
-                }
+                CloseGamepad(event.cdevice.which);
                 break;
 
             case SDL_CONTROLLERBUTTONDOWN:
@@ -169,26 +174,70 @@ void Display::Shutdown()
     SDL_Quit();
 }
 
-uint8_t Display::GetController1State() const
+uint8_t Display::GetControllerState(int deviceIndex) const
 {
+    if (deviceIndex < 0 || deviceIndex >= MAX_PLAYERS)
+    {
+        LOG_WARN("Invalid controller index: %d", deviceIndex);
+        return 0x00;
+    }
+
+    // Keyboard mapping per player, indexed to match the button masks below
+    // Player 1: X(A), C(B), RSHIFT(SELECT), RETURN(START), ARROWS(DPAD)
+    // Player 2: J(A), K(B), U(SELECT), I(START), WASD(DPAD)
+    static const uint8_t buttonMasks[8] = {
+        Controller::Button::A,
+        Controller::Button::B,
+        Controller::Button::SELECT,
+        Controller::Button::START,
+        Controller::Button::UP,
+        Controller::Button::DOWN,
+        Controller::Button::LEFT,
+        Controller::Button::RIGHT
+    };
+
+    static const SDL_Scancode keymap[MAX_PLAYERS][8] = {
+        {
+            SDL_SCANCODE_X,      // A
+            SDL_SCANCODE_C,      // B
+            SDL_SCANCODE_RSHIFT, // SELECT
+            SDL_SCANCODE_RETURN, // START
+            SDL_SCANCODE_UP,     // UP
+            SDL_SCANCODE_DOWN,   // DOWN
+            SDL_SCANCODE_LEFT,   // LEFT
+            SDL_SCANCODE_RIGHT   // RIGHT
+        },
+        { 
+            SDL_SCANCODE_J,      // A
+            SDL_SCANCODE_K,      // B
+            SDL_SCANCODE_U,      // SELECT
+            SDL_SCANCODE_I,      // START
+            SDL_SCANCODE_W,      // UP
+            SDL_SCANCODE_S,      // DOWN
+            SDL_SCANCODE_A,      // LEFT
+            SDL_SCANCODE_D       // RIGHT
+        }
+    };
+
     uint8_t state = 0x00;
     const uint8_t* keys = SDL_GetKeyboardState(nullptr);
 
-    if (keys[SDL_SCANCODE_X])      state |= Controller::Button::A;
-    if (keys[SDL_SCANCODE_C])      state |= Controller::Button::B;
-    if (keys[SDL_SCANCODE_RSHIFT]) state |= Controller::Button::SELECT;
-    if (keys[SDL_SCANCODE_RETURN]) state |= Controller::Button::START;
-    if (keys[SDL_SCANCODE_UP])     state |= Controller::Button::UP;
-    if (keys[SDL_SCANCODE_DOWN])   state |= Controller::Button::DOWN;
-    if (keys[SDL_SCANCODE_LEFT])   state |= Controller::Button::LEFT;
-    if (keys[SDL_SCANCODE_RIGHT])  state |= Controller::Button::RIGHT;
-
-    if (_controller1)
+    for (int i = 0; i < 8; ++i)
     {
-        auto btn = [this](SDL_GameControllerButton b) {
-            return SDL_GameControllerGetButton(_controller1, b) != 0;
-        };
+        if (keys[keymap[deviceIndex][i]])
+        {
+            state |= buttonMasks[i];
+        }
+    }
 
+    SDL_GameController* controller = _gamepads[deviceIndex];
+    if (controller)
+    {
+        // Map SDL controller buttons to NES controller buttons
+        auto btn = [controller](SDL_GameControllerButton b) {
+            return SDL_GameControllerGetButton(controller, b) != 0;
+        };
+    
         if (btn(SDL_CONTROLLER_BUTTON_A))          state |= Controller::Button::A;
         if (btn(SDL_CONTROLLER_BUTTON_X))          state |= Controller::Button::B;
         if (btn(SDL_CONTROLLER_BUTTON_BACK))       state |= Controller::Button::SELECT;
@@ -200,8 +249,10 @@ uint8_t Display::GetController1State() const
 
         // Left stick as d-pad fallback
         const int16_t DEADZONE = 8000;
-        int16_t lx = SDL_GameControllerGetAxis(_controller1, SDL_CONTROLLER_AXIS_LEFTX);
-        int16_t ly = SDL_GameControllerGetAxis(_controller1, SDL_CONTROLLER_AXIS_LEFTY);
+
+        int16_t lx = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+        int16_t ly = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+
         if (lx < -DEADZONE) state |= Controller::Button::LEFT;
         if (lx >  DEADZONE) state |= Controller::Button::RIGHT;
         if (ly < -DEADZONE) state |= Controller::Button::UP;
@@ -213,33 +264,44 @@ uint8_t Display::GetController1State() const
 
 void Display::OpenGamepad(int deviceIndex)
 {
-    if (_controller1)
-        return; // Already opened
-
-    if (SDL_IsGameController(deviceIndex))
+    if (!SDL_IsGameController(deviceIndex))
     {
-        _controller1 = SDL_GameControllerOpen(deviceIndex);
-        if (_controller1)
+        LOG_WARN("Device at index %d is not a game controller", deviceIndex);
+        return;
+    }
+
+    // Assign the new device to the first available slot
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+        if (_gamepads[i])
+            continue;
+
+        _gamepads[i] = SDL_GameControllerOpen(deviceIndex);
+        if (_gamepads[i])
         {
-            LOG_INFO("Gamepad connected: %s", SDL_GameControllerName(_controller1));
+            LOG_INFO("Gamepad %d connected: %s", i, SDL_GameControllerName(_gamepads[i]));
         }
         else
         {
-            LOG_ERROR("Failed to open game controller: %s", SDL_GetError());
+            LOG_ERROR("Failed to open game controller at index %d: %s", deviceIndex, SDL_GetError());
         }
+        return;
     }
-    else
-    {
-        LOG_WARN("Device at index %d is not a game controller", deviceIndex);
-    }
+
+    LOG_WARN("Ignoring gamepad at index %d: all player slots are in use", deviceIndex);
 }
 
-void Display::CloseGamepad()
+void Display::CloseGamepad(int deviceIndex)
 {
-    if (_controller1)
+    for (int i = 0; i < MAX_PLAYERS; ++i)
     {
-        SDL_GameControllerClose(_controller1);
-        _controller1 = nullptr;
-        LOG_INFO("Gamepad disconnected");
+        SDL_GameController* controller = _gamepads[i];
+        if (controller && SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller)) == deviceIndex)
+        {
+            LOG_INFO("Gamepad %d disconnected: %s", i, SDL_GameControllerName(controller));
+            SDL_GameControllerClose(controller);
+            _gamepads[i] = nullptr;
+            return;
+        }
     }
 }

@@ -22,19 +22,23 @@ public:
     void Shutdown();
 
     void OpenGamepad(int deviceIndex);
-    void CloseGamepad();
+    void CloseGamepad(int deviceIndex);
 
-    // Read the keyboard and pack it into an NES controller byte.
-    uint8_t GetController1State() const;
+    // Read keyboard + gamepad for one player (0 or 1) and pack it
+    // into an NES controller byte.
+    uint8_t GetControllerState(int deviceIndex) const;
 
     static constexpr int NES_WIDTH = 256;
     static constexpr int NES_HEIGHT = 240;
+    static constexpr int MAX_PLAYERS = 2;
 
 private:
     SDL_Window* _window;
     SDL_Renderer* _renderer;
     SDL_Texture* _texture;
-    SDL_GameController* _controller1;
+
+    // One gamepad slot per player; slot 0 = player 1, slot 1 = player 2
+    std::array<SDL_GameController*, MAX_PLAYERS> _gamepads;
 
     const char* _title;
     int _windowWidth;

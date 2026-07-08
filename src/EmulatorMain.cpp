@@ -129,9 +129,9 @@ int main(int argc, char **argv)
         // Handle input events
         display->HandleEvents();
 
-        // Poll pad 1 and hand it to the bus before clocking the frame
-        uint8_t s = display->GetController1State();
-        bus->SetControllerState(0, s);
+        // Poll both gamepads and hand them to the bus before clocking the frame
+        bus->SetControllerState(0, display->GetControllerState(0));
+        bus->SetControllerState(1, display->GetControllerState(1));
 
         // Clock the system until frame is complete
         do
