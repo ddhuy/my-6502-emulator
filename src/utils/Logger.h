@@ -88,6 +88,9 @@ public:
     // Get statistics
     uint64_t GetLogCount() const { return logCount; }
     uint64_t GetErrorCount() const { return errorCount; }
+
+    // Cheap level check so call sites can skip expensive formatting
+    bool IsLevelEnabled(LogLevel level) const { return level >= currentLevel; }
     
 private:
     Logger();
@@ -121,20 +124,20 @@ private:
     std::mutex logMutex;  // Thread safety
 };
 
-// Convenience macros
-// #define LOG_TRACE(msg) Logger::GetInstance().Trace(msg)
-// #define LOG_DEBUG(msg) Logger::GetInstance().Debug(msg)
-// #define LOG_INFO(msg)  Logger::GetInstance().Info(msg)
-// #define LOG_WARN(msg)  Logger::GetInstance().Warn(msg)
-// #define LOG_ERROR(msg) Logger::GetInstance().Error(msg)
-// #define LOG_FATAL(msg) Logger::GetInstance().Fatal(msg)
+// Check if a log level is enabled before formatting
+#define LOG_AT_LEVEL(level, method, ...) \
+    do { \
+        if (Logger::GetInstance().IsLevelEnabled(level)) { \
+            Logger::GetInstance().method(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); \
+        } \
+    } while(0)
 
 // Formatted logging macros
-#define LOG_TRACE(...) Logger::GetInstance().TraceF(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_DEBUG(...) Logger::GetInstance().DebugF(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_INFO(...)  Logger::GetInstance().InfoF(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_WARN(...)  Logger::GetInstance().WarnF(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_ERROR(...) Logger::GetInstance().ErrorF(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define LOG_FATAL(...) Logger::GetInstance().FatalF(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define LOG_TRACE(...) LOG_AT_LEVEL(LogLevel::TRACE, TraceF, __VA_ARGS__)
+#define LOG_DEBUG(...) LOG_AT_LEVEL(LogLevel::DEBUG, DebugF, __VA_ARGS__)
+#define LOG_INFO(...)  LOG_AT_LEVEL(LogLevel::INFO, InfoF, __VA_ARGS__)
+#define LOG_WARN(...)  LOG_AT_LEVEL(LogLevel::WARN, WarnF, __VA_ARGS__)
+#define LOG_ERROR(...) LOG_AT_LEVEL(LogLevel::ERROR, ErrorF, __VA_ARGS__)
+#define LOG_FATAL(...) LOG_AT_LEVEL(LogLevel::FATAL, FatalF, __VA_ARGS__)
 
 #endif // LOGGER_H
