@@ -43,6 +43,11 @@ public:
     // Reset Cartridge state
     void Reset();
 
+    // Mapper IRQ interface
+    bool IRQState();
+    void ClearIRQ();
+    void OnScanline(); // Called once per scanline
+
 private:
     // Parse iNES header
     bool ParseHeader(const std::vector<uint8_t> &romData);

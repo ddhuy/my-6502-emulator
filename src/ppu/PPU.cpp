@@ -416,6 +416,14 @@ void PPU::Clock()
         {
             TransferAddressY();
         }
+
+        // Notify mapper once per rendered scanline (for IRQ counter)
+        // Dot 260 approximates the PPU A12 rise during sprite pattern fetches.
+        if (_cycle == 260 && (_mask.showBg || _mask.showSprites))
+        {
+            if (_cartridge)
+                _cartridge->OnScanline();
+        }
         
         // Sprite fetching
         if (_cycle == 340) {

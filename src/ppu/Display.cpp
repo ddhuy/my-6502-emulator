@@ -145,6 +145,19 @@ void Display::HandleEvents()
                 {
                     CloseGamepad();
                 }
+                break;
+
+            case SDL_CONTROLLERBUTTONDOWN:
+                LOG_DEBUG("Controller button pressed: %d", event.cbutton.button);
+                break;
+
+            case SDL_JOYAXISMOTION:
+                LOG_DEBUG("Controller axis motion: axis=%d value=%d", event.jaxis.axis, event.jaxis.value);
+                break;
+
+            case SDL_JOYHATMOTION:
+                LOG_DEBUG("Controller hat motion: hat=%d value=%d", event.jhat.hat, event.jhat.value);
+                break;
         }
     }
 }
@@ -184,15 +197,6 @@ uint8_t Display::GetController1State() const
         if (btn(SDL_CONTROLLER_BUTTON_DPAD_DOWN))  state |= Controller::Button::DOWN;
         if (btn(SDL_CONTROLLER_BUTTON_DPAD_LEFT))  state |= Controller::Button::LEFT;
         if (btn(SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) state |= Controller::Button::RIGHT;
-
-        if (btn(SDL_CONTROLLER_BUTTON_PADDLE1))
-            LOG_INFO("PADDLE1 pressed");
-        if (btn(SDL_CONTROLLER_BUTTON_PADDLE2))
-            LOG_INFO("PADDLE2 pressed");
-        if (btn(SDL_CONTROLLER_BUTTON_PADDLE3))
-            LOG_INFO("PADDLE3 pressed");
-        if (btn(SDL_CONTROLLER_BUTTON_PADDLE4))
-            LOG_INFO("PADDLE4 pressed");
 
         // Left stick as d-pad fallback
         const int16_t DEADZONE = 8000;

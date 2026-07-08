@@ -153,6 +153,13 @@ void Bus::Clock()
         // _cpu->Interrupt(0xFFFA);
     }
 
+    // Check for IRQ from Cartridge
+    if (_cartridge && _cartridge->IRQState())
+    {
+        _cartridge->ClearIRQ();
+        _cpu->IRQ();
+    }
+
     // Increase Clock
     _systemClockCounter++;
 }

@@ -181,7 +181,7 @@ void CPU::Clock()
         }
         else if (_irqPending && !GetFlag(StatusFlag::F_INTERRUPT))
         {
-            LOG_INFO("IRQ Interrupt");
+            LOG_DEBUG("IRQ Interrupt");
             _irqPending = false;
             Interrupt(0xFFFE); // IRQ vector
         }

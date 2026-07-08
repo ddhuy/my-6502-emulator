@@ -19,7 +19,7 @@ bool MapperUxROM::CPUMapRead(uint16_t address, uint32_t &mappedAddress)
         return true;
     }
     // Fixed PRG-ROM bank at $C000-$FFFF (last bank)
-    else if (0xC000 <= address && address <= 0xFFFF)
+    else if (0xC000 <= address)
     {
         mappedAddress = (uint32_t)(_prgBanks - 1) * 0x4000 + (address & 0x3FFF);
         LOG_DEBUG("UxROM: prg_bank_select -> %d", _prgBankSelect);

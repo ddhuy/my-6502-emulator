@@ -8,6 +8,7 @@
 #include "MapperCNROM.h"
 #include "MapperNROM.h"
 #include "MapperMMC1.h"
+#include "MapperMMC3.h"
 #include "MapperUxROM.h"
 #include "MirrorMode.h"
 #include "utils/Logger.h"
@@ -122,6 +123,9 @@ bool Cartridge::LoadFromFile(const std::string &filename)
         case 3:
             _mapper = std::make_unique<MapperCNROM>(_prgRomBanks, _chrRomBanks, _mirrorMode);
             break;
+        case 4:
+            _mapper = std::make_unique<MapperMMC3>(_prgRomBanks, _chrRomBanks, _mirrorMode);
+            break;
         default:
             LOG_ERROR("Unsupported mapper: %d", (int)_mapperNumber);
             return false;
@@ -132,6 +136,23 @@ bool Cartridge::LoadFromFile(const std::string &filename)
     LOG_INFO("%s", GetRomInfo().c_str());
     
     return true;
+}
+
+void Cartridge::OnScanline()
+{
+    if (_mapper)
+        _mapper->Scanline();
+}
+
+void Cartridge::ClearIRQ()
+{
+    if (_mapper)
+        _mapper->IRQClear();
+}
+
+bool Cartridge::IRQState()
+{
+    return _mapper ? _mapper->IRQState() : false;
 }
 
 bool Cartridge::ParseHeader(const std::vector<uint8_t> &romData)
