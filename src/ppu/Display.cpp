@@ -238,8 +238,10 @@ uint8_t Display::GetControllerState(int deviceIndex) const
             return SDL_GameControllerGetButton(controller, b) != 0;
         };
     
-        if (btn(SDL_CONTROLLER_BUTTON_A))          state |= Controller::Button::A;
-        if (btn(SDL_CONTROLLER_BUTTON_X))          state |= Controller::Button::B;
+        if (btn(SDL_CONTROLLER_BUTTON_A) || btn(SDL_CONTROLLER_BUTTON_B))
+            state |= Controller::Button::A;
+        if (btn(SDL_CONTROLLER_BUTTON_X) || btn(SDL_CONTROLLER_BUTTON_Y))
+            state |= Controller::Button::B;
         if (btn(SDL_CONTROLLER_BUTTON_BACK))       state |= Controller::Button::SELECT;
         if (btn(SDL_CONTROLLER_BUTTON_START))      state |= Controller::Button::START;
         if (btn(SDL_CONTROLLER_BUTTON_DPAD_UP))    state |= Controller::Button::UP;
